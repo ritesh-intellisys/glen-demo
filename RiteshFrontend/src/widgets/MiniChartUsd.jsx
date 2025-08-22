@@ -3,6 +3,7 @@ import React, { useEffect, useRef, memo } from 'react';
 
 function Usd() {
   const container = useRef();
+  const scriptRef = useRef(null);
 
   useEffect(() => {
     if (!container.current) return;
@@ -16,6 +17,7 @@ function Usd() {
 
     // Create script element
     const script = document.createElement("script");
+    scriptRef.current = script;
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
     script.type = "text/javascript";
     script.async = true;
@@ -46,9 +48,14 @@ function Usd() {
     };
 
     return () => {
+      // Enhanced cleanup on unmount
       if (container.current) {
-        container.current.innerHTML = ""; // Cleanup on unmount
+        container.current.innerHTML = "";
       }
+      if (scriptRef.current && scriptRef.current.parentNode) {
+        scriptRef.current.parentNode.removeChild(scriptRef.current);
+      }
+      scriptRef.current = null;
     };
   }, []);
 

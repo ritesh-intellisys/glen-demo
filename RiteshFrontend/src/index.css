@@ -55,4 +55,11 @@
   .backdrop-blur-custom {
     backdrop-filter: blur(10px);
   }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

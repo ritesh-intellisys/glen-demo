@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 const TickerTape = () => {
   const containerRef = useRef(null);
+  const scriptRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -15,6 +16,7 @@ const TickerTape = () => {
 
     // Create script element
     const script = document.createElement("script");
+    scriptRef.current = script;
     script.type = "text/javascript";
     script.async = true;
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js";
@@ -49,9 +51,14 @@ const TickerTape = () => {
     };
 
     return () => {
+      // Enhanced cleanup on unmount
       if (containerRef.current) {
-        containerRef.current.innerHTML = ""; // Cleanup on unmount
+        containerRef.current.innerHTML = "";
       }
+      if (scriptRef.current && scriptRef.current.parentNode) {
+        scriptRef.current.parentNode.removeChild(scriptRef.current);
+      }
+      scriptRef.current = null;
     };
   }, []);
 

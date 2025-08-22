@@ -92,32 +92,33 @@ const HomePage = () => {
             <div className="space-y-8">
               <div className="inline-flex items-center bg-gradient-to-r from-sky-blue/20 to-golden/20 text-golden px-4 py-2 rounded-full shadow-lg animate-pulse">
                 <span>⚡ Trusted by 50,000+ Traders</span>
-              </div>
+            </div>
               <h1 className="text-5xl md:text-6xl font-bold">
                 <span className="text-white/80">Elevate Your</span>
                 <br />
                 <span className="text-golden bg-gradient-to-r from-golden to-white bg-clip-text text-transparent bg-300% animate-gradient">Trading Journey</span>
-              </h1>
+            </h1>
               <p className="text-xl text-white/70">
                 Experience the future of forex trading with cutting-edge technology and unwavering support.
               </p>
               <div className="flex flex-wrap gap-4">
                 <button className="bg-golden text-forest-green font-semibold px-8 py-4 rounded-xl hover:bg-golden/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-golden/30">
-                  Start Trading Now
+                  Register Live
                 </button>
                 <button className="bg-transparent border-2 border-sky-blue text-sky-blue font-semibold px-8 py-4 rounded-xl hover:bg-sky-blue/10 transition-all duration-300 transform hover:-translate-y-1">
-                  Try Demo Account
+                  Register Demo
                 </button>
               </div>
             </div>
             <div className="relative">
-              <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 p-8 rounded-2xl transform rotate-3 hover:rotate-0 transition-transform duration-700 shadow-xl hover:shadow-sky-blue/20 relative overflow-hidden">
+              <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 p-6 rounded-2xl shadow-xl relative overflow-hidden">
                 <div className="absolute -top-4 -right-4 w-28 h-28 bg-golden/10 rounded-full blur-xl"></div>
-                <div className="text-center space-y-4 relative z-10">
-                  <h3 className="text-2xl font-bold text-golden">EUR/USD</h3>
-                  <div className="text-3xl font-bold text-sky-blue">1.0856</div>
-                  <div className="text-green-400 animate-pulse">+0.12%</div>
-                </div>
+                <div className="relative z-10">
+                  
+                  <div className="w-full h-full">
+                    <MiniChartUsd />
+            </div>
+          </div>
               </div>
             </div>
           </div>
@@ -145,8 +146,8 @@ const HomePage = () => {
                   <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
                   <h3 className="text-xl font-bold mb-2 text-white">{feature.title}</h3>
                   <p className="text-white/70">{feature.desc}</p>
-                </div>
-              </div>
+          </div>
+          </div>
             ))}
           </div>
         </div>
@@ -189,12 +190,12 @@ const HomePage = () => {
                   <div className="flex justify-between py-2 border-b border-sky-blue/20">
                     <span className="text-white/80">Leverage</span>
                     <span className="font-semibold text-sky-blue">1:500</span>
-                  </div>
-                </div>
+        </div>
+          </div>
                 <button className="w-full bg-golden text-forest-green font-semibold px-6 py-3 rounded-xl hover:bg-golden/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-golden/30">
                   Get Started
                 </button>
-              </div>
+          </div>
             ))}
           </div>
         </div>
@@ -251,10 +252,10 @@ const HomePage = () => {
                 <button className="w-full bg-golden text-forest-green font-semibold px-6 py-3 rounded-xl hover:bg-golden/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-golden/30">
                   Claim Bonus
                 </button>
-              </div>
-            ))}
-          </div>
         </div>
+            ))}
+              </div>
+            </div>
       </section>
 
       {/* Trading Contests */}
@@ -294,15 +295,15 @@ const HomePage = () => {
                       <span className="text-white/80">Entry Fee</span>
                       <span className="font-semibold text-green-400">{contest.entry}</span>
                     </div>
-                  </div>
+              </div>
                   <button className="w-full bg-transparent border-2 border-sky-blue text-sky-blue font-semibold px-6 py-3 rounded-xl hover:bg-sky-blue/10 transition-all duration-300 transform hover:-translate-y-1">
                     Join Contest
                   </button>
-                </div>
-              </div>
-            ))}
+            </div>
           </div>
-        </div>
+            ))}
+              </div>
+            </div>
       </section>
 
       {/* Market Overview */}
@@ -318,7 +319,7 @@ const HomePage = () => {
           <div className="grid lg:grid-cols-2 gap-8">
             <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-sky-blue/10"> 
               <MiniChartUsd />
-            </div>
+              </div>
             <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-sky-blue/10">
               <MiniChartGold />
             </div>
@@ -366,10 +367,10 @@ const HomePage = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-white">Free Education</h3>
                     <p className="text-white/70">Access premium trading courses and webinars</p>
-                  </div>
-                </div>
+        </div>
               </div>
             </div>
+          </div>
             <div className="relative">
               <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 p-8 rounded-2xl transform rotate-3 hover:rotate-0 transition-all duration-700 shadow-xl hover:shadow-sky-blue/20 relative overflow-hidden">
                 <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-golden/10 rounded-full blur-xl"></div>
@@ -380,10 +381,10 @@ const HomePage = () => {
                   <div className="text-3xl font-bold text-sky-blue animate-pulse">50% OFF</div>
                   <p className="text-white/80">Premium Trading Tools</p>
                 </div>
+                  </div>
+                  </div>
               </div>
             </div>
-          </div>
-        </div>
       </section>
 
       {/* Download Section */}
@@ -400,7 +401,7 @@ const HomePage = () => {
                 Access your trading account from any device with our cutting-edge applications.
               </p>
               <div className="space-y-6">
-                <div>
+                  <div>
                   <h3 className="text-lg font-semibold mb-3 text-white">Mobile Trading</h3>
                   <div className="flex flex-wrap gap-4">
                     <button className="flex items-center space-x-3 bg-sky-blue/10 border border-sky-blue/20 rounded-xl px-6 py-4 hover:bg-sky-blue/20 transition-all duration-300 transform hover:-translate-y-1">
@@ -408,21 +409,21 @@ const HomePage = () => {
                       <div className="text-left">
                         <div className="font-semibold text-white">Google Play</div>
                         <div className="text-sm text-white/70">Download Now</div>
-                      </div>
-                    </button>
+                  </div>
+                </button>
                     <button className="flex items-center space-x-3 bg-sky-blue/10 border border-sky-blue/20 rounded-xl px-6 py-4 hover:bg-sky-blue/20 transition-all duration-300 transform hover:-translate-y-1">
                       <span className="text-2xl">🍎</span>
                       <div className="text-left">
                         <div className="font-semibold text-white">App Store</div>
                         <div className="text-sm text-white/70">Download Now</div>
-                      </div>
-                    </button>
                   </div>
-                </div>
+                </button>
+              </div>
+            </div>
               </div>
             </div>
             <div className="relative">
-              <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 p-8 rounded-2xl transform -rotate-6 hover:rotate-0 transition-all duration-700 shadow-xl hover:shadow-sky-blue/20 relative overflow-hidden">
+              <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 p-8 rounded-2xl  shadow-xl hover:shadow-sky-blue/20 relative overflow-hidden">
                 <div className="absolute -top-8 -right-8 w-28 h-28 bg-golden/10 rounded-full blur-xl"></div>
                 <div className="text-center space-y-4 relative z-10">
                   <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">📱</div>

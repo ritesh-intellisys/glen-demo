@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TickerTape from '../widgets/TickerTape';
 
-const Navbar = () => {
+const Navbar = ({ onSignInClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -9,6 +9,7 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -84,13 +85,16 @@ const Navbar = () => {
 
             {/* CTA Button */}
             <div className="hidden lg:block">
-              <button className="bg-golden text-forest-green font-semibold px-6 py-3 rounded-xl hover:bg-golden/90 transition-colors">
+              <button 
+                onClick={onSignInClick}
+                className="bg-golden text-forest-green font-semibold px-6 py-3 rounded-xl hover:bg-golden/90 transition-colors"
+              >
                 Sign In
               </button>
             </div>
 
             {/* Mobile Menu Button */}
-            <button 
+            <button
               className="lg:hidden p-2 rounded-lg hover:bg-sky-blue/20 transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
@@ -123,7 +127,10 @@ const Navbar = () => {
                 <a href="#contact" className="text-white/80 hover:text-golden font-medium transition-colors">
                   Contact
                 </a>
-                <button className="bg-golden text-forest-green font-semibold px-6 py-3 rounded-xl hover:bg-golden/90 transition-colors w-full">
+                <button 
+                  onClick={onSignInClick}
+                  className="bg-golden text-forest-green font-semibold px-6 py-3 rounded-xl hover:bg-golden/90 transition-colors w-full"
+                >
                   Sign In
                 </button>
               </div>
