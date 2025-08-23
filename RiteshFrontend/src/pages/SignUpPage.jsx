@@ -97,14 +97,14 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   ];
 
   const mobileCodes = [
-    { value: '+1', label: '🇺🇸 +1', country: 'United States' },
-    { value: '+44', label: '🇬🇧 +44', country: 'United Kingdom' },
-    { value: '+91', label: '🇮🇳 +91', country: 'India' },
-    { value: '+86', label: '🇨🇳 +86', country: 'China' },
-    { value: '+81', label: '🇯🇵 +81', country: 'Japan' },
-    { value: '+49', label: '🇩🇪 +49', country: 'Germany' },
-    { value: '+33', label: '🇫🇷 +33', country: 'France' },
-    { value: '+61', label: '🇦🇺 +61', country: 'Australia' }
+    { value: '+1', label: '+1', country: 'United States' },
+    { value: '+44', label: '+44', country: 'United Kingdom' },
+    { value: '+91', label: '+91', country: 'India' },
+    { value: '+86', label: '+86', country: 'China' },
+    { value: '+81', label: '+81', country: 'Japan' },
+    { value: '+49', label: '+49', country: 'Germany' },
+    { value: '+33', label: '+33', country: 'France' },
+    { value: '+61', label: '+61', country: 'Australia' }
   ];
 
   const indianStates = [
@@ -510,24 +510,25 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                  <select
                    value={formData.mobileCode}
                    onChange={(e) => handleInputChange('mobileCode', e.target.value)}
-                   className="w-24 px-3 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                   className="w-16 px-2 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all text-center"
+                   title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
                  >
                    {mobileCodes.map(code => (
-                     <option key={code.value} value={code.value}>{code.label}</option>
+                     <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
                    ))}
                  </select>
                  <input
                    type="tel"
                    value={formData.mobileNumber}
                    onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
-                   className="flex-1 px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                   className="flex-1 px-3 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
                    placeholder="Enter mobile number"
                  />
                  <button
                    type="button"
                    onClick={sendMobileOtp}
                    disabled={mobileOtpSent && mobileOtpTimer > 0}
-                   className="px-4 py-3 bg-golden text-white rounded-lg hover:bg-golden/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
+                   className="px-3 py-3 bg-golden text-white rounded-lg hover:bg-golden/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
                  >
                    {mobileOtpSent && mobileOtpTimer > 0 ? `${mobileOtpTimer}s` : 'Send OTP'}
                  </button>
