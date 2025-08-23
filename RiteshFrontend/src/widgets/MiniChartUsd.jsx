@@ -16,21 +16,21 @@ function Usd() {
     widgetContainer.className = "tradingview-widget-container__widget";
 
     // Create script element
-    const script = document.createElement("script");
+      const script = document.createElement("script");
     scriptRef.current = script;
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
-    script.type = "text/javascript";
-    script.async = true;
+      script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+      script.type = "text/javascript";
+      script.async = true;
     script.innerHTML = JSON.stringify({
-      "symbol": "CMCMARKETS:EURUSD",
-      "chartOnly": false,
-      "dateRange": "12M",
-      "noTimeScale": false,
-      "colorTheme": "dark",
+          "symbol": "CMCMARKETS:EURUSD",
+          "chartOnly": false,
+          "dateRange": "12M",
+          "noTimeScale": false,
+          "colorTheme": "dark",
       "isTransparent": true,
-      "locale": "en",
-      "width": "100%",
-      "autosize": true,
+          "locale": "en",
+          "width": "100%",
+          "autosize": true,
       "height": "300"
     });
 

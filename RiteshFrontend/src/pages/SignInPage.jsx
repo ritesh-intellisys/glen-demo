@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 
-const SignInPage = ({ onSignIn }) => {
+const SignInPage = ({ onSignIn, onSignUpClick }) => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password.trim()) return;
     
     setIsLoading(true);
     
-    // Simulate login process
+    // Simulate login process - accepts any email and password
     setTimeout(() => {
       setIsLoading(false);
       onSignIn(email);
@@ -18,12 +20,19 @@ const SignInPage = ({ onSignIn }) => {
   };
 
   return (
-    <div className="min-h-screen bg-forest-green flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-forest-green via-forest-green/95 to-sky-blue/5 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {/* Animated background elements */}
+      <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-golden/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-sky-blue/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-2/3 left-1/3 w-64 h-64 bg-forest-green/25 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-sky-blue to-golden rounded-2xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-sky-blue to-golden rounded-2xl flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-2xl">GC</span>
             </div>
           </div>
@@ -36,7 +45,7 @@ const SignInPage = ({ onSignIn }) => {
         </div>
 
         {/* Sign In Form */}
-        <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 rounded-2xl p-8">
+        <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 rounded-2xl p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
@@ -54,10 +63,64 @@ const SignInPage = ({ onSignIn }) => {
               />
             </div>
 
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/10 border border-sky-blue/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-blue/50 focus:border-transparent transition-all pr-12"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/50 hover:text-white/80 transition-colors"
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember Me and Forgot Password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-sky-blue focus:ring-sky-blue border-sky-blue/20 rounded bg-white/10"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-white/70">
+                  Remember me
+                </label>
+              </div>
+              <div className="text-sm">
+                <a href="#" className="text-sky-blue hover:text-sky-blue/80 transition-colors">
+                  Forgot password?
+                </a>
+              </div>
+            </div>
+
             <button
               type="submit"
-              disabled={isLoading || !email.trim()}
-              className="w-full bg-golden text-forest-green font-semibold py-3 px-4 rounded-xl hover:bg-golden/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              disabled={isLoading || !email.trim() || !password.trim()}
+              className="w-full bg-gradient-to-r from-golden to-golden/90 text-forest-green font-semibold py-3 px-4 rounded-xl hover:from-golden/90 hover:to-golden/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
               {isLoading ? (
                 <>
@@ -77,9 +140,12 @@ const SignInPage = ({ onSignIn }) => {
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm">
               Don't have an account?{' '}
-              <a href="#" className="text-sky-blue hover:text-sky-blue/80 transition-colors">
+              <button
+                onClick={onSignUpClick}
+                className="text-sky-blue hover:text-sky-blue/80 transition-colors font-medium"
+              >
                 Sign up here
-              </a>
+              </button>
             </p>
           </div>
         </div>

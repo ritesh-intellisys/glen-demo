@@ -2,7 +2,7 @@ import React from 'react';
 import MiniChartUsd from '../widgets/MiniChartUsd';
 import MiniChartGold from '../widgets/MiniChartGold';
 
-const HomePage = () => {
+const HomePage = ({ onSignUpClick }) => {
   const features = [
     { icon: "📊", title: "Ultra-Low Spreads", desc: "Starting from 0.1 pips" },
     { icon: "🌍", title: "200+ Instruments", desc: "Forex, Crypto & More" },
@@ -102,7 +102,10 @@ const HomePage = () => {
                 Experience the future of forex trading with cutting-edge technology and unwavering support.
               </p>
               <div className="flex flex-wrap gap-4">
-                <button className="bg-golden text-forest-green font-semibold px-8 py-4 rounded-xl hover:bg-golden/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-golden/30">
+                <button 
+                  onClick={onSignUpClick}
+                  className="bg-golden text-forest-green font-semibold px-8 py-4 rounded-xl hover:bg-golden/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-golden/30"
+                >
                   Register Live
                 </button>
                 <button className="bg-transparent border-2 border-sky-blue text-sky-blue font-semibold px-8 py-4 rounded-xl hover:bg-sky-blue/10 transition-all duration-300 transform hover:-translate-y-1">
@@ -448,7 +451,10 @@ const HomePage = () => {
             Join thousands of successful traders who have already claimed their bonuses and started their journey to financial freedom.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <button className="bg-golden text-forest-green font-semibold px-8 py-4 rounded-xl hover:bg-golden/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-golden/30">
+            <button 
+              onClick={onSignUpClick}
+              className="bg-golden text-forest-green font-semibold px-8 py-4 rounded-xl hover:bg-golden/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-golden/30"
+            >
               Claim Your Bonus
             </button>
             <button className="bg-transparent border-2 border-sky-blue text-sky-blue font-semibold px-8 py-4 rounded-xl hover:bg-sky-blue/10 transition-all duration-300 transform hover:-translate-y-1">

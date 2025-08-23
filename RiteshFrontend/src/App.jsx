@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
+import SignUpPage from './pages/SignUpPage';
 import AccountPage from './pages/AccountPage';
 import ProfilePage from './pages/ProfilePage';
 import Footer from './components/Footer';
@@ -27,6 +28,11 @@ function App() {
     setCurrentPage('signin');
   };
 
+  const handleSignUpClick = () => {
+    setPreviousPage(currentPage);
+    setCurrentPage('signup');
+  };
+
   const handleProfileClick = () => {
     console.log('handleProfileClick called in App.jsx');
     console.log('Current page before:', currentPage);
@@ -42,7 +48,9 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'signin':
-        return <SignInPage onSignIn={handleSignIn} />;
+        return <SignInPage onSignIn={handleSignIn} onSignUpClick={handleSignUpClick} />;
+      case 'signup':
+        return <SignUpPage onSignUp={handleSignIn} onBackToSignIn={handleSignInClick} />;
       case 'account':
         return <AccountPage userEmail={userEmail} onSignOut={handleSignOut} onProfileClick={handleProfileClick} />;
       case 'profile':
@@ -50,7 +58,7 @@ function App() {
       default:
         return (
           <>
-            <HomePage />
+            <HomePage onSignUpClick={handleSignUpClick} />
             <Footer />
           </>
         );
@@ -61,7 +69,7 @@ function App() {
     <div className="App">
       {currentPage === 'home' && <Navbar onSignInClick={handleSignInClick} />}
       {renderPage()}
-    </div>
+      </div>
   );
 }
 
