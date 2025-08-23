@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
@@ -9,18 +9,43 @@ import Footer from './components/Footer';
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [userEmail, setUserEmail] = useState('');
-  const [previousPage, setPreviousPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(() => {
+    return localStorage.getItem('currentPage') || 'home';
+  });
+  const [userEmail, setUserEmail] = useState(() => {
+    return localStorage.getItem('userEmail') || '';
+  });
+  const [previousPage, setPreviousPage] = useState(() => {
+    return localStorage.getItem('previousPage') || 'home';
+  });
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('currentPage', currentPage);
+  }, [currentPage]);
+
+  useEffect(() => {
+    localStorage.setItem('userEmail', userEmail);
+  }, [userEmail]);
+
+  useEffect(() => {
+    localStorage.setItem('previousPage', previousPage);
+  }, [previousPage]);
 
   const handleSignIn = (email) => {
     setUserEmail(email);
+    setPreviousPage('home'); // Set previous page to home for proper back navigation
     setCurrentPage('account');
   };
 
   const handleSignOut = () => {
     setUserEmail('');
+    setPreviousPage('home');
     setCurrentPage('home');
+    // Clear localStorage on sign out
+    localStorage.removeItem('userEmail');
+    localStorage.setItem('currentPage', 'home');
+    localStorage.setItem('previousPage', 'home');
   };
 
   const handleSignInClick = () => {
@@ -36,13 +61,18 @@ function App() {
   const handleProfileClick = () => {
     console.log('handleProfileClick called in App.jsx');
     console.log('Current page before:', currentPage);
-    setPreviousPage(currentPage);
+    setPreviousPage(currentPage); // This ensures we always go back to the current page
     setCurrentPage('profile');
     console.log('Setting page to profile');
   };
 
   const handleBackClick = () => {
+    console.log('handleBackClick called - going to:', previousPage);
     setCurrentPage(previousPage);
+  };
+
+  const handleAccountBackClick = () => {
+    setCurrentPage('home');
   };
 
   const renderPage = () => {
@@ -52,9 +82,9 @@ function App() {
       case 'signup':
         return <SignUpPage onSignUp={handleSignIn} onBackToSignIn={handleSignInClick} />;
       case 'account':
-        return <AccountPage userEmail={userEmail} onSignOut={handleSignOut} onProfileClick={handleProfileClick} />;
+        return <AccountPage userEmail={userEmail} onSignOut={handleSignOut} onProfileClick={handleProfileClick} onBack={handleAccountBackClick} />;
       case 'profile':
-        return <ProfilePage userEmail={userEmail} onSignOut={handleSignOut} onBack={handleBackClick} />;
+        return <ProfilePage userEmail={userEmail} onSignOut={handleSignOut} onBack={handleBackClick} onProfileClick={handleProfileClick} />;
       default:
         return (
           <>

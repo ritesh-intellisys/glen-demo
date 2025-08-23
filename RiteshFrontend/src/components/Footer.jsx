@@ -76,10 +76,10 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">GC</span>
+                <span className="text-white font-bold text-xl">PT</span>
               </div>
               <div>
-                <h3 className="text-2xl font-bold">Glen Capitals</h3>
+                <h3 className="text-2xl font-bold">Pro Traders</h3>
                 <p className="text-white/80 text-sm">Your Trusted Trading Partner</p>
               </div>
             </div>
@@ -148,7 +148,7 @@ const Footer = () => {
         <div className="container-custom py-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-white/80 text-sm">
-              <p>© 2024 Glen Capitals. All rights reserved.</p>
+              <p>© 2024 Pro Traders. All rights reserved.</p>
               <p className="mt-1">Regulated by Financial Services Authority</p>
             </div>
             

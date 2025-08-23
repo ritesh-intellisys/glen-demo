@@ -4,7 +4,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     // Step 1: Account type
-    accountType: 'Glen Premium',
+    accountType: 'Pro Premium',
     email: '',
     password: '',
     repeatPassword: '',
@@ -58,9 +58,9 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   ];
 
   const accountTypes = [
-    { value: 'Glen Premium', label: 'Glen Premium' },
-    { value: 'Glen Standard', label: 'Glen Standard' },
-    { value: 'Glen Pro', label: 'Glen Pro' }
+    { value: 'Pro Premium', label: 'Pro Premium' },
+    { value: 'Pro Standard', label: 'Pro Standard' },
+    { value: 'Pro Elite', label: 'Pro Elite' }
   ];
 
   const genderOptions = [
@@ -305,11 +305,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Offers</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Offers</label>
               <select
                 value={formData.accountType}
                 onChange={(e) => handleInputChange('accountType', e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
               >
                 {accountTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -318,13 +318,13 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
             </div>
 
                          <div>
-               <label className="block text-sm font-medium text-gray-500 mb-2">Your email</label>
+               <label className="block text-sm font-medium text-text-secondary mb-2">Your email</label>
                <div className="flex space-x-2">
                  <input
                    type="email"
                    value={formData.email}
                    onChange={(e) => handleInputChange('email', e.target.value)}
-                   className="flex-1 px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                   className="flex-1 px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                    placeholder="Enter your email"
                  />
                  <button
@@ -345,7 +345,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                        type="text"
                        value={formData.emailOtp}
                        onChange={(e) => handleInputChange('emailOtp', e.target.value)}
-                       className="flex-1 px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                       className="flex-1 px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                        placeholder="Enter 6-digit OTP"
                        maxLength={6}
                      />
@@ -373,19 +373,19 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Password</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all pr-12"
+                    className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all pr-12"
                     placeholder="Enter password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary"
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -403,19 +403,19 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Repeat password</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Repeat password</label>
                 <div className="relative">
                   <input
                     type={showRepeatPassword ? "text" : "password"}
                     value={formData.repeatPassword}
                     onChange={(e) => handleInputChange('repeatPassword', e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all pr-12"
+                    className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all pr-12"
                     placeholder="Repeat password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowRepeatPassword(!showRepeatPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary"
                   >
                     {showRepeatPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -439,12 +439,12 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Full Name</label>
               <input
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                 placeholder="Enter your full name"
               />
               {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
@@ -452,24 +452,24 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Father Name</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Father Name</label>
                 <input
                   type="text"
                   value={formData.fatherName}
                   onChange={(e) => handleInputChange('fatherName', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                   placeholder="Enter father's name"
                 />
                 {errors.fatherName && <p className="text-red-500 text-sm mt-1">{errors.fatherName}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Mother Name</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Mother Name</label>
                 <input
                   type="text"
                   value={formData.motherName}
                   onChange={(e) => handleInputChange('motherName', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                   placeholder="Enter mother's name"
                 />
                 {errors.motherName && <p className="text-red-500 text-sm mt-1">{errors.motherName}</p>}
@@ -478,11 +478,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Gender</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Gender</label>
                 <select
                   value={formData.gender}
                   onChange={(e) => handleInputChange('gender', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                 >
                   <option value="">Select gender</option>
                   {genderOptions.map(option => (
@@ -493,24 +493,24 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Date of Birth</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Date of Birth</label>
                 <input
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                 />
                 {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>}
               </div>
             </div>
 
                          <div>
-               <label className="block text-sm font-medium text-gray-500 mb-2">Mobile Number</label>
+               <label className="block text-sm font-medium text-text-secondary mb-2">Mobile Number</label>
                <div className="flex space-x-2">
                  <select
                    value={formData.mobileCode}
                    onChange={(e) => handleInputChange('mobileCode', e.target.value)}
-                   className="w-16 px-2 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all text-center"
+                   className="w-16 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center"
                    title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
                  >
                    {mobileCodes.map(code => (
@@ -521,7 +521,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                    type="tel"
                    value={formData.mobileNumber}
                    onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
-                   className="flex-1 px-3 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                   className="flex-1 px-3 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                    placeholder="Enter mobile number"
                  />
                  <button
@@ -542,7 +542,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                        type="text"
                        value={formData.mobileOtp}
                        onChange={(e) => handleInputChange('mobileOtp', e.target.value)}
-                       className="flex-1 px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                       className="flex-1 px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                        placeholder="Enter 6-digit OTP"
                        maxLength={6}
                      />
@@ -570,11 +570,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
              <div className="grid grid-cols-2 gap-4">
                <div>
-                 <label className="block text-sm font-medium text-gray-500 mb-2">Marital Status</label>
+                 <label className="block text-sm font-medium text-text-secondary mb-2">Marital Status</label>
                  <select
                    value={formData.maritalStatus}
                    onChange={(e) => handleInputChange('maritalStatus', e.target.value)}
-                   className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                  >
                    <option value="">Select marital status</option>
                    {maritalStatusOptions.map(option => (
@@ -585,11 +585,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                </div>
 
                <div>
-                 <label className="block text-sm font-medium text-gray-500 mb-2">Qualification</label>
+                 <label className="block text-sm font-medium text-text-secondary mb-2">Qualification</label>
                  <select
                    value={formData.qualification}
                    onChange={(e) => handleInputChange('qualification', e.target.value)}
-                   className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                  >
                    <option value="">Select qualification</option>
                    {qualificationOptions.map(option => (
@@ -601,11 +601,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
              </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Qualification</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Qualification</label>
               <select
                 value={formData.qualification}
                 onChange={(e) => handleInputChange('qualification', e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
               >
                 <option value="">Select qualification</option>
                 {qualificationOptions.map(option => (
@@ -622,11 +622,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Country</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Country</label>
                 <select
                   value={formData.country}
                   onChange={(e) => handleInputChange('country', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                 >
                   <option value="">Select country</option>
                   {countries.map(country => (
@@ -637,11 +637,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               </div>
 
                              <div>
-                 <label className="block text-sm font-medium text-gray-500 mb-2">State</label>
+                 <label className="block text-sm font-medium text-text-secondary mb-2">State</label>
                  <select
                    value={formData.state}
                    onChange={(e) => handleInputChange('state', e.target.value)}
-                   className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                  >
                    <option value="">Select state</option>
                    {indianStates.map(state => (
@@ -654,24 +654,24 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">City</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">City</label>
                 <input
                   type="text"
                   value={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                   placeholder="Enter city"
                 />
                 {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Postal/Zip code</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Postal/Zip code</label>
                 <input
                   type="text"
                   value={formData.postalCode}
                   onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                   placeholder="Enter postal code"
                 />
                 {errors.postalCode && <p className="text-red-500 text-sm mt-1">{errors.postalCode}</p>}
@@ -679,12 +679,12 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Full address</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Full address</label>
               <input
                 type="text"
                 value={formData.streetAddress}
                 onChange={(e) => handleInputChange('streetAddress', e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-golden/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                 placeholder="Enter Full address"
               />
               {errors.streetAddress && <p className="text-red-500 text-sm mt-1">{errors.streetAddress}</p>}
@@ -696,8 +696,8 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
          return (
            <div className="space-y-6">
              <div>
-               <label className="block text-sm font-medium text-gray-500 mb-2">PAN Document</label>
-               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-golden/50 transition-colors">
+               <label className="block text-sm font-medium text-text-secondary mb-2">PAN Document</label>
+               <div className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-accent-color/50 transition-colors">
                  <input
                    type="file"
                    accept="image/*"
@@ -710,15 +710,15 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                      <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                      </svg>
-                     <div className="text-sm text-gray-600">
+                     <div className="text-sm text-text-secondary">
                        <span className="font-medium text-golden hover:text-golden/80">Click to upload</span> or drag and drop
                      </div>
-                     <p className="text-xs text-gray-500">PNG, JPG, JPEG up to 10MB</p>
+                     <p className="text-xs text-text-secondary">PNG, JPG, JPEG up to 10MB</p>
                    </div>
                  </label>
                </div>
                {formData.panDocument && (
-                 <div className="mt-2 text-sm text-gray-600">
+                 <div className="mt-2 text-sm text-text-secondary">
                    Selected: {formData.panDocument.name}
                  </div>
                )}
@@ -727,8 +727,8 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
              <div className="grid grid-cols-2 gap-4">
                <div>
-                 <label className="block text-sm font-medium text-gray-500 mb-2">Aadhar Front Side</label>
-                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-golden/50 transition-colors">
+                 <label className="block text-sm font-medium text-text-secondary mb-2">Aadhar Front Side</label>
+                 <div className="border-2 border-dashed border-border-color rounded-lg p-4 text-center hover:border-accent-color/50 transition-colors">
                    <input
                      type="file"
                      accept="image/*"
@@ -741,14 +741,14 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                        <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                        </svg>
-                       <div className="text-xs text-gray-600">
+                       <div className="text-xs text-text-secondary">
                          <span className="font-medium text-golden hover:text-golden/80">Upload</span>
                        </div>
                      </div>
                    </label>
                  </div>
                  {formData.aadharFront && (
-                   <div className="mt-2 text-xs text-gray-600">
+                   <div className="mt-2 text-xs text-text-secondary">
                      Selected: {formData.aadharFront.name}
                    </div>
                  )}
@@ -756,8 +756,8 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                </div>
 
                <div>
-                 <label className="block text-sm font-medium text-gray-500 mb-2">Aadhar Back Side</label>
-                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-golden/50 transition-colors">
+                 <label className="block text-sm font-medium text-text-secondary mb-2">Aadhar Back Side</label>
+                 <div className="border-2 border-dashed border-border-color rounded-lg p-4 text-center hover:border-accent-color/50 transition-colors">
                    <input
                      type="file"
                      accept="image/*"
@@ -770,14 +770,14 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                        <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                        </svg>
-                       <div className="text-xs text-gray-600">
+                       <div className="text-xs text-text-secondary">
                          <span className="font-medium text-golden hover:text-golden/80">Upload</span>
                        </div>
                      </div>
                    </label>
                  </div>
                  {formData.aadharBack && (
-                   <div className="mt-2 text-xs text-gray-600">
+                   <div className="mt-2 text-xs text-text-secondary">
                      Selected: {formData.aadharBack.name}
                    </div>
                  )}
@@ -811,11 +811,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
        case 4:
         return (
           <div className="space-y-6">
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Terms and Conditions</h3>
-              <div className="text-sm text-gray-600 space-y-4 max-h-64 overflow-y-auto">
+            <div className="bg-bg-secondary p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Terms and Conditions</h3>
+              <div className="text-sm text-text-secondary space-y-4 max-h-64 overflow-y-auto">
                 <p>
-                  By creating an account with Glen Capitals, you agree to the following terms and conditions:
+                  By creating an account with Pro Traders, you agree to the following terms and conditions:
                 </p>
                 <p>
                   1. You must be at least 18 years old to create an account and use our services.
@@ -827,7 +827,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                   3. You agree to provide accurate and complete information during registration.
                 </p>
                 <p>
-                  4. Glen Capitals reserves the right to modify these terms at any time.
+                  4. Pro Traders reserves the right to modify these terms at any time.
                 </p>
                 <p>
                   5. Trading involves substantial risk and may not be suitable for all investors.
@@ -879,34 +879,34 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="flex items-center space-x-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-golden to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">GC</span>
+              <div className="w-12 h-12 bg-gradient-to-br from-accent-color to-golden rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-text-quaternary font-bold text-xl">PT</span>
               </div>
               <div className="text-left">
-                <div className="text-golden font-bold text-xl">GLEN</div>
-                <div className="text-golden font-bold text-xl">CAPITALS</div>
+                <div className="text-accent-color font-bold text-xl">PRO</div>
+                <div className="text-accent-color font-bold text-xl">TRADERS</div>
               </div>
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-golden mb-2">
+          <h2 className="text-2xl font-bold text-accent-color mb-2">
             Open real account
           </h2>
-          <p className="text-gray-400 text-sm">
+          <p className="text-text-secondary text-sm">
             Fill out registration form
           </p>
         </div>
 
         {/* Sign Up Form */}
-        <div className="bg-white rounded-2xl p-8 shadow-xl">
+        <div className="bg-card-bg rounded-2xl p-8 shadow-xl">
           {/* Step Title and Progress */}
           <div className="mb-6">
-            <h3 className="text-xl font-bold text-golden mb-2">
+            <h3 className="text-xl font-bold text-accent-color mb-2">
               {steps[currentStep].title}
             </h3>
             <div className="flex space-x-2">
@@ -914,7 +914,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                 <div
                   key={index}
                   className={`h-1 flex-1 rounded ${
-                    index <= currentStep ? 'bg-golden' : 'bg-gray-300'
+                    index <= currentStep ? 'bg-accent-color' : 'bg-border-color'
                   }`}
                 />
               ))}
@@ -931,7 +931,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                 type="button"
                 onClick={handlePreviousStep}
                 disabled={currentStep === 0}
-                className="px-6 py-3 border border-golden text-golden rounded-lg hover:bg-golden/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 border border-accent-color text-accent-color rounded-lg hover:bg-accent-color/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 PREVIOUS STEP
               </button>
@@ -939,7 +939,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               <button
                 type="button"
                 onClick={handleNextStep}
-                className="px-6 py-3 bg-golden text-white rounded-lg hover:bg-golden/90 transition-colors"
+                className="px-6 py-3 bg-accent-color text-text-quaternary rounded-lg hover:bg-accent-color/90 transition-colors"
               >
                 {currentStep === steps.length - 1 ? 'SIGN UP' : 'NEXT STEP'}
               </button>
@@ -950,7 +950,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               <button
                 type="button"
                 onClick={onBackToSignIn}
-                className="text-golden hover:text-golden/80 transition-colors text-sm"
+                className="text-accent-color hover:text-accent-color/80 transition-colors text-sm"
               >
                 Log In →
               </button>
@@ -960,13 +960,13 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
         {/* Footer */}
         <div className="text-center space-y-2">
-          <p className="text-white text-sm">
-            © Glen Capital
+          <p className="text-text-primary text-sm">
+            © Pro Traders
           </p>
-          <p className="text-white text-xs">
+          <p className="text-text-secondary text-xs">
             Contact us at{' '}
-            <a href="mailto:support@glencapitals.com" className="text-golden hover:text-golden/80">
-              support@glencapitals.com
+            <a href="mailto:support@protraders.com" className="text-accent-color hover:text-accent-color/80">
+              support@protraders.com
             </a>{' '}
             if you encounter any problems. Version: v.1.13.0-828
           </p>

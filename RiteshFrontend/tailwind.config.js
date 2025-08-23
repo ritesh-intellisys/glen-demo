@@ -7,11 +7,38 @@ export default {
   theme: {
     extend: {
       colors: {
-        'forest-green': '#0A0A0A', // Black (Obsidian Background)
-'sky-blue': '#7C3AED',     // Violet-600 (Purple Accent)
-'off-white': '#F8FAFC',    // Slate-50 (Light Text)
-'graph-grey': '#64748B',   // Slate-500 (Secondary Text)
-'golden': '#F59E0B',       // Amber-500 (Gold Accent)
+        // Primary Background Colors
+        'bg-primary': '#eff6ff',     // Ice white - Main background
+        'bg-secondary': '#dbeafe',   // Soft sky blue - Secondary background
+        'card-bg': '#ffffff',        // Pure white - Card backgrounds
+        
+        // Text Colors
+        'text-primary': '#0f172a',   // Deep navy - Primary text
+        'text-secondary': '#475569', // Cool gray - Secondary text
+        'text-tertiary': '#000000',  // Black - Tertiary text
+        'text-quaternary': '#ffffff', // White - Quaternary text
+        
+        // Accent Colors
+        'accent-color': '#0284c7',   // Glacier blue - Primary accent
+        'accent-light': '#38bdf8',   // Sky blue - Light accent
+        'primary-blue': '#0ea5e9',   // Aqua blue - Primary blue
+        'golden': '#F59E0B',         // Amber-500 - Gold accent (keeping for compatibility)
+        
+        // Border and Shadow Colors
+        'border-color': '#bfdbfe',   // Light gray-blue - Borders
+        'shadow-color': 'rgba(2, 132, 199, 0.1)', // Blue shadow
+        'hover-bg': '#e0f2fe',       // Frosted light blue - Hover states
+        
+        // Utility Colors
+        'chart-grid': '#cbd5e1',     // Light gray - Chart grids
+        'success-color': '#21966f',  // Emerald green - Success states
+        'danger-color': '#d72638',   // Bright red - Error states
+        
+        // Legacy colors for backward compatibility
+        'forest-green': '#0f172a',   // Updated to match new scheme
+        'sky-blue': '#0284c7',       // Updated to match new scheme
+        'off-white': '#eff6ff',      // Updated to match new scheme
+        'graph-grey': '#475569',     // Updated to match new scheme
       },
       fontFamily: {
         'sans': ['Inter', 'system-ui', 'sans-serif'],

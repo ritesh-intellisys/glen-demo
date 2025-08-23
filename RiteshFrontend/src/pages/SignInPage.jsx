@@ -20,35 +20,35 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-forest-green via-forest-green/95 to-sky-blue/5 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       {/* Animated background elements */}
       <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-golden/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-sky-blue/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-2/3 left-1/3 w-64 h-64 bg-forest-green/25 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-color/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-primary-blue/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-2/3 left-1/3 w-64 h-64 bg-accent-color/15 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-sky-blue to-golden rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-2xl">GC</span>
+            <div className="w-16 h-16 bg-gradient-to-br from-accent-color to-golden rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="text-text-quaternary font-bold text-2xl">PT</span>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">
+          <h2 className="text-3xl font-bold text-text-primary mb-2">
             Welcome Back
           </h2>
-          <p className="text-white/70">
-            Sign in to your Glen Capitals account
+          <p className="text-text-secondary">
+            Sign in to your Pro Traders account
           </p>
         </div>
 
         {/* Sign In Form */}
-        <div className="bg-sky-blue/10 backdrop-blur-sm border border-sky-blue/20 rounded-2xl p-8 shadow-xl">
+        <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
                 Email Address
               </label>
               <input
@@ -58,13 +58,13 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-sky-blue/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-blue/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-xl text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                 placeholder="Enter your email address"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-2">
                 Password
               </label>
               <div className="relative">
@@ -75,13 +75,13 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-sky-blue/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-sky-blue/50 focus:border-transparent transition-all pr-12"
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-xl text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all pr-12"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/50 hover:text-white/80 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary transition-colors"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,14 +104,14 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-sky-blue focus:ring-sky-blue border-sky-blue/20 rounded bg-white/10"
+                  className="h-4 w-4 text-accent-color focus:ring-accent-color border-border-color rounded bg-hover-bg"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-white/70">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-text-secondary">
                   Remember me
                 </label>
               </div>
               <div className="text-sm">
-                <a href="#" className="text-sky-blue hover:text-sky-blue/80 transition-colors">
+                <a href="#" className="text-accent-color hover:text-accent-color/80 transition-colors">
                   Forgot password?
                 </a>
               </div>
@@ -120,11 +120,11 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
             <button
               type="submit"
               disabled={isLoading || !email.trim() || !password.trim()}
-              className="w-full bg-gradient-to-r from-golden to-golden/90 text-forest-green font-semibold py-3 px-4 rounded-xl hover:from-golden/90 hover:to-golden/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-accent-color to-accent-color/90 text-text-quaternary font-semibold py-3 px-4 rounded-xl hover:from-accent-color/90 hover:to-accent-color/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-forest-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-text-quaternary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -138,11 +138,11 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
 
           {/* Additional Info */}
           <div className="mt-6 text-center">
-            <p className="text-white/60 text-sm">
+            <p className="text-text-secondary text-sm">
               Don't have an account?{' '}
               <button
                 onClick={onSignUpClick}
-                className="text-sky-blue hover:text-sky-blue/80 transition-colors font-medium"
+                className="text-accent-color hover:text-accent-color/80 transition-colors font-medium"
               >
                 Sign up here
               </button>
@@ -152,13 +152,13 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-white/50 text-xs">
+          <p className="text-text-secondary text-xs">
             By signing in, you agree to our{' '}
-            <a href="#" className="text-sky-blue hover:text-sky-blue/80 transition-colors">
+            <a href="#" className="text-accent-color hover:text-accent-color/80 transition-colors">
               Terms of Service
             </a>{' '}
             and{' '}
-            <a href="#" className="text-sky-blue hover:text-sky-blue/80 transition-colors">
+            <a href="#" className="text-accent-color hover:text-accent-color/80 transition-colors">
               Privacy Policy
             </a>
           </p>
