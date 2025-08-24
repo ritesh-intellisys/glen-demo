@@ -95,7 +95,7 @@ const Header = ({
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => setShowEmail(!showEmail)}
-                  className="bg-gradient-to-r from-accent-color to-golden p-1 rounded-full hover:scale-105 transition-transform duration-200"
+                  className="bg-gradient-to-r from-accent-color to-primary-blue p-1 rounded-full hover:scale-105 transition-transform duration-200"
                 >
                   <svg className="w-3 h-3 text-text-quaternary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -207,7 +207,7 @@ const Header = ({
                 setSelectedLanguage(language.code);
                 setIsLanguageDropdownOpen(false);
               }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-accent-color/20 transition-all duration-300 ${selectedLanguage === language.code ? 'bg-gradient-to-r from-accent-color/30 to-golden/30 text-accent-color' : 'text-text-secondary hover:text-text-primary'
+              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-accent-color/20 transition-all duration-300 ${selectedLanguage === language.code ? 'bg-gradient-to-r from-accent-color/30 to-primary-blue/30 text-accent-color' : 'text-text-secondary hover:text-text-primary'
                 } ${language.code === languages[0].code ? 'rounded-t-2xl' : ''} ${language.code === languages[languages.length - 1].code ? 'rounded-b-2xl' : ''}`}
             >
               <span className="text-lg">{language.flag}</span>
@@ -239,17 +239,17 @@ const Header = ({
                 e.stopPropagation();
                 onProfileClick();
               }}
-              className="w-full text-left px-4 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 mx-2 rounded-xl"
+              className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl"
             >
               Profile
             </button>
-            <button className="w-full text-left px-4 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 mx-2 rounded-xl">
+            <button className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl">
               Security
             </button>
-            <button className="w-full text-left px-4 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 mx-2 rounded-xl">
+            <button className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl">
               Become an IB
             </button>
-            <button className="w-full text-left px-4 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 mx-2 rounded-xl flex items-center space-x-2">
+            <button className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl flex items-center space-x-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -258,7 +258,7 @@ const Header = ({
             <div className="border-t border-border-color my-2 mx-4"></div>
             <button
               onClick={onSignOut}
-              className="w-full text-left px-4 py-3 text-text-primary hover:bg-danger-color/10 transition-all duration-300 hover:scale-105 mx-2 rounded-xl flex items-center space-x-2"
+              className="w-full text-left px-6 py-3 text-text-primary hover:bg-danger-color/10 transition-all duration-300 hover:scale-105 rounded-xl flex items-center space-x-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

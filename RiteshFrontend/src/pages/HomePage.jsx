@@ -80,13 +80,13 @@ const HomePage = ({ onSignUpClick }) => {
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-bg-primary to-bg-secondary py-20 relative">
-        <div className="absolute top-10 right-10 w-20 h-20 bg-golden/10 rounded-full animate-bounce delay-700"></div>
+        <div className="absolute top-10 right-10 w-20 h-20 bg-accent-color/10 rounded-full animate-bounce delay-700"></div>
         <div className="absolute bottom-20 left-10 w-16 h-16 bg-accent-color/10 rounded-full animate-bounce delay-300"></div>
         
         <div className="container-custom relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
-              <div className="inline-flex items-center bg-gradient-to-r from-accent-color/20 to-golden/20 text-accent-color px-4 py-2 rounded-full shadow-lg animate-pulse">
+              <div className="inline-flex items-center bg-gradient-to-r from-accent-color/20 to-primary-blue/20 text-accent-color px-4 py-2 rounded-full shadow-lg animate-pulse">
                 <span>⚡ Trusted by 50,000+ Traders</span>
             </div>
               <h1 className="text-5xl md:text-6xl font-bold">
@@ -140,7 +140,7 @@ const HomePage = ({ onSignUpClick }) => {
                 key={index} 
                 className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/10 group relative overflow-hidden"
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-accent-color/10 to-golden/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
                 <div className="relative z-10">
                   <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
                   <h3 className="text-xl font-bold mb-2 text-text-primary">{feature.title}</h3>
@@ -169,11 +169,11 @@ const HomePage = ({ onSignUpClick }) => {
             {promotions.map((promo, index) => (
               <div 
                 key={index} 
-                className={`bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl relative transition-all duration-500 hover:-translate-y-3 ${promo.popular ? 'ring-2 ring-golden transform hover:scale-105' : 'hover:shadow-xl hover:shadow-accent-color/10'}`}
+                className={`bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl relative transition-all duration-500 hover:-translate-y-3 ${promo.popular ? 'ring-2 ring-accent-color transform hover:scale-105' : 'hover:shadow-xl hover:shadow-accent-color/10'}`}
               >
                 {promo.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 animate-pulse">
-                    <span className="bg-gradient-to-r from-golden to-accent-color text-text-quaternary px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                    <span className="bg-gradient-to-r from-accent-color to-primary-blue text-text-quaternary px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
                       Most Popular
                     </span>
                   </div>
@@ -228,7 +228,7 @@ const HomePage = ({ onSignUpClick }) => {
                 key={index} 
                 className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl transition-all duration-500 hover:-translate-y-3 hover:shadow-xl hover:shadow-accent-color/10 group relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-accent-color/5 to-golden/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-accent-color/5 to-primary-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative z-10">
                   <div className="text-center mb-6">
                     <h3 className="text-xl font-bold mb-2 text-text-primary">{contest.title}</h3>
@@ -283,7 +283,7 @@ const HomePage = ({ onSignUpClick }) => {
       {/* Special Offers */}
       <section className="py-20 bg-gradient-to-br from-bg-primary to-bg-secondary relative">
         <div className="absolute top-10 left-20 w-24 h-24 bg-accent-color/10 rounded-full animate-pulse"></div>
-        <div className="absolute bottom-10 right-20 w-20 h-20 bg-golden/10 rounded-full animate-pulse delay-700"></div>
+        <div className="absolute bottom-10 right-20 w-20 h-20 bg-accent-color/10 rounded-full animate-pulse delay-700"></div>
         
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 items-center">

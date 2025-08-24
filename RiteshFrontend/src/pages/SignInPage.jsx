@@ -32,7 +32,7 @@ const SignInPage = ({ onSignIn, onSignUpClick }) => {
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-accent-color to-golden rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-accent-color to-primary-blue rounded-2xl flex items-center justify-center shadow-lg">
               <span className="text-text-quaternary font-bold text-2xl">PT</span>
             </div>
           </div>

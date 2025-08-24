@@ -34,7 +34,7 @@ const Navbar = ({ onSignInClick }) => {
           <div className="flex items-center justify-between py-4">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-accent-color to-golden rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-accent-color to-primary-blue rounded-xl flex items-center justify-center">
                 <span className="text-text-quaternary font-bold text-lg">PT</span>
               </div>
               <div>

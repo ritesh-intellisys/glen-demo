@@ -331,7 +331,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                    type="button"
                    onClick={sendEmailOtp}
                    disabled={emailOtpSent && emailOtpTimer > 0}
-                   className="px-4 py-3 bg-golden text-white rounded-lg hover:bg-golden/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
+                   className="px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
                  >
                    {emailOtpSent && emailOtpTimer > 0 ? `${emailOtpTimer}s` : 'Send OTP'}
                  </button>
@@ -352,7 +352,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                      <button
                        type="button"
                        onClick={verifyEmailOtp}
-                       className="px-4 py-3 bg-golden text-white rounded-lg hover:bg-golden/90 transition-colors text-sm whitespace-nowrap"
+                       className="px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
                      >
                        Verify
                      </button>
@@ -528,7 +528,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                    type="button"
                    onClick={sendMobileOtp}
                    disabled={mobileOtpSent && mobileOtpTimer > 0}
-                   className="px-3 py-3 bg-golden text-white rounded-lg hover:bg-golden/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
+                   className="px-3 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
                  >
                    {mobileOtpSent && mobileOtpTimer > 0 ? `${mobileOtpTimer}s` : 'Send OTP'}
                  </button>
@@ -549,7 +549,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                      <button
                        type="button"
                        onClick={verifyMobileOtp}
-                       className="px-4 py-3 bg-golden text-white rounded-lg hover:bg-golden/90 transition-colors text-sm whitespace-nowrap"
+                       className="px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
                      >
                        Verify
                      </button>
@@ -711,7 +711,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                      </svg>
                      <div className="text-sm text-text-secondary">
-                       <span className="font-medium text-golden hover:text-golden/80">Click to upload</span> or drag and drop
+                       <span className="font-medium text-accent-color hover:text-accent-color/80">Click to upload</span> or drag and drop
                      </div>
                      <p className="text-xs text-text-secondary">PNG, JPG, JPEG up to 10MB</p>
                    </div>
@@ -742,7 +742,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                        </svg>
                        <div className="text-xs text-text-secondary">
-                         <span className="font-medium text-golden hover:text-golden/80">Upload</span>
+                         <span className="font-medium text-accent-color hover:text-accent-color/80">Upload</span>
                        </div>
                      </div>
                    </label>
@@ -771,7 +771,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                        </svg>
                        <div className="text-xs text-text-secondary">
-                         <span className="font-medium text-golden hover:text-golden/80">Upload</span>
+                         <span className="font-medium text-accent-color hover:text-accent-color/80">Upload</span>
                        </div>
                      </div>
                    </label>
@@ -848,10 +848,10 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                   id="termsAccepted"
                   checked={formData.termsAccepted}
                   onChange={(e) => handleInputChange('termsAccepted', e.target.checked)}
-                  className="mt-1 h-4 w-4 text-golden focus:ring-golden border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 text-accent-color focus:ring-accent-color border-gray-300 rounded"
                 />
                 <label htmlFor="termsAccepted" className="text-sm text-gray-700">
-                  I have read and agree to the <span className="text-golden font-medium">Terms and Conditions</span>
+                  I have read and agree to the <span className="text-accent-color font-medium">Terms and Conditions</span>
                 </label>
               </div>
               {errors.termsAccepted && <p className="text-red-500 text-sm">{errors.termsAccepted}</p>}
@@ -862,10 +862,10 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                   id="privacyAccepted"
                   checked={formData.privacyAccepted}
                   onChange={(e) => handleInputChange('privacyAccepted', e.target.checked)}
-                  className="mt-1 h-4 w-4 text-golden focus:ring-golden border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 text-accent-color focus:ring-accent-color border-gray-300 rounded"
                 />
                 <label htmlFor="privacyAccepted" className="text-sm text-gray-700">
-                  I have read and agree to the <span className="text-golden font-medium">Privacy Policy</span>
+                  I have read and agree to the <span className="text-accent-color font-medium">Privacy Policy</span>
                 </label>
               </div>
               {errors.privacyAccepted && <p className="text-red-500 text-sm">{errors.privacyAccepted}</p>}
@@ -885,7 +885,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="flex items-center space-x-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent-color to-golden rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent-color to-primary-blue rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-text-quaternary font-bold text-xl">PT</span>
               </div>
               <div className="text-left">

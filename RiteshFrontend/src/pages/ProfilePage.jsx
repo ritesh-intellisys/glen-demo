@@ -507,7 +507,7 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
                </button>
              </div>
 
-             <div className="bg-gradient-to-r from-accent-color/20 to-golden/20 backdrop-blur-sm rounded-lg p-3 border border-border-color inline-block">
+                             <div className="bg-gradient-to-r from-accent-color/20 to-primary-blue/20 backdrop-blur-sm rounded-lg p-3 border border-border-color inline-block">
                <p className="text-accent-color font-bold text-sm">support@protraders.com</p>
              </div>
            </div>
