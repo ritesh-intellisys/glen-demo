@@ -75,10 +75,14 @@ function App() {
     setCurrentPage('home');
   };
 
+  const handleSignInBackClick = () => {
+    setCurrentPage('home');
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'signin':
-        return <SignInPage onSignIn={handleSignIn} onSignUpClick={handleSignUpClick} />;
+        return <SignInPage onSignIn={handleSignIn} onSignUpClick={handleSignUpClick} onBack={handleSignInBackClick} />;
       case 'signup':
         return <SignUpPage onSignUp={handleSignIn} onBackToSignIn={handleSignInClick} />;
       case 'account':

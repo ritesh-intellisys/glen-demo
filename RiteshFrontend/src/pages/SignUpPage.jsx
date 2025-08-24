@@ -319,19 +319,19 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
                          <div>
                <label className="block text-sm font-medium text-text-secondary mb-2">Your email</label>
-               <div className="flex space-x-2">
+               <div className="space-y-3">
                  <input
                    type="email"
                    value={formData.email}
                    onChange={(e) => handleInputChange('email', e.target.value)}
-                   className="flex-1 px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                    placeholder="Enter your email"
                  />
                  <button
                    type="button"
                    onClick={sendEmailOtp}
                    disabled={emailOtpSent && emailOtpTimer > 0}
-                   className="px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
+                   className="w-full sm:w-auto px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
                  >
                    {emailOtpSent && emailOtpTimer > 0 ? `${emailOtpTimer}s` : 'Send OTP'}
                  </button>
@@ -340,19 +340,19 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                
                {emailOtpSent && (
                  <div className="mt-4 space-y-3">
-                   <div className="flex space-x-2">
+                   <div className="space-y-3">
                      <input
                        type="text"
                        value={formData.emailOtp}
                        onChange={(e) => handleInputChange('emailOtp', e.target.value)}
-                       className="flex-1 px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                       className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                        placeholder="Enter 6-digit OTP"
                        maxLength={6}
                      />
                      <button
                        type="button"
                        onClick={verifyEmailOtp}
-                       className="px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
+                       className="w-full sm:w-auto px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
                      >
                        Verify
                      </button>
@@ -506,29 +506,31 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
                          <div>
                <label className="block text-sm font-medium text-text-secondary mb-2">Mobile Number</label>
-               <div className="flex space-x-2">
-                 <select
-                   value={formData.mobileCode}
-                   onChange={(e) => handleInputChange('mobileCode', e.target.value)}
-                   className="w-16 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center"
-                   title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
-                 >
-                   {mobileCodes.map(code => (
-                     <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
-                   ))}
-                 </select>
-                 <input
-                   type="tel"
-                   value={formData.mobileNumber}
-                   onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
-                   className="flex-1 px-3 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                   placeholder="Enter mobile number"
-                 />
+               <div className="space-y-3">
+                 <div className="flex space-x-2">
+                   <select
+                     value={formData.mobileCode}
+                     onChange={(e) => handleInputChange('mobileCode', e.target.value)}
+                     className="w-16 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center"
+                     title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
+                   >
+                     {mobileCodes.map(code => (
+                       <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
+                     ))}
+                   </select>
+                   <input
+                     type="tel"
+                     value={formData.mobileNumber}
+                     onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
+                     className="flex-1 px-3 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                     placeholder="Enter mobile number"
+                   />
+                 </div>
                  <button
                    type="button"
                    onClick={sendMobileOtp}
                    disabled={mobileOtpSent && mobileOtpTimer > 0}
-                   className="px-3 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
+                   className="w-full sm:w-auto px-3 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
                  >
                    {mobileOtpSent && mobileOtpTimer > 0 ? `${mobileOtpTimer}s` : 'Send OTP'}
                  </button>
@@ -537,19 +539,19 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                
                {mobileOtpSent && (
                  <div className="mt-4 space-y-3">
-                   <div className="flex space-x-2">
+                   <div className="space-y-3">
                      <input
                        type="text"
                        value={formData.mobileOtp}
                        onChange={(e) => handleInputChange('mobileOtp', e.target.value)}
-                       className="flex-1 px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                       className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
                        placeholder="Enter 6-digit OTP"
                        maxLength={6}
                      />
                      <button
                        type="button"
                        onClick={verifyMobileOtp}
-                       className="px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
+                       className="w-full sm:w-auto px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
                      >
                        Verify
                      </button>
@@ -600,20 +602,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                </div>
              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Qualification</label>
-              <select
-                value={formData.qualification}
-                onChange={(e) => handleInputChange('qualification', e.target.value)}
-                className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-              >
-                <option value="">Select qualification</option>
-                {qualificationOptions.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-              {errors.qualification && <p className="text-red-500 text-sm mt-1">{errors.qualification}</p>}
-            </div>
+
           </div>
         );
 
