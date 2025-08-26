@@ -45,29 +45,7 @@ const HomePage = ({ onSignUpClick }) => {
     }
   ];
 
-  const tradingContests = [
-    {
-      title: "Monthly Trading Contest",
-      prize: "$50,000",
-      participants: "1,000+",
-      duration: "30 days",
-      entry: "Free"
-    },
-    {
-      title: "Demo Trading Challenge",
-      prize: "$10,000",
-      participants: "500+",
-      duration: "7 days",
-      entry: "Free"
-    },
-    {
-      title: "Crypto Trading Cup",
-      prize: "$25,000",
-      participants: "750+",
-      duration: "14 days",
-      entry: "Free"
-    }
-  ];
+
 
   return (
     <div className="pt-24 bg-bg-primary min-h-screen overflow-hidden">
@@ -211,53 +189,7 @@ const HomePage = ({ onSignUpClick }) => {
             </div>
       </section>
 
-      {/* Trading Contests */}
-      <section className="py-20 bg-gradient-to-br from-bg-primary to-bg-secondary relative">
-        <div className="absolute top-1/3 right-20 w-20 h-20 bg-accent-color/10 rounded-full animate-pulse"></div>
-        
-        <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              <span className="text-text-primary">Trading</span> <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Contests</span>
-            </h2>
-            <p className="text-xl text-text-secondary">Compete with traders worldwide and win big prizes</p>
-          </div>
-          <div className="grid lg:grid-cols-3 gap-8">
-            {tradingContests.map((contest, index) => (
-              <div 
-                key={index} 
-                className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl transition-all duration-500 hover:-translate-y-3 hover:shadow-xl hover:shadow-accent-color/10 group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-accent-color/5 to-primary-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold mb-2 text-text-primary">{contest.title}</h3>
-                    <div className="text-3xl font-bold text-accent-color mb-2 transform group-hover:scale-110 transition-transform duration-300">{contest.prize}</div>
-                    <p className="text-text-secondary">Total Prize Pool</p>
-                  </div>
-                  <div className="space-y-4 mb-8">
-                    <div className="flex justify-between py-2 border-b border-border-color">
-                      <span className="text-text-secondary">Participants</span>
-                      <span className="font-semibold text-accent-color">{contest.participants}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-border-color">
-                      <span className="text-text-secondary">Duration</span>
-                      <span className="font-semibold text-accent-color">{contest.duration}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-border-color">
-                      <span className="text-text-secondary">Entry Fee</span>
-                      <span className="font-semibold text-success-color">{contest.entry}</span>
-                    </div>
-              </div>
-                  <button className="w-full bg-transparent border-2 border-accent-color text-accent-color font-semibold px-6 py-3 rounded-xl hover:bg-accent-color/10 transition-all duration-300 transform hover:-translate-y-1">
-                    Join Contest
-                  </button>
-            </div>
-          </div>
-            ))}
-              </div>
-            </div>
-      </section>
+
 
       {/* Market Overview */}
       <section className="py-20 bg-bg-secondary relative">

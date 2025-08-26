@@ -8,8 +8,6 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     email: '',
     password: '',
     repeatPassword: '',
-    emailOtp: '',
-    emailVerified: false,
     
     // Step 2: Personal details
     fullName: '',
@@ -19,10 +17,6 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     dateOfBirth: '',
     mobileCode: '+91',
     mobileNumber: '',
-    mobileOtp: '',
-    mobileVerified: false,
-    maritalStatus: '',
-    qualification: '',
     
     // Step 3: Address details
     country: '',
@@ -31,12 +25,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     postalCode: '',
     streetAddress: '',
     
-    // Step 4: Document verification
-    panDocument: null,
-    aadharFront: null,
-    aadharBack: null,
-    
-    // Step 5: Terms and conditions
+    // Step 4: Terms and conditions
     termsAccepted: false,
     privacyAccepted: false
   });
@@ -44,16 +33,12 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [emailOtpSent, setEmailOtpSent] = useState(false);
-  const [mobileOtpSent, setMobileOtpSent] = useState(false);
-  const [emailOtpTimer, setEmailOtpTimer] = useState(0);
-  const [mobileOtpTimer, setMobileOtpTimer] = useState(0);
+
 
   const steps = [
     { title: 'Account type', description: 'Choose your account type and create credentials' },
     { title: 'Personal details', description: 'Enter your personal information' },
     { title: 'Address details', description: 'Provide your address information' },
-    { title: 'Document Verification', description: 'Upload required documents' },
     { title: 'Terms and Conditions', description: 'Review and accept terms' }
   ];
 
@@ -69,21 +54,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     { value: 'other', label: 'Other' }
   ];
 
-  const maritalStatusOptions = [
-    { value: 'single', label: 'Single' },
-    { value: 'married', label: 'Married' },
-    { value: 'divorced', label: 'Divorced' },
-    { value: 'widowed', label: 'Widowed' }
-  ];
 
-  const qualificationOptions = [
-    { value: 'high_school', label: 'High School' },
-    { value: 'diploma', label: 'Diploma' },
-    { value: 'bachelor', label: 'Bachelor\'s Degree' },
-    { value: 'master', label: 'Master\'s Degree' },
-    { value: 'phd', label: 'PhD' },
-    { value: 'other', label: 'Other' }
-  ];
 
   const countries = [
     { value: 'US', label: 'United States' },
@@ -154,76 +125,9 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     }
   };
 
-  const handleFileUpload = (field, file) => {
-    setFormData(prev => ({ ...prev, [field]: file }));
-    // Clear error when user uploads a file
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
 
-  // OTP Functions
-  const sendEmailOtp = () => {
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
-      setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }));
-      return;
-    }
-    
-    // Dummy OTP sending - replace with actual API call
-    setEmailOtpSent(true);
-    setEmailOtpTimer(60);
-    const timer = setInterval(() => {
-      setEmailOtpTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
 
-  const sendMobileOtp = () => {
-    if (!formData.mobileNumber || formData.mobileNumber.length < 10) {
-      setErrors(prev => ({ ...prev, mobileNumber: 'Please enter a valid mobile number' }));
-      return;
-    }
-    
-    // Dummy OTP sending - replace with actual API call
-    setMobileOtpSent(true);
-    setMobileOtpTimer(60);
-    const timer = setInterval(() => {
-      setMobileOtpTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
 
-  const verifyEmailOtp = () => {
-    if (!formData.emailOtp || formData.emailOtp.length !== 6) {
-      setErrors(prev => ({ ...prev, emailOtp: 'Please enter a valid 6-digit OTP' }));
-      return;
-    }
-    
-    // Dummy verification - accept any 6-digit OTP
-    setFormData(prev => ({ ...prev, emailVerified: true }));
-    setErrors(prev => ({ ...prev, emailOtp: '' }));
-  };
-
-  const verifyMobileOtp = () => {
-    if (!formData.mobileOtp || formData.mobileOtp.length !== 6) {
-      setErrors(prev => ({ ...prev, mobileOtp: 'Please enter a valid 6-digit OTP' }));
-      return;
-    }
-    
-    // Dummy verification - accept any 6-digit OTP
-    setFormData(prev => ({ ...prev, mobileVerified: true }));
-    setErrors(prev => ({ ...prev, mobileOtp: '' }));
-  };
 
   const validateStep = (step) => {
     const newErrors = {};
@@ -232,7 +136,6 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
       case 0: // Account type
         if (!formData.email) newErrors.email = 'Email is required';
         else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
-        if (!formData.emailVerified) newErrors.emailVerified = 'Please verify your email with OTP';
         if (!formData.password) newErrors.password = 'Password is required';
         else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
         if (!formData.repeatPassword) newErrors.repeatPassword = 'Please repeat your password';
@@ -247,9 +150,6 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
         if (!formData.mobileNumber) newErrors.mobileNumber = 'Mobile number is required';
         else if (formData.mobileNumber.length < 10) newErrors.mobileNumber = 'Please enter a valid mobile number';
-        if (!formData.mobileVerified) newErrors.mobileVerified = 'Please verify your mobile number with OTP';
-        if (!formData.maritalStatus) newErrors.maritalStatus = 'Marital status is required';
-        if (!formData.qualification) newErrors.qualification = 'Qualification is required';
         break;
 
       case 2: // Address details
@@ -260,13 +160,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         if (!formData.streetAddress) newErrors.streetAddress = 'Full address is required';
         break;
 
-      case 3: // Document verification
-        if (!formData.panDocument) newErrors.panDocument = 'PAN document is required';
-        if (!formData.aadharFront) newErrors.aadharFront = 'Aadhar front side is required';
-        if (!formData.aadharBack) newErrors.aadharBack = 'Aadhar back side is required';
-        break;
-
-      case 4: // Terms and conditions
+      case 3: // Terms and conditions
         if (!formData.termsAccepted) newErrors.termsAccepted = 'You must accept the terms and conditions';
         if (!formData.privacyAccepted) newErrors.privacyAccepted = 'You must accept the privacy policy';
         break;
@@ -319,56 +213,14 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
                          <div>
                <label className="block text-sm font-medium text-text-secondary mb-2">Your email</label>
-               <div className="space-y-3">
-                 <input
-                   type="email"
-                   value={formData.email}
-                   onChange={(e) => handleInputChange('email', e.target.value)}
-                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                   placeholder="Enter your email"
-                 />
-                 <button
-                   type="button"
-                   onClick={sendEmailOtp}
-                   disabled={emailOtpSent && emailOtpTimer > 0}
-                   className="w-full sm:w-auto px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
-                 >
-                   {emailOtpSent && emailOtpTimer > 0 ? `${emailOtpTimer}s` : 'Send OTP'}
-                 </button>
-               </div>
+               <input
+                 type="email"
+                 value={formData.email}
+                 onChange={(e) => handleInputChange('email', e.target.value)}
+                 className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                 placeholder="Enter your email"
+               />
                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-               
-               {emailOtpSent && (
-                 <div className="mt-4 space-y-3">
-                   <div className="space-y-3">
-                     <input
-                       type="text"
-                       value={formData.emailOtp}
-                       onChange={(e) => handleInputChange('emailOtp', e.target.value)}
-                       className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                       placeholder="Enter 6-digit OTP"
-                       maxLength={6}
-                     />
-                     <button
-                       type="button"
-                       onClick={verifyEmailOtp}
-                       className="w-full sm:w-auto px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
-                     >
-                       Verify
-                     </button>
-                   </div>
-                   {formData.emailVerified && (
-                     <div className="flex items-center text-green-600 text-sm">
-                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                       </svg>
-                       Email verified successfully
-                     </div>
-                   )}
-                   {errors.emailOtp && <p className="text-red-500 text-sm">{errors.emailOtp}</p>}
-                   {errors.emailVerified && <p className="text-red-500 text-sm">{errors.emailVerified}</p>}
-                 </div>
-               )}
              </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -506,101 +358,29 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
 
                          <div>
                <label className="block text-sm font-medium text-text-secondary mb-2">Mobile Number</label>
-               <div className="space-y-3">
-                 <div className="flex space-x-2">
-                   <select
-                     value={formData.mobileCode}
-                     onChange={(e) => handleInputChange('mobileCode', e.target.value)}
-                     className="w-16 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center"
-                     title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
-                   >
-                     {mobileCodes.map(code => (
-                       <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
-                     ))}
-                   </select>
-                   <input
-                     type="tel"
-                     value={formData.mobileNumber}
-                     onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
-                     className="flex-1 px-3 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                     placeholder="Enter mobile number"
-                   />
-                 </div>
-                 <button
-                   type="button"
-                   onClick={sendMobileOtp}
-                   disabled={mobileOtpSent && mobileOtpTimer > 0}
-                   className="w-full sm:w-auto px-3 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
+               <div className="flex space-x-2 min-w-0">
+                 <select
+                   value={formData.mobileCode}
+                   onChange={(e) => handleInputChange('mobileCode', e.target.value)}
+                   className="w-16 sm:w-20 flex-shrink-0 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center text-sm"
+                   title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
                  >
-                   {mobileOtpSent && mobileOtpTimer > 0 ? `${mobileOtpTimer}s` : 'Send OTP'}
-                 </button>
+                   {mobileCodes.map(code => (
+                     <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
+                   ))}
+                 </select>
+                 <input
+                   type="tel"
+                   value={formData.mobileNumber}
+                   onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
+                   className="flex-1 min-w-0 px-3 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-sm"
+                   placeholder="Enter mobile number"
+                 />
                </div>
                {errors.mobileNumber && <p className="text-red-500 text-sm mt-1">{errors.mobileNumber}</p>}
-               
-               {mobileOtpSent && (
-                 <div className="mt-4 space-y-3">
-                   <div className="space-y-3">
-                     <input
-                       type="text"
-                       value={formData.mobileOtp}
-                       onChange={(e) => handleInputChange('mobileOtp', e.target.value)}
-                       className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                       placeholder="Enter 6-digit OTP"
-                       maxLength={6}
-                     />
-                     <button
-                       type="button"
-                       onClick={verifyMobileOtp}
-                       className="w-full sm:w-auto px-4 py-3 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors text-sm whitespace-nowrap"
-                     >
-                       Verify
-                     </button>
-                   </div>
-                   {formData.mobileVerified && (
-                     <div className="flex items-center text-green-600 text-sm">
-                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                       </svg>
-                       Mobile number verified successfully
-                     </div>
-                   )}
-                   {errors.mobileOtp && <p className="text-red-500 text-sm">{errors.mobileOtp}</p>}
-                   {errors.mobileVerified && <p className="text-red-500 text-sm">{errors.mobileVerified}</p>}
-                 </div>
-               )}
              </div>
 
-             <div className="grid grid-cols-2 gap-4">
-               <div>
-                 <label className="block text-sm font-medium text-text-secondary mb-2">Marital Status</label>
-                 <select
-                   value={formData.maritalStatus}
-                   onChange={(e) => handleInputChange('maritalStatus', e.target.value)}
-                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                 >
-                   <option value="">Select marital status</option>
-                   {maritalStatusOptions.map(option => (
-                     <option key={option.value} value={option.value}>{option.label}</option>
-                   ))}
-                 </select>
-                 {errors.maritalStatus && <p className="text-red-500 text-sm mt-1">{errors.maritalStatus}</p>}
-               </div>
 
-               <div>
-                 <label className="block text-sm font-medium text-text-secondary mb-2">Qualification</label>
-                 <select
-                   value={formData.qualification}
-                   onChange={(e) => handleInputChange('qualification', e.target.value)}
-                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                 >
-                   <option value="">Select qualification</option>
-                   {qualificationOptions.map(option => (
-                     <option key={option.value} value={option.value}>{option.label}</option>
-                   ))}
-                 </select>
-                 {errors.qualification && <p className="text-red-500 text-sm mt-1">{errors.qualification}</p>}
-               </div>
-             </div>
 
 
           </div>
@@ -682,122 +462,6 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                  );
 
        case 3:
-         return (
-           <div className="space-y-6">
-             <div>
-               <label className="block text-sm font-medium text-text-secondary mb-2">PAN Document</label>
-               <div className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-accent-color/50 transition-colors">
-                 <input
-                   type="file"
-                   accept="image/*"
-                   onChange={(e) => handleFileUpload('panDocument', e.target.files[0])}
-                   className="hidden"
-                   id="panDocument"
-                 />
-                 <label htmlFor="panDocument" className="cursor-pointer">
-                   <div className="space-y-2">
-                     <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                       <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                     </svg>
-                     <div className="text-sm text-text-secondary">
-                       <span className="font-medium text-accent-color hover:text-accent-color/80">Click to upload</span> or drag and drop
-                     </div>
-                     <p className="text-xs text-text-secondary">PNG, JPG, JPEG up to 10MB</p>
-                   </div>
-                 </label>
-               </div>
-               {formData.panDocument && (
-                 <div className="mt-2 text-sm text-text-secondary">
-                   Selected: {formData.panDocument.name}
-                 </div>
-               )}
-               {errors.panDocument && <p className="text-red-500 text-sm mt-1">{errors.panDocument}</p>}
-             </div>
-
-             <div className="grid grid-cols-2 gap-4">
-               <div>
-                 <label className="block text-sm font-medium text-text-secondary mb-2">Aadhar Front Side</label>
-                 <div className="border-2 border-dashed border-border-color rounded-lg p-4 text-center hover:border-accent-color/50 transition-colors">
-                   <input
-                     type="file"
-                     accept="image/*"
-                     onChange={(e) => handleFileUpload('aadharFront', e.target.files[0])}
-                     className="hidden"
-                     id="aadharFront"
-                   />
-                   <label htmlFor="aadharFront" className="cursor-pointer">
-                     <div className="space-y-2">
-                       <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                       </svg>
-                       <div className="text-xs text-text-secondary">
-                         <span className="font-medium text-accent-color hover:text-accent-color/80">Upload</span>
-                       </div>
-                     </div>
-                   </label>
-                 </div>
-                 {formData.aadharFront && (
-                   <div className="mt-2 text-xs text-text-secondary">
-                     Selected: {formData.aadharFront.name}
-                   </div>
-                 )}
-                 {errors.aadharFront && <p className="text-red-500 text-sm mt-1">{errors.aadharFront}</p>}
-               </div>
-
-               <div>
-                 <label className="block text-sm font-medium text-text-secondary mb-2">Aadhar Back Side</label>
-                 <div className="border-2 border-dashed border-border-color rounded-lg p-4 text-center hover:border-accent-color/50 transition-colors">
-                   <input
-                     type="file"
-                     accept="image/*"
-                     onChange={(e) => handleFileUpload('aadharBack', e.target.files[0])}
-                     className="hidden"
-                     id="aadharBack"
-                   />
-                   <label htmlFor="aadharBack" className="cursor-pointer">
-                     <div className="space-y-2">
-                       <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                       </svg>
-                       <div className="text-xs text-text-secondary">
-                         <span className="font-medium text-accent-color hover:text-accent-color/80">Upload</span>
-                       </div>
-                     </div>
-                   </label>
-                 </div>
-                 {formData.aadharBack && (
-                   <div className="mt-2 text-xs text-text-secondary">
-                     Selected: {formData.aadharBack.name}
-                   </div>
-                 )}
-                 {errors.aadharBack && <p className="text-red-500 text-sm mt-1">{errors.aadharBack}</p>}
-               </div>
-             </div>
-
-             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-               <div className="flex">
-                 <div className="flex-shrink-0">
-                   <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                   </svg>
-                 </div>
-                 <div className="ml-3">
-                   <h3 className="text-sm font-medium text-blue-800">Document Requirements</h3>
-                   <div className="mt-2 text-sm text-blue-700">
-                     <ul className="list-disc list-inside space-y-1">
-                       <li>PAN card should be clearly visible and valid</li>
-                       <li>Aadhar card should show both front and back sides clearly</li>
-                       <li>Documents should be in JPG, PNG, or JPEG format</li>
-                       <li>Maximum file size: 10MB per document</li>
-                     </ul>
-                   </div>
-                 </div>
-               </div>
-             </div>
-           </div>
-         );
-
-       case 4:
         return (
           <div className="space-y-6">
             <div className="bg-bg-secondary p-6 rounded-lg">
@@ -868,8 +532,8 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6">
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
@@ -892,7 +556,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         </div>
 
         {/* Sign Up Form */}
-        <div className="bg-card-bg rounded-2xl p-8 shadow-xl">
+        <div className="bg-card-bg rounded-2xl p-6 sm:p-8 shadow-xl">
           {/* Step Title and Progress */}
           <div className="mb-6">
             <h3 className="text-xl font-bold text-accent-color mb-2">
@@ -915,22 +579,22 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
             {renderStepContent()}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center pt-6">
+            <div className="flex justify-between items-center pt-6 space-x-3">
               <button
                 type="button"
                 onClick={handlePreviousStep}
                 disabled={currentStep === 0}
-                className="px-6 py-3 border border-accent-color text-accent-color rounded-lg hover:bg-accent-color/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-3 sm:px-6 py-3 border border-accent-color text-accent-color rounded-lg hover:bg-accent-color/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium"
               >
-                PREVIOUS STEP
+                PREVIOUS
               </button>
 
               <button
                 type="button"
                 onClick={handleNextStep}
-                className="px-6 py-3 bg-accent-color text-text-quaternary rounded-lg hover:bg-accent-color/90 transition-colors"
+                className="flex-1 px-3 sm:px-6 py-3 bg-accent-color text-text-quaternary rounded-lg hover:bg-accent-color/90 transition-colors text-sm sm:text-base font-medium"
               >
-                {currentStep === steps.length - 1 ? 'SIGN UP' : 'NEXT STEP'}
+                {currentStep === steps.length - 1 ? 'SIGN UP' : 'NEXT'}
               </button>
             </div>
 

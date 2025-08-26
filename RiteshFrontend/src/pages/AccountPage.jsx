@@ -25,7 +25,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
     return [
       {
         id: "113424",
-        type: "50 % Deposit Bonus",
+        type: "Standard",
         balance: "0.00",
         currency: "USD",
         status: "LIVE",
@@ -33,7 +33,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
       },
       {
         id: "789456",
-        type: "Pro Premium",
+        type: "Platinum",
         balance: "0.00",
         currency: "USD",
         status: "LIVE",
@@ -50,47 +50,67 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
     ];
   });
 
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if screen is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMenuId && !event.target.closest('.menu-container')) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuId]);
+
   // Save created accounts to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('createdAccounts', JSON.stringify(createdAccounts));
   }, [createdAccounts]);
   const carouselRef = useRef(null);
 
-  const liveOffers = [
+    const liveOffers = [
     {
-      title: "Pro Premium",
+      title: "Standard",
       status: "Live",
       icon: "star",
-      initialDeposit: "0",
+      initialDeposit: "40",
       leverage: "1:500",
-      description: "Pro_B\\Premium",
+      description: "Standard Account",
       gradient: "from-green-400 to-teal-500"
     },
     {
-      title: "Pro Platinum", 
+      title: "Platinum", 
       status: "Live",
       icon: "diamond",
-      initialDeposit: "0",
+      initialDeposit: "100",
       leverage: "1:500",
-      description: "Pro_B\\Platinum",
+      description: "Platinum Account",
       gradient: "from-green-400 to-teal-500"
     },
     {
-      title: "50 % Deposit Bonus",
+      title: "Premium",
       status: "Live", 
       icon: "gift",
-      initialDeposit: "0",
+      initialDeposit: "500",
       leverage: "1:500",
-      description: "Upto 3 deposits",
-      gradient: "from-green-400 to-teal-500"
-    },
-    {
-      title: "UNUSED SCPL Account",
-      status: "Live",
-      icon: "settings",
-      initialDeposit: "0",
-      leverage: "1:300",
-      description: "Special account type",
+      description: "Premium Account",
       gradient: "from-green-400 to-teal-500"
     }
   ];
@@ -168,6 +188,17 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
   // Function to go back to accounts view
   const handleBackToAccounts = () => {
     setShowOffersSection(false);
+  };
+
+  // Function to delete an account
+  const handleDeleteAccount = (accountId) => {
+    setCreatedAccounts(prev => prev.filter(account => account.id !== accountId));
+    setOpenMenuId(null);
+  };
+
+  // Function to toggle menu
+  const toggleMenu = (accountId) => {
+    setOpenMenuId(openMenuId === accountId ? null : accountId);
   };
 
   // Function to render SVG icons
@@ -266,14 +297,14 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
                       }`}
                   >
                     DEMO
-                  </button>
-                </div>
+            </button>
               </div>
+            </div>
 
               {/* Accounts Carousel */}
               <div className="relative">
                 {/* Navigation Arrows */}
-                {createdAccounts.filter(account => account.status === activeTab).length > 1 && (
+                {(createdAccounts.filter(account => account.status.toUpperCase() === activeTab).length > 1 || isMobile) && (
                   <>
                     <button
                       onClick={handlePrevious}
@@ -284,7 +315,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
                       </svg>
                     </button>
 
-                    <button
+                <button
                       onClick={handleNext}
                       className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color rounded-full flex items-center justify-center text-text-quaternary transition-all duration-300 hover:scale-110 shadow-lg"
                     >
@@ -310,10 +341,28 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
 
                       {/* Menu Icon */}
                       <div className="absolute top-4 right-4">
-                        <button className="text-text-secondary hover:text-text-primary transition-colors">
+                        <button 
+                          onClick={() => toggleMenu(account.id)}
+                          className="text-text-secondary hover:text-text-primary transition-colors relative menu-container"
+                        >
                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
                           </svg>
+                          
+                          {/* Dropdown Menu */}
+                          {openMenuId === account.id && (
+                            <div className="absolute right-0 top-8 bg-card-bg border border-border-color rounded-lg shadow-xl z-50 min-w-[120px] py-1">
+                              <button
+                                onClick={() => handleDeleteAccount(account.id)}
+                                className="w-full px-3 py-2 text-left text-danger-color hover:bg-danger-color/10 transition-colors flex items-center space-x-2"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                                <span className="text-sm">Delete</span>
+                              </button>
+                            </div>
+                          )}
                         </button>
                       </div>
 
@@ -322,7 +371,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
                         <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-accent-color via-primary-blue to-accent-color rounded-full flex items-center justify-center">
                           <svg className="w-6 h-6 text-text-quaternary" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                          </svg>
+                  </svg>
                         </div>
                       </div>
 
@@ -345,8 +394,8 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
                         </button>
                         <button className="w-full bg-transparent border border-danger-color text-danger-color hover:bg-danger-color hover:text-text-quaternary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 text-xs">
                           WITHDRAW
-                        </button>
-                      </div>
+                </button>
+              </div>
 
                       {/* No Transactions Message */}
                       <div className="text-center mt-4">
@@ -394,125 +443,125 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
               {/* Offers Title */}
               <div className="text-center mb-6 sm:mb-8">
                 <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-text-primary via-text-secondary to-accent-color bg-clip-text text-transparent mb-3">
-                  Offers
-                </h1>
-              </div>
+                Offers
+              </h1>
+            </div>
 
-              {/* Tabs */}
+            {/* Tabs */}
               <div className="flex justify-center mb-6 sm:mb-8">
                 <div className="bg-gradient-to-r from-accent-color/20 to-accent-color/10 backdrop-blur-md border border-border-color rounded-xl p-1 shadow-lg">
-                  <button
-                    onClick={() => {
-                      setActiveTab('LIVE');
-                      if (carouselRef.current) {
-                        carouselRef.current.scrollLeft = 0;
-                      }
-                    }}
+                <button
+                  onClick={() => {
+                    setActiveTab('LIVE');
+                    if (carouselRef.current) {
+                      carouselRef.current.scrollLeft = 0;
+                    }
+                  }}
                     className={`px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 ${activeTab === 'LIVE'
                         ? 'bg-gradient-to-r from-accent-color to-primary-blue text-text-quaternary shadow-lg scale-105'
                         : 'text-text-secondary hover:text-text-primary hover:bg-accent-color/20'
-                      }`}
-                  >
-                    LIVE ACCOUNTS
-                  </button>
-                  <button
-                    onClick={() => {
-                      setActiveTab('DEMO');
-                      if (carouselRef.current) {
-                        carouselRef.current.scrollLeft = 0;
-                      }
-                    }}
+                    }`}
+                >
+                  LIVE ACCOUNTS
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('DEMO');
+                    if (carouselRef.current) {
+                      carouselRef.current.scrollLeft = 0;
+                    }
+                  }}
                     className={`px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 ${activeTab === 'DEMO'
                         ? 'bg-gradient-to-r from-accent-color to-primary-blue text-text-quaternary shadow-lg scale-105'
                         : 'text-text-secondary hover:text-text-primary hover:bg-accent-color/20'
-                      }`}
-                  >
-                    DEMO ACCOUNTS
-                  </button>
-                </div>
-              </div>
-
-              {/* Offers Carousel */}
-              <div className="relative">
-                {/* Navigation Arrows */}
-                {canNavigate && (
-                  <>
-                    <button
-                      onClick={handlePrevious}
-                      className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color rounded-full flex items-center justify-center text-text-quaternary transition-all duration-300 hover:scale-110 shadow-lg"
-                    >
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-
-                    <button
-                      onClick={handleNext}
-                      className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color rounded-full flex items-center justify-center text-text-quaternary transition-all duration-300 hover:scale-110 shadow-lg"
-                    >
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </>
-                )}
-
-                {/* Offers Horizontal Row */}
-                <div
-                  ref={carouselRef}
-                  className="flex space-x-3 sm:space-x-5 px-4 sm:px-20 py-7 overflow-x-auto scrollbar-hide scroll-smooth"
+                    }`}
                 >
-                  {currentOffers.map((offer, index) => (
+                  DEMO ACCOUNTS
+                </button>
+              </div>
+            </div>
+
+            {/* Offers Carousel */}
+            <div className="relative">
+              {/* Navigation Arrows */}
+              {canNavigate && (
+                <>
+                  <button
+                    onClick={handlePrevious}
+                      className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color rounded-full flex items-center justify-center text-text-quaternary transition-all duration-300 hover:scale-110 shadow-lg"
+                  >
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  <button
+                    onClick={handleNext}
+                      className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color rounded-full flex items-center justify-center text-text-quaternary transition-all duration-300 hover:scale-110 shadow-lg"
+                  >
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+
+              {/* Offers Horizontal Row */}
+              <div
+                ref={carouselRef}
+                  className="flex space-x-3 sm:space-x-5 px-4 sm:px-20 py-7 overflow-x-auto scrollbar-hide scroll-smooth"
+              >
+                {currentOffers.map((offer, index) => (
                     <div key={index} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-3 sm:p-4 relative min-w-[260px] sm:min-w-[286px] max-w-[280px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
-                      {/* Gradient Background Overlay */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${offer.gradient} opacity-5 rounded-xl group-hover:opacity-10 transition-opacity duration-500`}></div>
+                    {/* Gradient Background Overlay */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${offer.gradient} opacity-5 rounded-xl group-hover:opacity-10 transition-opacity duration-500`}></div>
 
-                      {/* Status Badge */}
-                      <div className="absolute top-4 right-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${offer.status === 'Live'
-                            ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
-                            : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg'
-                          }`}>
-                          {offer.status}
-                        </span>
-                      </div>
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${offer.status === 'Live'
+                          ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
+                          : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg'
+                        }`}>
+                        {offer.status}
+                      </span>
+                    </div>
 
-                       {/* Title */}
+                                         {/* Title */}
                        <h3 className="text-sm sm:text-base font-bold text-text-primary mb-3 pr-12 sm:pr-16 text-center group-hover:text-accent-color transition-colors duration-300">{offer.title}</h3>
 
-                       {/* Icon */}
+                     {/* Icon */}
                        <div className="w-10 h-10 sm:w-12 sm:h-12 mb-4 mx-auto group-hover:scale-110 transition-transform duration-500">
-                         {renderIcon(offer.icon)}
-                       </div>
+                       {renderIcon(offer.icon)}
+                     </div>
 
-                       {/* Details */}
+                     {/* Details */}
                        <div className="space-y-2 sm:space-y-2.5 mb-4">
                          <div className="flex justify-between items-center bg-accent-color/10 rounded-md p-2">
                            <span className="text-text-secondary text-xs sm:text-sm">Initial deposit:</span>
-                           <span className="text-text-primary font-bold text-xs sm:text-sm">{offer.initialDeposit}</span>
-                         </div>
+                           <span className="text-text-primary font-bold text-xs sm:text-sm">${offer.initialDeposit}</span>
+                       </div>
                          <div className="flex justify-between items-center bg-accent-color/10 rounded-md p-2">
                            <span className="text-text-secondary text-xs sm:text-sm">Leverage:</span>
                            <span className="text-text-primary font-bold text-xs sm:text-sm">{offer.leverage}</span>
-                         </div>
+                       </div>
                          <div className="flex justify-between items-center bg-accent-color/10 rounded-md p-2">
                            <span className="text-text-secondary text-xs sm:text-sm">Description:</span>
                            <span className="text-text-primary font-medium text-xs sm:text-sm">{offer.description}</span>
-                         </div>
                        </div>
+                     </div>
 
-                       {/* Action Button */}
+                     {/* Action Button */}
                        <button 
                          onClick={() => handleCreateAccount(offer)}
                          className="w-full bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-bold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl transform group-hover:shadow-2xl text-xs sm:text-sm"
                        >
-                         CREATE {activeTab} ACCOUNT
-                       </button>
-                    </div>
-                  ))}
-                </div>
+                       CREATE {activeTab} ACCOUNT
+                     </button>
+                  </div>
+                ))}
               </div>
             </div>
+          </div>
           )}
         </div>
       </main>
