@@ -36,6 +36,7 @@ function App() {
     setUserEmail(email);
     setPreviousPage('home'); // Set previous page to home for proper back navigation
     setCurrentPage('account');
+    setCurrentPage("profile");
   };
 
   const handleSignOut = () => {

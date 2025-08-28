@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 
 const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
+   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     // Step 1: Account type
@@ -170,16 +173,18 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNextStep = () => {
-    if (validateStep(currentStep)) {
-      if (currentStep < steps.length - 1) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        // Final step - submit the form
-        handleSubmit();
-      }
+  const handleNextStep = (e) => {
+  if (e) e.preventDefault();
+
+  if (validateStep(currentStep)) {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Final submit
+      handleSubmit(e);
     }
-  };
+  }
+};
 
   const handlePreviousStep = () => {
     if (currentStep > 0) {
@@ -187,11 +192,35 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     }
   };
 
-  const handleSubmit = () => {
-    // Here you would typically send the data to your backend
-    console.log('Form submitted:', formData);
-    onSignUp(formData.email);
+   const handleSubmit = async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setErrorMessage(data.message || "Signup failed");
+      } else {
+        setSuccessMessage("🎉 Registered Successfully!");
+        setTimeout(() => {
+          onBackToSignIn();
+        }, 2000);
+      }
+    } catch (error) {
+      setErrorMessage("Server error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -590,12 +619,12 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               </button>
 
               <button
-                type="button"
-                onClick={handleNextStep}
-                className="flex-1 px-3 sm:px-6 py-3 bg-accent-color text-text-quaternary rounded-lg hover:bg-accent-color/90 transition-colors text-sm sm:text-base font-medium"
-              >
-                {currentStep === steps.length - 1 ? 'SIGN UP' : 'NEXT'}
-              </button>
+  type={currentStep === steps.length - 1 ? "submit" : "button"}
+  onClick={(e) => handleNextStep(e)}  // ✅ Pass event
+  className="flex-1 px-3 sm:px-6 py-3 bg-accent-color text-text-quaternary rounded-lg hover:bg-accent-color/90 transition-colors text-sm sm:text-base font-medium"
+>
+  {currentStep === steps.length - 1 ? "SIGN UP" : "NEXT"}
+</button>
             </div>
 
             {/* Log In Link */}
@@ -628,5 +657,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     </div>
   );
 };
+
+
 
 export default SignUpPage;

@@ -1,27 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+
 
 const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(""); // ✅ Added state
+  const [successMessage, setSuccessMessage] = useState(""); // ✅ For popup
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!email.trim() || !password.trim()) return;
-    
-    setIsLoading(true);
-    
-    // Simulate login process - accepts any email and password
-    setTimeout(() => {
-      setIsLoading(false);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+    console.log("Login Response:", data);
+
+    if (res.ok && data.success) {
+      // ✅ Save token & user info
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // ✅ Call App.js onSignIn to update state
       onSignIn(email);
-    }, 1500);
-  };
+
+      // ✅ Redirect to profile page
+      alert("✅ Login successful!");
+    } else {
+      alert(data.message || "Invalid email or password");
+    }
+  } catch (error) {
+    console.error("Login Error:", error);
+    alert("Something went wrong. Please try again later.");
+  }
+};
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      {/* Animated background elements */}
       <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-color/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-primary-blue/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -42,24 +67,30 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
           </button>
         </div>
 
-        {/* Logo and Header */}
+        {/* Logo + Heading */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-accent-color to-primary-blue rounded-2xl flex items-center justify-center shadow-lg">
               <span className="text-text-quaternary font-bold text-2xl">PT</span>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-text-primary mb-2">
-            Welcome Back
-          </h2>
-          <p className="text-text-secondary">
-            Sign in to your Pro Traders account
-          </p>
+          <h2 className="text-3xl font-bold text-text-primary mb-2">Welcome Back</h2>
+          <p className="text-text-secondary">Sign in to your Pro Traders account</p>
         </div>
 
         {/* Sign In Form */}
         <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* ✅ Show Error */}
+            {errorMessage && (
+              <p className="text-red-500 text-center text-sm">{errorMessage}</p>
+            )}
+
+            {/* ✅ Show Success */}
+            {successMessage && (
+              <p className="text-green-500 text-center text-sm">{successMessage}</p>
+            )}
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
                 Email Address
@@ -110,7 +141,7 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
               </div>
             </div>
 
-            {/* Remember Me and Forgot Password */}
+            {/* Remember Me + Forgot Password */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -137,22 +168,30 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-text-quaternary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-text-quaternary"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Signing In...
                 </>
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </button>
           </form>
 
-          {/* Additional Info */}
           <div className="mt-6 text-center">
             <p className="text-text-secondary text-sm">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <button
                 onClick={onSignUpClick}
                 className="text-accent-color hover:text-accent-color/80 transition-colors font-medium"
@@ -163,14 +202,13 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="text-center">
           <p className="text-text-secondary text-xs">
-            By signing in, you agree to our{' '}
+            By signing in, you agree to our{" "}
             <a href="#" className="text-accent-color hover:text-accent-color/80 transition-colors">
               Terms of Service
-            </a>{' '}
-            and{' '}
+            </a>{" "}
+            and{" "}
             <a href="#" className="text-accent-color hover:text-accent-color/80 transition-colors">
               Privacy Policy
             </a>

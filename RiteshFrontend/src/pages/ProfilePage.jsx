@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect  } from 'react';
 import Header from '../components/Header';
+
 
 const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
   // Form state matching SignUpPage structure
@@ -37,7 +38,7 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
     aadharBack: null
   });
 
-
+const [loading, setLoading] = useState(false);
 
   // Arrays for dropdowns (matching SignUpPage)
   const genderOptions = [
@@ -79,6 +80,39 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
     'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
   ];
 
+ useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Please log in first");
+          onSignOut();
+          return;
+        }
+
+        const res = await fetch("http://localhost:5000/api/auth/profile", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setFormData(data.user);
+        } else {
+          alert(data.message || "Failed to fetch profile");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [onSignOut]);
+
   // Handle form data change
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -104,6 +138,58 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
       [field]: file
     }));
   };
+
+  const handleSaveProfile = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const form = new FormData();
+  form.append("email", user.email);
+
+  // Add personal details
+  Object.keys(formData).forEach((key) => {
+    form.append(key, formData[key]);
+  });
+
+  // Add bank info
+  Object.keys(bankInfo).forEach((key) => {
+    form.append(key, bankInfo[key]);
+  });
+
+  // Add uploaded documents
+  Object.keys(uploadedFiles).forEach((key) => {
+    if (uploadedFiles[key]) {
+      form.append(key, uploadedFiles[key]);
+    }
+  });
+
+  try {
+    const res = await fetch("http://localhost:5000/api/profile/save", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert("✅ Profile saved successfully!");
+    } else {
+      alert(data.message || "Failed to save profile");
+    }
+  } catch (error) {
+    console.error("Save Profile Error:", error);
+    alert("Something went wrong!");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
@@ -405,10 +491,16 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
               
               {/* Save Button */}
               <div className="text-center mt-8">
-                                 <button className="bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold px-8 py-3 rounded-lg transition-colors">
-                   SAVE CHANGES
-                </button>
-              </div>
+              <button
+                onClick={handleSaveProfile}
+                disabled={loading}
+                className={`bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold px-8 py-3 rounded-lg transition-colors ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? "Saving..." : "SAVE CHANGES"}
+              </button>
+            </div>
             </section>
           </div>
         </div>
