@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import MiniChartUsd from '../widgets/MiniChartUsd';
 import MiniChartGold from '../widgets/MiniChartGold';
+import Squares from '../backgrounds/Square.jsx';
+
 
 const HomePage = ({ onSignUpClick }) => {
+  const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
+  const carouselRef = useRef(null);
+
   const features = [
     { icon: "📊", title: "Ultra-Low Spreads", desc: "Starting from 0.1 pips" },
     { icon: "🌍", title: "200+ Instruments", desc: "Forex, Crypto & More" },
@@ -45,10 +50,19 @@ const HomePage = ({ onSignUpClick }) => {
     }
   ];
 
+  const handlePreviousPromo = () => {
+    setCurrentPromoIndex((prev) => (prev === 0 ? promotions.length - 1 : prev - 1));
+  };
+
+  const handleNextPromo = () => {
+    setCurrentPromoIndex((prev) => (prev === promotions.length - 1 ? 0 : prev + 1));
+  };
 
 
   return (
     <div className="pt-24 bg-bg-primary min-h-screen overflow-hidden">
+        
+
       {/* Animated background elements */}
       <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-color/5 rounded-full blur-3xl animate-pulse"></div>
@@ -58,12 +72,15 @@ const HomePage = ({ onSignUpClick }) => {
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-bg-primary to-bg-secondary py-20 relative">
+      
         <div className="absolute top-10 right-10 w-20 h-20 bg-accent-color/10 rounded-full animate-bounce delay-700"></div>
         <div className="absolute bottom-20 left-10 w-16 h-16 bg-accent-color/10 rounded-full animate-bounce delay-300"></div>
         
         <div className="container-custom relative z-10">
+          
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
+              
               <div className="inline-flex items-center bg-gradient-to-r from-accent-color/20 to-primary-blue/20 text-accent-color px-4 py-2 rounded-full shadow-lg animate-pulse">
                 <span>⚡ Trusted by 50,000+ Traders</span>
             </div>
@@ -143,13 +160,40 @@ const HomePage = ({ onSignUpClick }) => {
             </h2>
             <p className="text-xl text-text-secondary">Choose the promotion that fits your trading style</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {promotions.map((promo, index) => (
+          
+          {/* Horizontal Carousel Container */}
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <button 
+              onClick={handlePreviousPromo}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-accent-color/90 backdrop-blur-sm text-text-quaternary w-12 h-12 rounded-full flex items-center justify-center hover:bg-accent-color transition-all duration-300 shadow-lg hover:shadow-accent-color/30 hover:scale-110"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            <button 
+              onClick={handleNextPromo}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-accent-color/90 backdrop-blur-sm text-text-quaternary w-12 h-12 rounded-full flex items-center justify-center hover:bg-accent-color transition-all duration-300 shadow-lg hover:shadow-accent-color/30 hover:scale-110"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Carousel Content */}
+            <div className="flex justify-center">
               <div 
-                key={index} 
-                className={`bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl relative transition-all duration-500 hover:-translate-y-3 ${promo.popular ? 'ring-2 ring-accent-color transform hover:scale-105' : 'hover:shadow-xl hover:shadow-accent-color/10'}`}
+                ref={carouselRef}
+                className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl relative transition-all duration-500 hover:-translate-y-3 max-w-md mx-auto"
+                style={{
+                  minHeight: '600px',
+                  width: '100%',
+                  maxWidth: '400px'
+                }}
               >
-                {promo.popular && (
+                {promotions[currentPromoIndex].popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 animate-pulse">
                     <span className="bg-gradient-to-r from-accent-color to-primary-blue text-text-quaternary px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
                       Most Popular
@@ -157,23 +201,23 @@ const HomePage = ({ onSignUpClick }) => {
                   </div>
                 )}
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold mb-2 text-text-primary">{promo.title}</h3>
-                  <div className="text-4xl font-bold text-accent-color mb-2 transform hover:scale-110 transition-transform duration-300">{promo.bonus}</div>
-                  <p className="text-text-secondary">{promo.subtitle}</p>
+                  <h3 className="text-2xl font-bold mb-2 text-text-primary">{promotions[currentPromoIndex].title}</h3>
+                  <div className="text-4xl font-bold text-accent-color mb-2 transform hover:scale-110 transition-transform duration-300">{promotions[currentPromoIndex].bonus}</div>
+                  <p className="text-text-secondary">{promotions[currentPromoIndex].subtitle}</p>
                 </div>
-                <p className="text-text-secondary mb-6 text-center">{promo.description}</p>
+                <p className="text-text-secondary mb-6 text-center">{promotions[currentPromoIndex].description}</p>
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between py-2 border-b border-border-color">
                     <span className="text-text-secondary">Min Deposit</span>
-                    <span className="font-semibold text-accent-color">{promo.minDeposit}</span>
+                    <span className="font-semibold text-accent-color">{promotions[currentPromoIndex].minDeposit}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-border-color">
                     <span className="text-text-secondary">Max Bonus</span>
-                    <span className="font-semibold text-accent-color">{promo.maxBonus}</span>
+                    <span className="font-semibold text-accent-color">{promotions[currentPromoIndex].maxBonus}</span>
                   </div>
                 </div>
                 <div className="space-y-2 mb-8">
-                  {promo.features.map((feature, idx) => (
+                  {promotions[currentPromoIndex].features.map((feature, idx) => (
                     <div key={idx} className="flex items-center space-x-2 transition-transform duration-300 hover:translate-x-1">
                       <span className="text-success-color">✓</span>
                       <span className="text-text-secondary text-sm">{feature}</span>
@@ -183,10 +227,25 @@ const HomePage = ({ onSignUpClick }) => {
                 <button className="w-full bg-accent-color text-text-quaternary font-semibold px-6 py-3 rounded-xl hover:bg-accent-color/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-accent-color/30">
                   Claim Bonus
                 </button>
-        </div>
-            ))}
               </div>
             </div>
+
+            {/* Dots Indicator */}
+            <div className="flex justify-center mt-8 space-x-2">
+              {promotions.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPromoIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentPromoIndex 
+                      ? 'bg-accent-color scale-125' 
+                      : 'bg-border-color hover:bg-accent-color/50'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
 
@@ -272,7 +331,7 @@ const HomePage = ({ onSignUpClick }) => {
             </div>
       </section>
 
-      {/* Download Section */}
+      {/* Download Section
       <section className="py-20 bg-bg-secondary relative">
         <div className="absolute top-1/3 right-1/4 w-24 h-24 bg-accent-color/5 rounded-full blur-2xl"></div>
         
@@ -319,7 +378,7 @@ const HomePage = ({ onSignUpClick }) => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Final CTA Section */}
       <section className="py-20 bg-gradient-to-br from-bg-primary to-bg-secondary relative">

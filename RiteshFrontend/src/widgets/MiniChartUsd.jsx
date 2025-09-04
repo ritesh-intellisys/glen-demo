@@ -26,7 +26,7 @@ function Usd() {
           "chartOnly": false,
           "dateRange": "12M",
           "noTimeScale": false,
-          "colorTheme": "light",
+          "colorTheme": "dark",
       "isTransparent": true,
           "locale": "en",
           "width": "100%",

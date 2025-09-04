@@ -5,7 +5,10 @@ import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import AccountPage from './pages/AccountPage';
 import ProfilePage from './pages/ProfilePage';
+import AboutUs from './pages/AboutUs'; // Add this import
+import ContactUs from './pages/ContactUs';
 import Footer from './components/Footer';
+
 import './App.css';
 
 function App() {
@@ -36,7 +39,6 @@ function App() {
     setUserEmail(email);
     setPreviousPage('home'); // Set previous page to home for proper back navigation
     setCurrentPage('account');
-    setCurrentPage("profile");
   };
 
   const handleSignOut = () => {
@@ -67,6 +69,11 @@ function App() {
     console.log('Setting page to profile');
   };
 
+  const handleAboutUsClick = () => {
+    setPreviousPage(currentPage);
+    setCurrentPage('aboutus');
+  };
+
   const handleBackClick = () => {
     console.log('handleBackClick called - going to:', previousPage);
     setCurrentPage(previousPage);
@@ -80,6 +87,19 @@ function App() {
     setCurrentPage('home');
   };
 
+  const handleAboutUsBackClick = () => {
+    setCurrentPage(previousPage);
+  };
+
+  // Add this state handler function
+  const handleContactUsClick = () => {
+    setPreviousPage(currentPage);
+    setCurrentPage('contactus');
+  };
+
+  const handleHomeClick = () => {
+    setCurrentPage('home');
+  };
   const renderPage = () => {
     switch (currentPage) {
       case 'signin':
@@ -90,6 +110,11 @@ function App() {
         return <AccountPage userEmail={userEmail} onSignOut={handleSignOut} onProfileClick={handleProfileClick} onBack={handleAccountBackClick} />;
       case 'profile':
         return <ProfilePage userEmail={userEmail} onSignOut={handleSignOut} onBack={handleBackClick} onProfileClick={handleProfileClick} />;
+      case 'aboutus': // Add case for About Us page
+        return <AboutUs onSignUpClick={handleSignUpClick} />;
+      case 'contactus':
+        return <ContactUs onSignUpClick={handleSignUpClick} />;
+
       default:
         return (
           <>
@@ -102,9 +127,17 @@ function App() {
 
   return (
     <div className="App">
-      {currentPage === 'home' && <Navbar onSignInClick={handleSignInClick} />}
+      {(currentPage === 'home' || currentPage === 'aboutus' || currentPage === 'contactus') &&
+        <Navbar
+          onSignInClick={handleSignInClick}
+          onAboutUsClick={handleAboutUsClick}
+          onContactUsClick={handleContactUsClick}
+          onHomeClick={handleHomeClick}
+          currentPage={currentPage}
+        />
+      }
       {renderPage()}
-      </div>
+    </div>
   );
 }
 

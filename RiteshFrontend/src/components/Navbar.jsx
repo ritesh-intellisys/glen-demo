@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TickerTape from '../widgets/TickerTape';
 
-const Navbar = ({ onSignInClick }) => {
+const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, currentPage }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -21,6 +21,12 @@ const Navbar = ({ onSignInClick }) => {
     { instrument: 'Gold', value: '$2,045', change: '+0.78%', isPositive: true },
   ];
 
+  const handleHomeClick = () => {
+    if (currentPage !== 'home') {
+      onHomeClick();
+    }
+  };
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-card-bg/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
@@ -33,7 +39,7 @@ const Navbar = ({ onSignInClick }) => {
         <div className="container-custom">
           <div className="flex items-center justify-between py-4">
             {/* Logo */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={handleHomeClick}>
               <div className="w-10 h-10 bg-gradient-to-br from-accent-color to-primary-blue rounded-xl flex items-center justify-center">
                 <span className="text-text-quaternary font-bold text-lg">PT</span>
               </div>
@@ -45,16 +51,39 @@ const Navbar = ({ onSignInClick }) => {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
-              <a href="#home" className="text-accent-color font-semibold relative">
+              <button 
+                onClick={handleHomeClick}
+                className={`font-semibold relative ${
+                  currentPage === 'home' ? 'text-accent-color' : 'text-text-secondary hover:text-accent-color'
+                } transition-colors`}
+              >
                 Home
-                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-color to-primary-blue"></div>
-              </a>
-              <a href="#about" className="text-text-secondary hover:text-accent-color font-medium transition-colors">
+                {currentPage === 'home' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-color to-primary-blue"></div>
+                )}
+              </button>
+              <button 
+                onClick={onAboutUsClick}
+                className={`font-medium relative ${
+                  currentPage === 'aboutus' ? 'text-accent-color' : 'text-text-secondary hover:text-accent-color'
+                } transition-colors`}
+              >
                 About Us
-              </a>
-              <a href="#contact" className="text-text-secondary hover:text-accent-color font-medium transition-colors">
+                {currentPage === 'aboutus' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-color to-primary-blue"></div>
+                )}
+              </button>
+              <button 
+                onClick={onContactUsClick}
+                className={`font-medium relative ${
+                  currentPage === 'contactus' ? 'text-accent-color' : 'text-text-secondary hover:text-accent-color'
+                } transition-colors`}
+              >
                 Contact
-              </a>
+                {currentPage === 'contactus' && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-color to-primary-blue"></div>
+                )}
+              </button>
             </div>
 
             {/* CTA Button */}
@@ -86,18 +115,33 @@ const Navbar = ({ onSignInClick }) => {
           {isMobileMenuOpen && (
             <div className="lg:hidden py-4 border-t border-border-color">
               <div className="flex flex-col space-y-4">
-                <a href="#home" className="text-accent-color font-semibold">
+                <button 
+                  onClick={handleHomeClick}
+                  className={`text-left font-semibold ${
+                    currentPage === 'home' ? 'text-accent-color' : 'text-text-secondary'
+                  }`}
+                >
                   Home
-                </a>
-                <a href="#about" className="text-text-secondary hover:text-accent-color font-medium transition-colors">
+                </button>
+                <button 
+                  onClick={onAboutUsClick}
+                  className={`text-left font-medium ${
+                    currentPage === 'aboutus' ? 'text-accent-color' : 'text-text-secondary'
+                  }`}
+                >
                   About Us
-                </a>
-                <a href="#contact" className="text-text-secondary hover:text-accent-color font-medium transition-colors">
+                </button>
+                <button 
+                  onClick={onContactUsClick}
+                  className={`text-left font-medium ${
+                    currentPage === 'contactus' ? 'text-accent-color' : 'text-text-secondary'
+                  }`}
+                >
                   Contact
-                </a>
+                </button>
                 <button 
                   onClick={onSignInClick}
-                  className="bg-accent-color text-text-quaternary font-semibold px-6 py-3 rounded-xl hover:bg-accent-color/90 transition-colors w-full"
+                  className="bg-accent-color text-text-quaternary font-semibold px-6 py-3 rounded-xl hover:bg-accent-color/90 transition-colors w-full mt-4"
                 >
                   Sign In
                 </button>

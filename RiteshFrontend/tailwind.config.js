@@ -8,37 +8,37 @@ export default {
     extend: {
       colors: {
         // Primary Background Colors
-        'bg-primary': '#eff6ff',     // Ice white - Main background
-        'bg-secondary': '#dbeafe',   // Soft sky blue - Secondary background
-        'card-bg': '#ffffff',        // Pure white - Card backgrounds
+        'bg-primary': '#0f172a',     // Deep navy - Main background
+        'bg-secondary': '#1e293b',   // Dark slate - Secondary background
+        'card-bg': '#1e1e2e',        // Darker card background
         
         // Text Colors
-        'text-primary': '#0f172a',   // Deep navy - Primary text
-        'text-secondary': '#475569', // Cool gray - Secondary text
-        'text-tertiary': '#000000',  // Black - Tertiary text
-        'text-quaternary': '#ffffff', // White - Quaternary text
+        'text-primary': '#f8fafc',   // Off-white - Primary text
+        'text-secondary': '#cbd5e1', // Cool gray - Secondary text
+        'text-tertiary': '#94a3b8',  // Dim gray - Tertiary text
+        'text-quaternary': '#ffffff', // Pure white - Quaternary text
         
         // Accent Colors
-        'accent-color': '#0284c7',   // Glacier blue - Primary accent
-        'accent-light': '#38bdf8',   // Sky blue - Light accent
-        'primary-blue': '#0ea5e9',   // Aqua blue - Primary blue
-        'golden': '#F59E0B',         // Amber-500 - Gold accent (keeping for compatibility)
+        'accent-color': '#14b8a6',   // Teal - Primary accent
+        'accent-light': '#2dd4bf',   // Light teal - Light accent
+        'primary-blue': '#7c3aed',   // Purple - Primary blue accent
+        'golden': '#facc15',         // Yellow gold accent
         
         // Border and Shadow Colors
-        'border-color': '#bfdbfe',   // Light gray-blue - Borders
-        'shadow-color': 'rgba(2, 132, 199, 0.1)', // Blue shadow
-        'hover-bg': '#e0f2fe',       // Frosted light blue - Hover states
+        'border-color': '#334155',   // Slate gray - Borders
+        'shadow-color': 'rgba(124, 58, 237, 0.2)', // Purple shadow
+        'hover-bg': '#334155',       // Hover dark slate
         
         // Utility Colors
-        'chart-grid': '#cbd5e1',     // Light gray - Chart grids
-        'success-color': '#21966f',  // Emerald green - Success states
-        'danger-color': '#d72638',   // Bright red - Error states
+        'chart-grid': '#475569',     // Dark grid lines
+        'success-color': '#22c55e',  // Green - Success states
+        'danger-color': '#ef4444',   // Red - Error states
         
         // Legacy colors for backward compatibility
-        'forest-green': '#0f172a',   // Updated to match new scheme
-        'sky-blue': '#0284c7',       // Updated to match new scheme
-        'off-white': '#eff6ff',      // Updated to match new scheme
-        'graph-grey': '#475569',     // Updated to match new scheme
+        'forest-green': '#14b8a6',   // Replaced with teal
+        'sky-blue': '#7c3aed',       // Replaced with purple
+        'off-white': '#0f172a',      // Replaced with dark navy
+        'graph-grey': '#94a3b8',     // Dim gray
       },
       fontFamily: {
         'sans': ['Inter', 'system-ui', 'sans-serif'],
