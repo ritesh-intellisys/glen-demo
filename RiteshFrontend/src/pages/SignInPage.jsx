@@ -13,6 +13,25 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
  const handleSubmit = async (e) => {
   e.preventDefault();
 
+  const defaultEmail = "forex@gmail.com";
+  const defaultPassword = "forex@gmail.com";
+
+  setIsLoading(true);
+  setErrorMessage("");
+
+  // Offline/default login
+  if (email.trim() === defaultEmail && password === defaultPassword) {
+    localStorage.setItem("token", "offline-default-token");
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ email: defaultEmail, name: "Offline User", offline: true })
+    );
+    onSignIn(defaultEmail);
+    alert("✅ Logged in (offline mode)");
+    setIsLoading(false);
+    return;
+  }
+
   try {
     const res = await fetch("http://localhost:5000/api/auth/login", {
       method: "POST",
@@ -36,11 +55,13 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
       // ✅ Redirect to profile page
       alert("✅ Login successful!");
     } else {
-      alert(data.message || "Invalid email or password");
+      setErrorMessage(data.message || "Invalid email or password");
     }
   } catch (error) {
     console.error("Login Error:", error);
-    alert("Something went wrong. Please try again later.");
+    setErrorMessage("Server unreachable. Please try again later.");
+  } finally {
+    setIsLoading(false);
   }
 };
 
