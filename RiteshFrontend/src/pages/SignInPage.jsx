@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LogoPng from '../assets/Logo.png';
 
 
 const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
@@ -70,12 +71,10 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
         {/* Logo + Heading */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-accent-color to-primary-blue rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-text-quaternary font-bold text-2xl">PT</span>
-            </div>
+            <img src={LogoPng} alt="Express Forex" className="w-32 h-auto object-contain shadow-lg" />
           </div>
           <h2 className="text-3xl font-bold text-text-primary mb-2">Welcome Back</h2>
-          <p className="text-text-secondary">Sign in to your Pro Traders account</p>
+          <p className="text-text-secondary">Sign in to your Express Forex account</p>
         </div>
 
         {/* Sign In Form */}

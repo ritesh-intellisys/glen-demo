@@ -126,7 +126,7 @@ const HomePage = ({ onSignUpClick }) => {
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 text-text-primary">
-              Why Choose <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Pro Traders</span>
+              Why Choose <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Express Forex</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -371,7 +371,7 @@ const HomePage = ({ onSignUpClick }) => {
                 <div className="absolute -top-8 -right-8 w-28 h-28 bg-accent-color/10 rounded-full blur-xl"></div>
                 <div className="text-center space-y-4 relative z-10">
                   <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">📱</div>
-                  <h3 className="text-2xl font-bold text-accent-color">Pro Traders</h3>
+                  <h3 className="text-2xl font-bold text-accent-color">Express Forex</h3>
                   <p className="text-text-secondary">Mobile Trading Platform</p>
                 </div>
               </div>

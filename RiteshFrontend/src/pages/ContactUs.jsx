@@ -33,7 +33,7 @@ const ContactUs = ({ onSignUpClick }) => {
     {
       icon: "📧",
       title: "Email Us",
-      details: "support@protraders.com",
+      details: "support@expressforex.com",
       description: "Send us an email anytime"
     },
     {
@@ -239,7 +239,7 @@ const ContactUs = ({ onSignUpClick }) => {
         <div className="container-custom text-center">
           <h2 className="text-3xl font-bold mb-4 text-text-primary">Ready to Start Trading?</h2>
           <p className="text-xl text-text-secondary mb-8 max-w-2xl mx-auto">
-            Join thousands of successful traders who have chosen Pro Traders as their trading partner.
+            Join thousands of successful traders who have chosen Express Forex as their trading partner.
           </p>
           <button 
             onClick={onSignUpClick}

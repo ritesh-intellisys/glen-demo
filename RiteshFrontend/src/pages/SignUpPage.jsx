@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LogoPng from '../assets/Logo.png';
 
 const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
    const [isLoading, setIsLoading] = useState(false);
@@ -497,7 +498,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               <h3 className="text-lg font-semibold text-text-primary mb-4">Terms and Conditions</h3>
               <div className="text-sm text-text-secondary space-y-4 max-h-64 overflow-y-auto">
                 <p>
-                  By creating an account with Pro Traders, you agree to the following terms and conditions:
+                  By creating an account with Express Forex, you agree to the following terms and conditions:
                 </p>
                 <p>
                   1. You must be at least 18 years old to create an account and use our services.
@@ -509,7 +510,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                   3. You agree to provide accurate and complete information during registration.
                 </p>
                 <p>
-                  4. Pro Traders reserves the right to modify these terms at any time.
+                  4. Express Forex reserves the right to modify these terms at any time.
                 </p>
                 <p>
                   5. Trading involves substantial risk and may not be suitable for all investors.
@@ -566,14 +567,8 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="flex items-center space-x-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent-color to-primary-blue rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-text-quaternary font-bold text-xl">PT</span>
-              </div>
-              <div className="text-left">
-                <div className="text-accent-color font-bold text-xl">PRO</div>
-                <div className="text-accent-color font-bold text-xl">TRADERS</div>
-              </div>
+            <div className="flex items-center space-x-3">
+              <img src={LogoPng} alt="Express Forex" className="w-32 h-auto object-contain shadow-lg" />
             </div>
           </div>
           <h2 className="text-2xl font-bold text-accent-color mb-2">
@@ -643,12 +638,12 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         {/* Footer */}
         <div className="text-center space-y-2">
           <p className="text-text-primary text-sm">
-            © Pro Traders
+            © Express Forex
           </p>
           <p className="text-text-secondary text-xs">
             Contact us at{' '}
-            <a href="mailto:support@protraders.com" className="text-accent-color hover:text-accent-color/80">
-              support@protraders.com
+            <a href="mailto:support@expressforex.com" className="text-accent-color hover:text-accent-color/80">
+              support@expressforex.com
             </a>{' '}
             if you encounter any problems. Version: v.1.13.0-828
           </p>

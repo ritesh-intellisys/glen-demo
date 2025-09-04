@@ -91,6 +91,10 @@ function App() {
     setCurrentPage(previousPage);
   };
 
+  const handleProfileBackClick = () => {
+    setCurrentPage('account');
+  };
+
   // Add this state handler function
   const handleContactUsClick = () => {
     setPreviousPage(currentPage);
@@ -109,7 +113,7 @@ function App() {
       case 'account':
         return <AccountPage userEmail={userEmail} onSignOut={handleSignOut} onProfileClick={handleProfileClick} onBack={handleAccountBackClick} />;
       case 'profile':
-        return <ProfilePage userEmail={userEmail} onSignOut={handleSignOut} onBack={handleBackClick} onProfileClick={handleProfileClick} />;
+        return <ProfilePage userEmail={userEmail} onSignOut={handleSignOut} onBack={handleProfileBackClick} onProfileClick={handleProfileClick} />;
       case 'aboutus': // Add case for About Us page
         return <AboutUs onSignUpClick={handleSignUpClick} />;
       case 'contactus':

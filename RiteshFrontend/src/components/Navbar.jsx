@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TickerTape from '../widgets/TickerTape';
+import LogoPng from '../assets/Logo.png';
 
 const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, currentPage }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,24 +30,18 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-card-bg/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
+      isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md' : 'bg-white'
     }`}>
       {/* Market Data Ticker */}
       <TickerTape />
 
       {/* Main Navigation */}
-      <div className="bg-card-bg/95 backdrop-blur-md border-b border-border-color">
+      <div className="bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="container-custom">
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center justify-between py-3">
             {/* Logo */}
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={handleHomeClick}>
-              <div className="w-10 h-10 bg-gradient-to-br from-accent-color to-primary-blue rounded-xl flex items-center justify-center">
-                <span className="text-text-quaternary font-bold text-lg">PT</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-text-primary">Pro Traders</h1>
-                <p className="text-xs text-text-secondary">Your Trusted Partner</p>
-              </div>
+            <div className="flex items-center space-x-3  cursor-pointer" onClick={handleHomeClick}>
+              <img src={LogoPng} alt="Express Forex" className="w-32 h-auto object-contain" />
             </div>
 
             {/* Desktop Navigation */}
@@ -54,34 +49,34 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
               <button 
                 onClick={handleHomeClick}
                 className={`font-semibold relative ${
-                  currentPage === 'home' ? 'text-accent-color' : 'text-text-secondary hover:text-accent-color'
+                  currentPage === 'home' ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
                 } transition-colors`}
               >
                 Home
                 {currentPage === 'home' && (
-                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-color to-primary-blue"></div>
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gray-900"></div>
                 )}
               </button>
               <button 
                 onClick={onAboutUsClick}
                 className={`font-medium relative ${
-                  currentPage === 'aboutus' ? 'text-accent-color' : 'text-text-secondary hover:text-accent-color'
+                  currentPage === 'aboutus' ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
                 } transition-colors`}
               >
                 About Us
                 {currentPage === 'aboutus' && (
-                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-color to-primary-blue"></div>
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gray-900"></div>
                 )}
               </button>
               <button 
                 onClick={onContactUsClick}
                 className={`font-medium relative ${
-                  currentPage === 'contactus' ? 'text-accent-color' : 'text-text-secondary hover:text-accent-color'
+                  currentPage === 'contactus' ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
                 } transition-colors`}
               >
                 Contact
                 {currentPage === 'contactus' && (
-                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-color to-primary-blue"></div>
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gray-900"></div>
                 )}
               </button>
             </div>
@@ -98,10 +93,10 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden p-2 rounded-lg hover:bg-accent-color/20 transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              <svg className="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -113,12 +108,12 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-border-color">
+            <div className="lg:hidden py-4 border-t border-gray-200 bg-white">
               <div className="flex flex-col space-y-4">
                 <button 
                   onClick={handleHomeClick}
                   className={`text-left font-semibold ${
-                    currentPage === 'home' ? 'text-accent-color' : 'text-text-secondary'
+                    currentPage === 'home' ? 'text-gray-900' : 'text-gray-600'
                   }`}
                 >
                   Home
@@ -126,7 +121,7 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                 <button 
                   onClick={onAboutUsClick}
                   className={`text-left font-medium ${
-                    currentPage === 'aboutus' ? 'text-accent-color' : 'text-text-secondary'
+                    currentPage === 'aboutus' ? 'text-gray-900' : 'text-gray-600'
                   }`}
                 >
                   About Us
@@ -134,14 +129,14 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                 <button 
                   onClick={onContactUsClick}
                   className={`text-left font-medium ${
-                    currentPage === 'contactus' ? 'text-accent-color' : 'text-text-secondary'
+                    currentPage === 'contactus' ? 'text-gray-900' : 'text-gray-600'
                   }`}
                 >
                   Contact
                 </button>
                 <button 
                   onClick={onSignInClick}
-                  className="bg-accent-color text-text-quaternary font-semibold px-6 py-3 rounded-xl hover:bg-accent-color/90 transition-colors w-full mt-4"
+                  className="bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors w-full mt-4"
                 >
                   Sign In
                 </button>
