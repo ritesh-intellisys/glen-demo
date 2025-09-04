@@ -92,7 +92,10 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
         {/* Logo + Heading */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <img src={LogoPng} alt="Express Forex" className="w-32 h-auto object-contain shadow-lg" />
+            <div className="relative flex items-center justify-center">
+              <div className="absolute -inset-4 rounded-2xl bg-white/80 blur-2xl" />
+              <img src={LogoPng} alt="Express Forex" className="relative w-32 h-auto object-contain" />
+            </div>
           </div>
           <h2 className="text-3xl font-bold text-text-primary mb-2">Welcome Back</h2>
           <p className="text-text-secondary">Sign in to your Express Forex account</p>

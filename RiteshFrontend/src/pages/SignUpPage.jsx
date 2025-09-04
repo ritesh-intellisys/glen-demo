@@ -567,8 +567,10 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="flex items-center space-x-3">
-              <img src={LogoPng} alt="Express Forex" className="w-32 h-auto object-contain shadow-lg" />
+            <div className="relative flex items-center justify-center">
+              {/* Soft blurred white background behind logo */}
+              <div className="absolute -inset-4 rounded-2xl bg-white/80 blur-2xl" />
+              <img src={LogoPng} alt="Express Forex" className="relative w-32 h-auto object-contain" />
             </div>
           </div>
           <h2 className="text-2xl font-bold text-accent-color mb-2">
