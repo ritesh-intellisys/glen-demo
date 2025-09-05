@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import LogoPng from '../assets/Logo.png';
+import { authAPI } from '../services/api';
 
 const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
    const [isLoading, setIsLoading] = useState(false);
@@ -199,23 +200,13 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
     setSuccessMessage("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        setErrorMessage(data.message || "Signup failed");
-      } else {
-        setSuccessMessage("🎉 Registered Successfully!");
-        setTimeout(() => {
-          onBackToSignIn();
-        }, 2000);
-      }
+      const data = await authAPI.signup(formData);
+      setSuccessMessage("🎉 Registered Successfully!");
+      setTimeout(() => {
+        onBackToSignIn();
+      }, 2000);
     } catch (error) {
-      setErrorMessage("Server error. Please try again.");
+      setErrorMessage(error.message || "Server error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -562,14 +553,27 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+      {/* Back Button fixed to viewport top-left */}
+      <div className="fixed top-4 left-4 z-20">
+        <button
+          type="button"
+          onClick={onBackToSignIn}
+          className="flex items-center space-x-2 text-text-secondary hover:text-text-primary bg-card-bg/50 backdrop-blur-sm border border-border-color rounded-xl px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-sm font-medium">Back to Sign In</span>
+        </button>
+      </div>
       <div className="max-w-md w-full space-y-6">
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="relative flex items-center justify-center">
               {/* Soft blurred white background behind logo */}
-              <div className="absolute -inset-4 rounded-2xl bg-white/80 blur-2xl" />
+              <div className="absolute -inset-2 rounded-2xl bg-white blur-md" />
               <img src={LogoPng} alt="Express Forex" className="relative w-32 h-auto object-contain" />
             </div>
           </div>

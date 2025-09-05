@@ -1,13 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Header from '../components/Header';
+import DepositModal from '../components/DepositModal';
+import { accountAPI, adminAPI, depositAPI } from '../services/api';
 
-const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
+const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccountDetails }) => {
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('activeTab') || 'LIVE';
   });
   const [showOffersSection, setShowOffersSection] = useState(() => {
     return localStorage.getItem('showOffersSection') === 'true';
   });
+  const [adminData, setAdminData] = useState({});
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [selectedAccountForDeposit, setSelectedAccountForDeposit] = useState(null);
 
   // Save activeTab and showOffersSection to localStorage
   useEffect(() => {
@@ -17,38 +22,41 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
   useEffect(() => {
     localStorage.setItem('showOffersSection', showOffersSection.toString());
   }, [showOffersSection]);
-  const [createdAccounts, setCreatedAccounts] = useState(() => {
-    const savedAccounts = localStorage.getItem('createdAccounts');
-    if (savedAccounts) {
-      return JSON.parse(savedAccounts);
+
+  // Load admin data from localStorage
+  useEffect(() => {
+    const savedData = localStorage.getItem('adminAccountTypesData');
+    if (savedData) {
+      setAdminData(JSON.parse(savedData));
     }
-    return [
-      {
-        id: "113424",
-        type: "Standard",
-        balance: "0.00",
-        currency: "USD",
-        status: "LIVE",
-        createdAt: "2024-01-15"
-      },
-      {
-        id: "789456",
-        type: "Platinum",
-        balance: "0.00",
-        currency: "USD",
-        status: "LIVE",
-        createdAt: "2024-01-16"
-      },
-      {
-        id: "321654",
-        type: "demo\\forex-hedge-usd-01",
-        balance: "25000.00",
-        currency: "USD",
-        status: "DEMO",
-        createdAt: "2024-01-17"
+  }, []);
+
+  // Listen for changes to admin data
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedData = localStorage.getItem('adminAccountTypesData');
+      if (savedData) {
+        setAdminData(JSON.parse(savedData));
       }
-    ];
-  });
+    };
+
+    const handleBalanceUpdate = () => {
+      const savedData = localStorage.getItem('adminAccountTypesData');
+      if (savedData) {
+        setAdminData(JSON.parse(savedData));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('balanceUpdated', handleBalanceUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('balanceUpdated', handleBalanceUpdate);
+    };
+  }, []);
+  const [createdAccounts, setCreatedAccounts] = useState([]);
+  const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
 
   const [openMenuId, setOpenMenuId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -79,9 +87,45 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
     };
   }, [openMenuId]);
 
-  // Save created accounts to localStorage whenever it changes
+  // Load accounts from API
   useEffect(() => {
-    localStorage.setItem('createdAccounts', JSON.stringify(createdAccounts));
+    const loadAccounts = async () => {
+      try {
+        setIsLoadingAccounts(true);
+        
+        // Check if user is in offline mode
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.offline) {
+          // Skip API call for offline mode, use localStorage
+          const savedAccounts = localStorage.getItem('createdAccounts');
+          if (savedAccounts) {
+            setCreatedAccounts(JSON.parse(savedAccounts));
+          }
+          return;
+        }
+        
+        const response = await accountAPI.getUserAccounts();
+        setCreatedAccounts(response.accounts || []);
+      } catch (error) {
+        console.error('Error loading accounts:', error);
+        // Fallback to localStorage if API fails
+        const savedAccounts = localStorage.getItem('createdAccounts');
+        if (savedAccounts) {
+          setCreatedAccounts(JSON.parse(savedAccounts));
+        }
+      } finally {
+        setIsLoadingAccounts(false);
+      }
+    };
+
+    loadAccounts();
+  }, []);
+
+  // Save created accounts to localStorage whenever it changes (for offline fallback)
+  useEffect(() => {
+    if (createdAccounts.length > 0) {
+      localStorage.setItem('createdAccounts', JSON.stringify(createdAccounts));
+    }
   }, [createdAccounts]);
   const carouselRef = useRef(null);
 
@@ -117,21 +161,21 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
 
   const demoOffers = [
     {
-      title: "demo\\forex-hedge-usd-01",
+      title: "Demo Forex Hedge USD 01",
       status: "Demo",
       icon: "handshake",
       initialDeposit: "25000",
       leverage: "1:100",
-      description: "demo\\forex-hedge-usd-01",
+      description: "Demo Forex Hedge USD 01",
       gradient: "from-green-400 to-teal-500"
     },
     {
-      title: "demo\\forex-hedge-usd-02",
+      title: "Demo Forex Hedge USD 02",
       status: "Demo", 
       icon: "handshake",
       initialDeposit: "10000",
       leverage: "1:100",
-      description: "demo\\forex-hedge-usd-02",
+      description: "Demo Forex Hedge USD 02",
       gradient: "from-green-400 to-teal-500"
     }
   ];
@@ -166,18 +210,61 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
   };
 
   // Function to create a new account
-  const handleCreateAccount = (offer) => {
-    const newAccount = {
-      id: generateAccountId(),
-      type: offer.title,
-      balance: "0.00",
-      currency: "USD",
-      status: activeTab, // Use the current active tab instead of offer.status
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    
-    setCreatedAccounts(prev => [...prev, newAccount]);
-    setShowOffersSection(false);
+  const handleCreateAccount = async (offer) => {
+    try {
+      // Check if account type already exists
+      const accountTypeExists = createdAccounts.some(account => 
+        account.type === offer.title && account.status === activeTab
+      );
+      
+      if (accountTypeExists) {
+        alert(`A ${offer.title} account already exists for ${activeTab} status. Each account type can only be created once.`);
+        return;
+      }
+
+      // Check if user is in offline mode
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Create account locally for offline mode
+        const newAccount = {
+          id: generateAccountId(),
+          type: offer.title,
+          status: activeTab,
+          balance: 0,
+          currency: 'USD',
+          equity: 0,
+          margin: 0,
+          leverage: offer.leverage || '1:500',
+          initialDeposit: parseFloat(offer.initialDeposit) || 0,
+          createdAt: new Date().toISOString()
+        };
+        
+        const updatedAccounts = [...createdAccounts, newAccount];
+        setCreatedAccounts(updatedAccounts);
+        setShowOffersSection(false);
+        alert(`✅ ${activeTab} ${offer.title} account created successfully! (Offline mode)`);
+        return;
+      }
+
+      const accountData = {
+        accountType: offer.title,
+        status: activeTab,
+        initialDeposit: parseFloat(offer.initialDeposit) || 0,
+        leverage: offer.leverage || '1:500'
+      };
+
+      const response = await accountAPI.createAccount(accountData);
+      
+      // Reload accounts from API
+      const accountsResponse = await accountAPI.getUserAccounts();
+      setCreatedAccounts(accountsResponse.accounts || []);
+      
+      setShowOffersSection(false);
+      alert(`✅ ${activeTab} ${offer.title} account created successfully!`);
+    } catch (error) {
+      console.error('Error creating account:', error);
+      alert(`Error creating account: ${error.message}`);
+    }
   };
 
   // Function to show offers section
@@ -190,11 +277,120 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
     setShowOffersSection(false);
   };
 
-  // Function to delete an account
-  const handleDeleteAccount = (accountId) => {
-    setCreatedAccounts(prev => prev.filter(account => account.id !== accountId));
-    setOpenMenuId(null);
+  // Get display data for an account (admin data or fallback to account data)
+  const getAccountDisplayData = (account) => {
+    const adminAccountData = adminData[account.type];
+    if (adminAccountData) {
+      return {
+        balance: adminAccountData.balance,
+        currency: adminAccountData.currency,
+        equity: adminAccountData.equity,
+        margin: adminAccountData.margin
+      };
+    }
+    return {
+      balance: account.balance,
+      currency: account.currency,
+      equity: '0.00',
+      margin: '0.00'
+    };
   };
+
+  // Handle deposit request
+  const handleDepositRequest = async (depositRequest) => {
+    try {
+      // Check if user is in offline mode
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Handle deposit request locally for offline mode
+        const proofBase64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(depositRequest.proof);
+        });
+
+        // Store deposit request in localStorage for offline mode
+        const depositRequests = JSON.parse(localStorage.getItem('depositRequests') || '[]');
+        const newRequest = {
+          id: Date.now().toString(),
+          accountId: depositRequest.accountType,
+          amount: depositRequest.amount,
+          upiApp: depositRequest.upiApp,
+          paymentProof: proofBase64,
+          proofName: depositRequest.proof.name,
+          proofType: depositRequest.proof.type,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+        
+        depositRequests.push(newRequest);
+        localStorage.setItem('depositRequests', JSON.stringify(depositRequests));
+        
+        alert('Deposit request submitted successfully! (Offline mode)');
+        return;
+      }
+
+      // Find the account ID for the selected account
+      const account = createdAccounts.find(acc => acc.type === depositRequest.accountType);
+      if (!account) {
+        alert('Account not found. Please try again.');
+        return;
+      }
+
+      // Create request object with file
+      const requestData = {
+        accountId: account._id || account.id,
+        amount: depositRequest.amount,
+        upiApp: depositRequest.upiApp,
+        paymentProof: depositRequest.proof // Send file directly
+      };
+
+      // Submit to API
+      await depositAPI.submitDepositRequest(requestData);
+      
+      // Show success message
+      alert('Deposit request submitted successfully! Admin will verify and process your payment.');
+    } catch (error) {
+      console.error('Error submitting deposit request:', error);
+      alert(`Error submitting deposit request: ${error.message}`);
+    }
+  };
+
+  // Handle deposit button click
+  const handleDepositClick = (account) => {
+    setSelectedAccountForDeposit(account);
+    setShowDepositModal(true);
+  };
+
+  // Function to delete an account
+  const handleDeleteAccount = async (accountId) => {
+    try {
+      // Check if user is in offline mode
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Delete account locally for offline mode
+        const updatedAccounts = createdAccounts.filter(account => account.id !== accountId);
+        setCreatedAccounts(updatedAccounts);
+        setOpenMenuId(null);
+        alert("Account deleted successfully! (Offline mode)");
+        return;
+      }
+
+      await accountAPI.deleteAccount(accountId);
+      
+      // Reload accounts from API
+      const accountsResponse = await accountAPI.getUserAccounts();
+      setCreatedAccounts(accountsResponse.accounts || []);
+      
+      setOpenMenuId(null);
+      alert("Account deleted successfully!");
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      alert(`Error deleting account: ${error.message}`);
+    }
+  };
+
+  // details navigation is handled in App via onShowAccountDetails
 
   // Function to toggle menu
   const toggleMenu = (accountId) => {
@@ -268,8 +464,10 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
       <main className="py-4 sm:py-8">
         <div className="container-custom">
           {!showOffersSection ? (
-            /* Accounts View */
+            /* Accounts View or Details */
             <div>
+              {true ? (
+                <>
               {/* Page Title */}
               <div className="text-center mb-6 sm:mb-8">
                 <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-text-primary via-text-secondary to-accent-color bg-clip-text text-transparent mb-3">
@@ -300,6 +498,8 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
             </button>
               </div>
             </div>
+                </>
+              ) : null}
 
               {/* Accounts Carousel */}
               <div className="relative">
@@ -337,7 +537,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
                     .map((account, index) => (
                     <div key={account.id} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-3 sm:p-4 relative min-w-[260px] sm:min-w-[286px] max-w-[280px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
                       {/* Gradient Background Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-accent-color via-primary-blue to-accent-color opacity-5 rounded-xl group-hover:opacity-10 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-accent-color via-primary-blue to-accent-color opacity-5 rounded-xl group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
 
                       {/* Menu Icon */}
                       <div className="absolute top-4 right-4">
@@ -377,7 +577,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
 
                       {/* Balance */}
                       <div className="text-center mb-4">
-                        <div className="text-2xl font-bold text-text-primary mb-1">{account.balance} {account.currency}</div>
+                        <div className="text-2xl font-bold text-text-primary mb-1">{getAccountDisplayData(account).balance} {getAccountDisplayData(account).currency}</div>
                       </div>
 
                       {/* Account Details */}
@@ -389,7 +589,10 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
 
                       {/* Action Buttons */}
                       <div className="space-y-2">
-                        <button className="w-full bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl text-xs">
+                        <button 
+                          onClick={() => handleDepositClick(account)}
+                          className="w-full bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl text-xs"
+                        >
                           DEPOSIT
                         </button>
                         <button className="w-full bg-transparent border border-danger-color text-danger-color hover:bg-danger-color hover:text-text-quaternary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 text-xs">
@@ -403,7 +606,10 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
                       </div>
 
                       {/* Show Account Details Button */}
-                      <button className="w-full mt-3 bg-gradient-to-r from-accent-color/20 to-accent-color/10 hover:from-accent-color/30 hover:to-accent-color/20 text-text-primary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 border border-border-color text-xs">
+                      <button
+                        onClick={() => onShowAccountDetails(account)}
+                        className="w-full mt-3 bg-gradient-to-r from-accent-color/20 to-accent-color/10 hover:from-accent-color/30 hover:to-accent-color/20 text-text-primary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 border border-border-color text-xs"
+                      >
                         SHOW ACCOUNT DETAILS
                       </button>
                     </div>
@@ -589,8 +795,17 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack }) => {
            <span className="font-semibold text-sm sm:text-base">Sign Out</span>
          </button>
        </div>
+
+       <DepositModal
+         isOpen={showDepositModal}
+         onClose={() => setShowDepositModal(false)}
+         accountType={selectedAccountForDeposit?.type}
+         onDepositRequest={handleDepositRequest}
+       />
      </div>
    );
  };
 
 export default AccountPage;
+
+

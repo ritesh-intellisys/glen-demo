@@ -4,7 +4,7 @@ import MiniChartGold from '../widgets/MiniChartGold';
 
 const AboutUs = ({ onSignUpClick }) => {
   const stats = [
-    { value: "50,000+", label: "Active Traders" },
+    { value: "12,000+", label: "Active Traders" },
     { value: "$2B+", label: "Monthly Trading Volume" },
     { value: "150+", label: "Countries Served" },
     { value: "24/7", label: "Customer Support" }
@@ -201,36 +201,7 @@ const AboutUs = ({ onSignUpClick }) => {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-20 bg-bg-primary relative">
-        <div className="absolute top-10 left-20 w-24 h-24 bg-accent-color/10 rounded-full animate-pulse"></div>
-        <div className="absolute bottom-10 right-20 w-20 h-20 bg-accent-color/10 rounded-full animate-pulse delay-700"></div>
-        
-        <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              <span className="text-text-primary">Meet Our</span> <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Leadership</span>
-            </h2>
-            <p className="text-xl text-text-secondary">The experienced team guiding our vision</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map((member, index) => (
-              <div 
-                key={index} 
-                className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/10 group relative overflow-hidden"
-              >
-                <div className="absolute -inset-1 bg-gradient-to-r from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
-                <div className="relative z-10">
-                  <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{member.image}</div>
-                  <h3 className="text-xl font-bold mb-1 text-text-primary">{member.name}</h3>
-                  <div className="text-accent-color font-semibold mb-3">{member.role}</div>
-                  <p className="text-text-secondary text-sm">{member.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* Technology Section */}
       <section className="py-20 bg-gradient-to-br from-bg-primary to-bg-secondary relative">

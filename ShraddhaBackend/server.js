@@ -5,6 +5,9 @@ import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import profileRoutes from "./routes/profile.routes.js";
+import accountRoutes from "./routes/account.routes.js";
+import depositRoutes from "./routes/deposit.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 dotenv.config();
 const app = express();
@@ -24,11 +27,15 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/accounts", accountRoutes);
+app.use("/api/deposits", depositRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/uploads", express.static("uploads"));
 
 

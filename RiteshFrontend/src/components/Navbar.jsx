@@ -33,7 +33,9 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
       isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md' : 'bg-white'
     }`}>
       {/* Market Data Ticker */}
-      <TickerTape />
+      <div className="bg-black">
+        <TickerTape />
+      </div>
 
       {/* Main Navigation */}
       <div className="bg-white/95 backdrop-blur-md border-b border-gray-200">

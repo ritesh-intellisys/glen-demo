@@ -207,32 +207,7 @@ const ContactUs = ({ onSignUpClick }) => {
         </div>
       </section>
 
-      {/* Office Locations */}
-      <section className="py-16 bg-bg-primary relative">
-        <div className="container-custom">
-          <h2 className="text-3xl font-bold mb-12 text-center text-text-primary">Our <span className="text-accent-color">Global Offices</span></h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-card-bg backdrop-blur-sm border border-border-color p-6 rounded-2xl text-center">
-              <div className="text-4xl mb-4">🇺🇸</div>
-              <h3 className="text-xl font-bold mb-2 text-text-primary">New York Office</h3>
-              <p className="text-text-secondary mb-3">123 Trading Street, Floor 12<br />New York, NY 10005</p>
-              <p className="text-accent-color font-semibold">+1 (555) 123-4567</p>
-            </div>
-            <div className="bg-card-bg backdrop-blur-sm border border-border-color p-6 rounded-2xl text-center">
-              <div className="text-4xl mb-4">🇬🇧</div>
-              <h3 className="text-xl font-bold mb-2 text-text-primary">London Office</h3>
-              <p className="text-text-secondary mb-3">456 Market Lane, Suite 300<br />London, EC2N 1EX</p>
-              <p className="text-accent-color font-semibold">+44 20 7946 0958</p>
-            </div>
-            <div className="bg-card-bg backdrop-blur-sm border border-border-color p-6 rounded-2xl text-center">
-              <div className="text-4xl mb-4">🇸🇬</div>
-              <h3 className="text-xl font-bold mb-2 text-text-primary">Singapore Office</h3>
-              <p className="text-text-secondary mb-3">789 Finance Road, #10-11<br />Singapore 048619</p>
-              <p className="text-accent-color font-semibold">+65 6012 3456</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-br from-bg-primary to-bg-secondary relative">

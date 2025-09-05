@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import LogoPng from '../assets/Logo.png';
+import { authAPI } from '../services/api';
 
 
 const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
@@ -33,33 +34,21 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
   }
 
   try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
+    const data = await authAPI.login(email, password);
     console.log("Login Response:", data);
 
-    if (res.ok && data.success) {
-      // ✅ Save token & user info
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+    // ✅ Save token & user info
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-      // ✅ Call App.js onSignIn to update state
-      onSignIn(email);
+    // ✅ Call App.js onSignIn to update state
+    onSignIn(email);
 
-      // ✅ Redirect to profile page
-      alert("✅ Login successful!");
-    } else {
-      setErrorMessage(data.message || "Invalid email or password");
-    }
+    // ✅ Redirect to profile page
+    alert("✅ Login successful!");
   } catch (error) {
     console.error("Login Error:", error);
-    setErrorMessage("Server unreachable. Please try again later.");
+    setErrorMessage(error.message || "Server unreachable. Please try again later.");
   } finally {
     setIsLoading(false);
   }
@@ -68,32 +57,34 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-color/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-primary-blue/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-2/3 left-1/3 w-64 h-64 bg-accent-color/15 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
+      {/* Back Button fixed to viewport top-left */}
+      <div className="fixed top-4 left-4 z-20">
+        <button
+          onClick={onBack}
+          className="flex items-center space-x-2 text-text-secondary hover:text-text-primary bg-card-bg/50 backdrop-blur-sm border border-border-color rounded-xl px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-sm font-medium">Back to Home</span>
+        </button>
+      </div>
+
       <div className="max-w-md w-full space-y-8 relative z-10">
-        {/* Back Button */}
-        <div className="flex justify-start">
-          <button
-            onClick={onBack}
-            className="flex items-center space-x-2 text-text-secondary hover:text-text-primary bg-card-bg/50 backdrop-blur-sm border border-border-color rounded-xl px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="text-sm font-medium">Back to Home</span>
-          </button>
-        </div>
+        
 
         {/* Logo + Heading */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="relative flex items-center justify-center">
-              <div className="absolute -inset-4 rounded-2xl bg-white/80 blur-2xl" />
+              <div className="absolute -inset-2 rounded-2xl bg-white blur-md" />
               <img src={LogoPng} alt="Express Forex" className="relative w-32 h-auto object-contain" />
             </div>
           </div>
