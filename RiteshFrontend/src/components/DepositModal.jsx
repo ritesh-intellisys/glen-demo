@@ -1,4 +1,16 @@
 import React, { useState } from 'react';
+import { 
+  FaMobile, 
+  FaGoogle, 
+  FaCreditCard, 
+  FaUniversity, 
+  FaGem, 
+  FaBolt,
+  FaPhone,
+  FaWallet,
+  FaMoneyBillWave,
+  FaCoins
+} from 'react-icons/fa';
 
 const DepositModal = ({ isOpen, onClose, accountType, onDepositRequest }) => {
   const [amount, setAmount] = useState('');
@@ -7,12 +19,48 @@ const DepositModal = ({ isOpen, onClose, accountType, onDepositRequest }) => {
   const [step, setStep] = useState(1); // 1: Amount, 2: UPI Selection, 3: QR Code, 4: Upload Proof
 
   const upiApps = [
-    { id: 'phonepe', name: 'PhonePe', logo: '📱', color: 'from-purple-500 to-purple-600' },
-    { id: 'gpay', name: 'Google Pay', logo: '💳', color: 'from-blue-500 to-blue-600' },
-    { id: 'paytm', name: 'Paytm', logo: '💰', color: 'from-blue-600 to-indigo-600' },
-    { id: 'bharatpe', name: 'BharatPe', logo: '🏦', color: 'from-green-500 to-green-600' },
-    { id: 'mobikwik', name: 'MobiKwik', logo: '💎', color: 'from-pink-500 to-pink-600' },
-    { id: 'freecharge', name: 'FreeCharge', logo: '⚡', color: 'from-yellow-500 to-orange-500' }
+    { 
+      id: 'phonepe', 
+      name: 'PhonePe', 
+      icon: FaPhone, 
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-500'
+    },
+    { 
+      id: 'gpay', 
+      name: 'Google Pay', 
+      icon: FaGoogle, 
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-500'
+    },
+    { 
+      id: 'paytm', 
+      name: 'Paytm', 
+      icon: FaWallet, 
+      color: 'from-blue-600 to-indigo-600',
+      bgColor: 'bg-blue-600'
+    },
+    { 
+      id: 'bharatpe', 
+      name: 'BharatPe', 
+      icon: FaUniversity, 
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-500'
+    },
+    { 
+      id: 'mobikwik', 
+      name: 'MobiKwik', 
+      icon: FaGem, 
+      color: 'from-pink-500 to-pink-600',
+      bgColor: 'bg-pink-500'
+    },
+    { 
+      id: 'freecharge', 
+      name: 'FreeCharge', 
+      icon: FaBolt, 
+      color: 'from-yellow-500 to-orange-500',
+      bgColor: 'bg-yellow-500'
+    }
   ];
 
   const handleAmountSubmit = (e) => {
@@ -86,7 +134,7 @@ const DepositModal = ({ isOpen, onClose, accountType, onDepositRequest }) => {
             </div>
             <form onSubmit={handleAmountSubmit}>
               <div className="mb-4">
-                <label className="block text-text-secondary text-sm mb-2">Enter Amount (USD)</label>
+                <label className="block text-text-secondary text-sm mb-2">Enter Amount (₹)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -116,16 +164,21 @@ const DepositModal = ({ isOpen, onClose, accountType, onDepositRequest }) => {
             </div>
             
             <div className="grid grid-cols-2 gap-3 mb-6">
-              {upiApps.map((app) => (
-                <button
-                  key={app.id}
-                  onClick={() => handleUPISelection(app.id)}
-                  className={`bg-gradient-to-r ${app.color} hover:scale-105 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-300 shadow-lg flex flex-col items-center gap-2`}
-                >
-                  <div className="text-2xl">{app.logo}</div>
-                  <div className="text-sm">{app.name}</div>
-                </button>
-              ))}
+              {upiApps.map((app) => {
+                const IconComponent = app.icon;
+                return (
+                  <button
+                    key={app.id}
+                    onClick={() => handleUPISelection(app.id)}
+                    className={`bg-gradient-to-r ${app.color} hover:scale-105 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-300 shadow-lg flex flex-col items-center gap-2 hover:shadow-xl`}
+                  >
+                    <div className="text-2xl">
+                      <IconComponent />
+                    </div>
+                    <div className="text-sm font-medium">{app.name}</div>
+                  </button>
+                );
+              })}
             </div>
 
             <button
@@ -141,14 +194,16 @@ const DepositModal = ({ isOpen, onClose, accountType, onDepositRequest }) => {
           <div>
             <div className="text-center mb-6">
               <h3 className="text-xl font-bold text-text-primary mb-2">Scan QR Code to Pay</h3>
-              <p className="text-text-secondary mb-2">Amount: <span className="font-semibold text-accent-color">${amount}</span></p>
+              <p className="text-text-secondary mb-2">Amount: <span className="font-semibold text-accent-color">₹{amount}</span></p>
               <p className="text-text-secondary text-sm">Using: <span className="font-semibold text-text-primary">{upiApps.find(app => app.id === selectedUPI)?.name}</span></p>
             </div>
             
             <div className="bg-white p-6 rounded-lg mb-6 flex justify-center">
               <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-4xl mb-2">📱</div>
+                  <div className="text-4xl mb-2 text-gray-600">
+                    <FaMobile />
+                  </div>
                   <div className="text-sm text-gray-600">QR Code</div>
                   <div className="text-xs text-gray-500 mt-1">UPI Payment</div>
                 </div>
@@ -160,7 +215,7 @@ const DepositModal = ({ isOpen, onClose, accountType, onDepositRequest }) => {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Amount:</span>
-                  <span className="text-text-primary font-semibold">${amount}</span>
+                  <span className="text-text-primary font-semibold">₹{amount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Account:</span>

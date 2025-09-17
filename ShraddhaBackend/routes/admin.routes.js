@@ -3,7 +3,10 @@ import {
   getAdminData, 
   updateAdminData, 
   getAccountTypes, 
-  getDepositStatistics 
+  getDepositStatistics,
+  getAllUsers,
+  getUserById,
+  getUserDepositRequests
 } from "../controllers/admin.controller.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
@@ -16,5 +19,10 @@ router.get("/data", getAdminData);
 router.put("/data", updateAdminData);
 router.get("/account-types", getAccountTypes);
 router.get("/statistics", getDepositStatistics);
+
+// User management routes
+router.get("/users", getAllUsers);
+router.get("/users/:userId", getUserById);
+router.get("/users/:userId/deposits", getUserDepositRequests);
 
 export default router;

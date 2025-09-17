@@ -9,7 +9,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     // Step 1: Account type
-    accountType: 'Pro Premium',
+    accountType: 'Standard',
     email: '',
     password: '',
     repeatPassword: '',
@@ -48,9 +48,9 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
   ];
 
   const accountTypes = [
-    { value: 'Pro Premium', label: 'Pro Premium' },
-    { value: 'Pro Standard', label: 'Pro Standard' },
-    { value: 'Pro Elite', label: 'Pro Elite' }
+    { value: 'Standard', label: 'Standard' },
+    { value: 'Platinum', label: 'Platinum' },
+    { value: 'Premium', label: 'Premium' }
   ];
 
   const genderOptions = [
@@ -221,15 +221,22 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">Offers</label>
+              <div className="relative">
               <select
                 value={formData.accountType}
                 onChange={(e) => handleInputChange('accountType', e.target.value)}
-                className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 pr-10 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all appearance-none"
               >
                 {accountTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </select>
+                <div className="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
                          <div>
@@ -352,27 +359,58 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Gender</label>
+                <div className="relative">
                 <select
                   value={formData.gender}
                   onChange={(e) => handleInputChange('gender', e.target.value)}
-                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 pr-10 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all appearance-none"
                 >
                   <option value="">Select gender</option>
                   {genderOptions.map(option => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
+                  <div className="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Date of Birth</label>
+                <div 
+                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-accent-color/50 focus-within:border-transparent transition-all cursor-pointer hover:bg-opacity-80 relative"
+                  onClick={() => {
+                    const input = document.getElementById('dateOfBirthInput');
+                    // Check if we're on mobile and adjust viewport
+                    if (window.innerWidth <= 768) {
+                      // Scroll to center the input in viewport
+                      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      // Small delay to ensure scroll completes before opening picker
+                      setTimeout(() => {
+                        input.showPicker?.() || input.focus();
+                      }, 100);
+                    } else {
+                      input.showPicker?.() || input.focus();
+                    }
+                  }}
+                >
                 <input
+                    id="dateOfBirthInput"
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
-                />
+                    className="w-full bg-transparent border-none outline-none cursor-pointer"
+                    style={{ 
+                      colorScheme: 'dark',
+                      position: 'relative',
+                      zIndex: 1
+                    }}
+                  />
+                </div>
                 {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>}
               </div>
             </div>
@@ -380,16 +418,23 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                          <div>
                <label className="block text-sm font-medium text-text-secondary mb-2">Mobile Number</label>
                <div className="flex space-x-2 min-w-0">
+                 <div className="relative">
                  <select
                    value={formData.mobileCode}
                    onChange={(e) => handleInputChange('mobileCode', e.target.value)}
-                   className="w-16 sm:w-20 flex-shrink-0 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center text-sm"
+                     className="w-16 sm:w-20 flex-shrink-0 px-2 py-3 pr-6 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center text-sm appearance-none"
                    title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
                  >
                    {mobileCodes.map(code => (
                      <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
                    ))}
                  </select>
+                   <div className="absolute top-1/2 right-1 transform -translate-y-1/2 pointer-events-none">
+                     <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                     </svg>
+                   </div>
+                 </div>
                  <input
                    type="tel"
                    value={formData.mobileNumber}
@@ -413,31 +458,45 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">Country</label>
+                <div className="relative">
                 <select
                   value={formData.country}
                   onChange={(e) => handleInputChange('country', e.target.value)}
-                  className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 pr-10 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all appearance-none"
                 >
                   <option value="">Select country</option>
                   {countries.map(country => (
                     <option key={country.value} value={country.value}>{country.label}</option>
                   ))}
                 </select>
+                  <div className="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
               </div>
 
                              <div>
                  <label className="block text-sm font-medium text-text-secondary mb-2">State</label>
+                 <div className="relative">
                  <select
                    value={formData.state}
                    onChange={(e) => handleInputChange('state', e.target.value)}
-                   className="w-full px-4 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all"
+                     className="w-full px-4 py-3 pr-10 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all appearance-none"
                  >
                    <option value="">Select state</option>
                    {indianStates.map(state => (
                      <option key={state.value} value={state.value}>{state.label}</option>
                    ))}
                  </select>
+                   <div className="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none">
+                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                     </svg>
+                   </div>
+                 </div>
                  {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
                </div>
             </div>
@@ -559,12 +618,11 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
         <button
           type="button"
           onClick={onBackToSignIn}
-          className="flex items-center space-x-2 text-text-secondary hover:text-text-primary bg-card-bg/50 backdrop-blur-sm border border-border-color rounded-xl px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          className="flex items-center justify-center text-text-secondary hover:text-text-primary bg-card-bg/50 backdrop-blur-sm border border-border-color rounded-xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm font-medium">Back to Sign In</span>
         </button>
       </div>
       <div className="max-w-md w-full space-y-6">
@@ -596,7 +654,7 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               {steps.map((_, index) => (
                 <div
                   key={index}
-                  className={`h-1 flex-1 rounded ${
+                  className={`h-1 flex-1 rounded ₹{
                     index <= currentStep ? 'bg-accent-color' : 'bg-border-color'
                   }`}
                 />
@@ -614,17 +672,27 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
                 type="button"
                 onClick={handlePreviousStep}
                 disabled={currentStep === 0}
-                className="flex-1 px-3 sm:px-6 py-3 border border-accent-color text-accent-color rounded-lg hover:bg-accent-color/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium"
+                className="flex-1 px-3 sm:px-6 py-3 border border-accent-color text-accent-color rounded-lg hover:bg-accent-color/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium flex items-center justify-center"
               >
-                PREVIOUS
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
 
               <button
   type={currentStep === steps.length - 1 ? "submit" : "button"}
   onClick={(e) => handleNextStep(e)}  // ✅ Pass event
-  className="flex-1 px-3 sm:px-6 py-3 bg-accent-color text-text-quaternary rounded-lg hover:bg-accent-color/90 transition-colors text-sm sm:text-base font-medium"
+  className="flex-1 px-3 sm:px-6 py-3 bg-accent-color text-text-quaternary rounded-lg hover:bg-accent-color/90 transition-colors text-sm sm:text-base font-medium flex items-center justify-center"
 >
-  {currentStep === steps.length - 1 ? "SIGN UP" : "NEXT"}
+  {currentStep === steps.length - 1 ? (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  ) : (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  )}
 </button>
             </div>
 
@@ -633,9 +701,12 @@ const SignUpPage = ({ onSignUp, onBackToSignIn }) => {
               <button
                 type="button"
                 onClick={onBackToSignIn}
-                className="text-accent-color hover:text-accent-color/80 transition-colors text-sm"
+                className="text-accent-color hover:text-accent-color/80 transition-all duration-300 text-sm font-medium flex items-center justify-center mx-auto space-x-2 hover:scale-105 group"
               >
-                Log In →
+                <span>Login</span>
+                <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           </form>

@@ -22,8 +22,8 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
 
   // Offline/default login
   if (email.trim() === defaultEmail && password === defaultPassword) {
-    localStorage.setItem("token", "offline-default-token");
-    localStorage.setItem(
+    sessionStorage.setItem("token", "offline-default-token");
+    sessionStorage.setItem(
       "user",
       JSON.stringify({ email: defaultEmail, name: "Offline User", offline: true })
     );
@@ -38,8 +38,8 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
     console.log("Login Response:", data);
 
     // ✅ Save token & user info
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    sessionStorage.setItem("token", data.token);
+    sessionStorage.setItem("user", JSON.stringify(data.user));
 
     // ✅ Call App.js onSignIn to update state
     onSignIn(email);
@@ -68,12 +68,11 @@ const SignInPage = ({ onSignIn, onSignUpClick, onBack }) => {
       <div className="fixed top-4 left-4 z-20">
         <button
           onClick={onBack}
-          className="flex items-center space-x-2 text-text-secondary hover:text-text-primary bg-card-bg/50 backdrop-blur-sm border border-border-color rounded-xl px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          className="flex items-center justify-center text-text-secondary hover:text-text-primary bg-card-bg/50 backdrop-blur-sm border border-border-color rounded-xl p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm font-medium">Back to Home</span>
         </button>
       </div>
 

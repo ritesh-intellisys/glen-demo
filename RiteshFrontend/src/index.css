@@ -63,3 +63,30 @@
     display: none;
   }
 }
+
+/* Date picker mobile fixes */
+input[type="date"] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure date picker popup stays within viewport on mobile */
+@media (max-width: 768px) {
+  input[type="date"] {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+  
+  /* Force date picker to appear above other elements */
+  input[type="date"]:focus {
+    position: relative;
+    z-index: 9999;
+  }
+}
+
+/* Additional mobile viewport fixes */
+@media (max-width: 480px) {
+  input[type="date"] {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}

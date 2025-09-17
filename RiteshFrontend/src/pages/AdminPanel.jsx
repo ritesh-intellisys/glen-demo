@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { adminAPI, depositAPI } from '../services/api';
 
-const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
+const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
   const [selectedAccountType, setSelectedAccountType] = useState('');
   const [accountTypesData, setAccountTypesData] = useState({});
   const [createdAccounts, setCreatedAccounts] = useState([]);
@@ -18,14 +18,14 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
     balance: '0.00',
     equity: '0.00',
     margin: '0.00',
-    currency: 'USD'
+    currency: '₹'
   });
 
   // Load data from API on component mount
   useEffect(() => {
     const loadData = async () => {
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Use localStorage for offline mode
         const savedAccounts = localStorage.getItem('createdAccounts');
@@ -74,11 +74,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
           }
         }
 
-        // Load deposit requests
-        const depositResponse = await depositAPI.getDepositRequests();
-        if (depositResponse.success) {
-          setDepositRequests(depositResponse.depositRequests);
-        }
+        // Deposit requests will be loaded by the selectedUser useEffect
       } catch (error) {
         console.error('Error loading admin data:', error);
         // Fallback to localStorage
@@ -118,7 +114,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
         balance: '0.00',
         equity: '0.00',
         margin: '0.00',
-        currency: 'USD'
+        currency: '₹'
       });
     }
   }, [selectedAccountType, accountTypesData]);
@@ -128,13 +124,61 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
     localStorage.setItem('adminAccountTypesData', JSON.stringify(accountTypesData));
   }, [accountTypesData]);
 
+  // Load deposit requests based on selectedUser
+  useEffect(() => {
+    const loadDepositRequests = async () => {
+      console.log('🔄 Loading deposit requests, selectedUser:', selectedUser?.fullName);
+      
+      if (!selectedUser) {
+        // If no user selected, load all deposit requests for verification
+        console.log('📋 No user selected, loading all deposit requests for verification...');
+        try {
+          const depositResponse = await depositAPI.getDepositRequests();
+          console.log('📊 All deposit requests response:', depositResponse);
+          if (depositResponse.success) {
+            console.log('✅ All deposit requests loaded:', depositResponse.depositRequests.length);
+            setDepositRequests(depositResponse.depositRequests);
+          } else {
+            console.log('❌ Failed to load all deposit requests:', depositResponse.message);
+          }
+        } catch (error) {
+          console.error('Error loading all deposit requests:', error);
+        }
+      } else {
+        // If user selected, load user-specific deposit requests
+        console.log('👤 User selected, loading user-specific payment history for:', selectedUser.fullName);
+        console.log('👤 User details:', { id: selectedUser.id, email: selectedUser.email, fullName: selectedUser.fullName });
+        
+        // Check admin token
+        const adminToken = sessionStorage.getItem('adminToken');
+        console.log('🔑 Admin token:', adminToken ? 'Present' : 'Missing');
+        
+        try {
+          const userDepositResponse = await adminAPI.getUserDepositRequests(selectedUser.id);
+          console.log('📊 User deposit requests response:', userDepositResponse);
+          if (userDepositResponse.success) {
+            console.log('✅ User deposit requests loaded:', userDepositResponse.depositRequests.length);
+            setDepositRequests(userDepositResponse.depositRequests);
+          } else {
+            console.log('❌ Failed to load user deposit requests:', userDepositResponse.message);
+          }
+        } catch (error) {
+          console.error('Error loading user deposit requests:', error);
+          setDepositRequests([]);
+        }
+      }
+    };
+
+    loadDepositRequests();
+  }, [selectedUser]);
+
   const handleEdit = () => {
     setIsEditing(true);
     setEditData({ ...accountTypesData[selectedAccountType] || {
       balance: '0.00',
       equity: '0.00',
       margin: '0.00',
-      currency: 'USD'
+      currency: '₹'
     }});
   };
 
@@ -153,7 +197,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
       }
 
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Update localStorage for offline mode
         const currentData = JSON.parse(localStorage.getItem('adminAccountTypesData') || '{}');
@@ -191,7 +235,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
       alert('Account details updated successfully!');
     } catch (error) {
       console.error('Error updating admin data:', error);
-      alert(`Error updating account details: ${error.message}`);
+      alert(`Error updating account details: ₹{error.message}`);
     }
   };
 
@@ -200,7 +244,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
       balance: '0.00',
       equity: '0.00',
       margin: '0.00',
-      currency: 'USD'
+      currency: '₹'
     }});
     setIsEditing(false);
   };
@@ -310,7 +354,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
       }
 
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Handle payment verification locally for offline mode
         const updatedRequests = depositRequests.map(request => {
@@ -321,7 +365,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                 balance: '0.00',
                 equity: '0.00',
                 margin: '0.00',
-                currency: 'USD'
+                currency: '₹'
               };
               
               const newBalance = (parseFloat(currentData.balance) + parseFloat(verifiedAmount)).toFixed(2);
@@ -368,7 +412,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
         // Update localStorage
         localStorage.setItem('depositRequests', JSON.stringify(updatedRequests));
         
-        alert(`Payment ${action === 'approve' ? 'approved' : 'rejected'} successfully! (Offline mode)`);
+        alert(`Payment ₹{action === 'approve' ? 'approved' : 'rejected'} successfully! (Offline mode)`);
         return;
       }
 
@@ -387,7 +431,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
               balance: '0.00',
               equity: '0.00',
               margin: '0.00',
-              currency: 'USD'
+              currency: '₹'
             };
             
             const newBalance = (parseFloat(currentData.balance) + parseFloat(verifiedAmount)).toFixed(2);
@@ -424,19 +468,19 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
 
       // Show success message for approved payments
       if (action === 'approve' && verifiedAmount) {
-        alert(`Payment approved! $${verifiedAmount} has been added to ${depositRequests.find(r => r.id === requestId)?.accountType} account balance.`);
+        alert(`Payment approved! ₹₹{verifiedAmount} has been added to ₹{depositRequests.find(r => r.id === requestId)?.accountType} account balance.`);
       } else if (action === 'reject') {
-        alert(`Payment rejected for ${depositRequests.find(r => r.id === requestId)?.accountType} account.`);
+        alert(`Payment rejected for ₹{depositRequests.find(r => r.id === requestId)?.accountType} account.`);
       }
     } catch (error) {
       console.error('Error verifying payment:', error);
-      alert(`Error verifying payment: ${error.message}`);
+      alert(`Error verifying payment: ₹{error.message}`);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
-      <Header userEmail={'admin@forex.com'} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} />
+      <Header userEmail={'admin@forex.com'} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={true} />
       
       <main className="py-6">
         <div className="container-custom">
@@ -445,6 +489,26 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
               <span className="text-text-primary">Admin</span> <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Panel</span>
             </h1>
             <p className="text-xl text-text-secondary">Manage account financial details</p>
+            {selectedUser && (
+              <div className="mt-4 p-4 bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-xl border border-border-color">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <div className="text-lg font-semibold text-text-primary">Managing: {selectedUser.fullName}</div>
+                    <div className="text-sm text-text-secondary">{selectedUser.email}</div>
+                    <div className="text-sm text-accent-color">Primary Account: {selectedUser.accountType}</div>
+                  </div>
+                  <button
+                    onClick={onBack}
+                    className="bg-gradient-to-r from-accent-color/20 to-primary-blue/20 hover:from-accent-color/30 hover:to-primary-blue/30 text-text-primary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 border border-border-color flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>Back to User List</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="max-w-4xl mx-auto">
@@ -456,7 +520,9 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-text-primary">Account Financial Details</h2>
+                    <h2 className="text-2xl font-bold text-text-primary">
+                      {selectedUser ? `₹{selectedUser.fullName}'s Account Details` : 'Account Financial Details'}
+                    </h2>
                     <div className="mt-2">
                       <label className="text-text-secondary text-sm">Select Account Type:</label>
                       {getUniqueAccountTypes().length > 0 ? (
@@ -473,7 +539,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                               </option>
                             ))}
                           </select>
-                          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
                             <svg className="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -488,7 +554,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                     <button
                       onClick={handleEdit}
                       disabled={!selectedAccountType}
-                      className={`font-semibold py-2 px-4 rounded-lg transition-all duration-300 ${
+                      className={`font-semibold py-2 px-4 rounded-lg transition-all duration-300 ₹{
                         selectedAccountType 
                           ? 'bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary hover:scale-105 shadow-lg' 
                           : 'bg-gray-400 text-gray-600 cursor-not-allowed'
@@ -527,20 +593,27 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                         onChange={(e) => handleInputChange('balance', e.target.value)}
                         className="text-5xl sm:text-6xl font-extrabold text-text-primary bg-transparent border-b-2 border-accent-color text-center w-64 focus:outline-none focus:border-primary-blue"
                       />
-                      <select
-                        value={editData.currency}
-                        onChange={(e) => handleInputChange('currency', e.target.value)}
-                        className="text-2xl font-bold text-accent-color bg-transparent border border-border-color rounded px-2 py-1 focus:outline-none focus:border-primary-blue"
-                      >
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                        <option value="JPY">JPY</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={editData.currency}
+                          onChange={(e) => handleInputChange('currency', e.target.value)}
+                          className="appearance-none text-2xl font-bold text-accent-color bg-transparent border border-border-color rounded px-2 py-1 pr-8 focus:outline-none focus:border-primary-blue"
+                        >
+                          <option value="₹">₹</option>
+                          <option value="EUR">EUR</option>
+                          <option value="GBP">GBP</option>
+                          <option value="JPY">JPY</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+                          <svg className="w-3 h-3 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className="text-5xl sm:text-6xl font-extrabold text-text-primary">
-                      {accountTypesData[selectedAccountType]?.balance || '0.00'} {accountTypesData[selectedAccountType]?.currency || 'USD'}
+                      {accountTypesData[selectedAccountType]?.balance || '0.00'} {accountTypesData[selectedAccountType]?.currency || '₹'}
                     </div>
                   )}
                 </div>
@@ -559,7 +632,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                         className="text-lg font-semibold text-text-primary bg-transparent border-b border-accent-color text-center w-32 focus:outline-none focus:border-primary-blue"
                       />
                     ) : (
-                      <div className="text-lg font-semibold text-text-primary">{accountTypesData[selectedAccountType]?.equity || '0.00'} USD</div>
+                      <div className="text-lg font-semibold text-text-primary">{accountTypesData[selectedAccountType]?.equity || '0.00'} ₹</div>
                     )}
                   </div>
                   
@@ -577,7 +650,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                         className="text-lg font-semibold text-text-primary bg-transparent border-b border-accent-color text-center w-32 focus:outline-none focus:border-primary-blue"
                       />
                     ) : (
-                      <div className="text-lg font-semibold text-text-primary">{accountTypesData[selectedAccountType]?.margin || '0.00'} USD</div>
+                      <div className="text-lg font-semibold text-text-primary">{accountTypesData[selectedAccountType]?.margin || '0.00'} ₹</div>
                     )}
                   </div>
                 </div>
@@ -585,7 +658,10 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                 {/* Info Section */}
                 <div className="text-center text-text-secondary mb-6">
                   <div className="text-sm">
-                    Changes made here will be reflected in the Account Details page
+                    {selectedUser 
+                      ? `Changes made here will be reflected in ₹{selectedUser.fullName}'s Account Details page`
+                      : 'Changes made here will be reflected in the Account Details page'
+                    }
                   </div>
                 </div>
 
@@ -636,11 +712,19 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                 </div>
               </div>
 
-              {/* Payment Verification Section */}
-              {depositRequests.length > 0 && (
+            {/* Payment Verification Section */}
+            {console.log('🔍 AdminPanel render - depositRequests:', depositRequests.length, 'selectedUser:', selectedUser?.fullName)}
+            {depositRequests.length > 0 && (
               <div className="mt-8">
                 <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
-                  <h3 className="text-2xl font-bold text-text-primary mb-6">Payment Verification</h3>
+                  <h3 className="text-2xl font-bold text-text-primary mb-6">
+                    {selectedUser ? `₹{selectedUser.fullName}'s Payment Verification` : 'Payment Verification'}
+                  </h3>
+                  {/* Debug info */}
+                  <div className="text-xs text-text-secondary mb-4">
+                    Debug: Total requests: {depositRequests.length}, Pending: {depositRequests.filter(request => request.status === 'pending').length}
+                    {selectedUser ? ` for user ₹{selectedUser.fullName}` : ' for all users'}
+                  </div>
                   
                   <div className="space-y-4">
                     {depositRequests
@@ -656,7 +740,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                                 </div>
                                 <div>
                                   <span className="text-text-secondary text-sm">Requested Amount:</span>
-                                  <div className="font-semibold text-accent-color">${request.amount}</div>
+                                  <div className="font-semibold text-accent-color">₹{request.amount}</div>
                                 </div>
                                 <div>
                                   <span className="text-text-secondary text-sm">Date:</span>
@@ -679,11 +763,11 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                                   <span className="text-text-secondary text-sm">Payment Proof:</span>
                                   <div className="mt-1">
                                     <img 
-                                      src={request.proof.startsWith('data:') ? request.proof : `http://localhost:5000/${request.proof}`} 
+                                      src={request.proof.startsWith('data:') ? request.proof : `http://localhost:5000/₹{request.proof}`} 
                                       alt="Payment Proof" 
                                       className="max-w-xs max-h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
                                       onClick={() => handleImageClick(
-                                        request.proof.startsWith('data:') ? request.proof : `http://localhost:5000/${request.proof}`, 
+                                        request.proof.startsWith('data:') ? request.proof : `http://localhost:5000/₹{request.proof}`, 
                                         request.proofName || 'Payment Proof'
                                       )}
                                     />
@@ -706,12 +790,12 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                                   placeholder="Verified Amount"
                                   defaultValue={request.amount}
                                   className="bg-transparent border border-border-color text-text-primary rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-color w-32"
-                                  id={`amount-${request._id || request.id}`}
+                                  id={`amount-₹{request._id || request.id}`}
                                 />
                                 <button
                                   onClick={() => {
                                     const requestId = request._id || request.id;
-                                    const amountInput = document.getElementById(`amount-${requestId}`);
+                                    const amountInput = document.getElementById(`amount-₹{requestId}`);
                                     const verifiedAmount = amountInput.value || request.amount;
                                     if (verifiedAmount && parseFloat(verifiedAmount) > 0) {
                                       handlePaymentVerification(requestId, 'approve', verifiedAmount);
@@ -729,7 +813,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                                   onClick={() => handlePaymentVerification(request._id || request.id, 'approve', request.amount)}
                                   className="bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm flex-1"
                                 >
-                                  Quick Approve (${request.amount})
+                                  Quick Approve (₹{request.amount})
                                 </button>
                                 <button
                                   onClick={() => handlePaymentVerification(request._id || request.id, 'reject')}
@@ -758,7 +842,14 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
             {depositRequests.filter(request => request.status !== 'pending').length > 0 && (
               <div className="mt-8">
                 <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
-                  <h3 className="text-2xl font-bold text-text-primary mb-6">Payment History</h3>
+                  <h3 className="text-2xl font-bold text-text-primary mb-6">
+                    {selectedUser ? `₹{selectedUser.fullName}'s Payment History` : 'Payment History'}
+                  </h3>
+                  {/* Debug info */}
+                  <div className="text-xs text-text-secondary mb-4">
+                    Debug: Showing {depositRequests.filter(request => request.status !== 'pending').length} completed requests
+                    {selectedUser ? ` for user ₹{selectedUser.fullName}` : ' for all users'}
+                  </div>
                   
                   <div className="space-y-3">
                     {depositRequests
@@ -775,17 +866,17 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
                                 </div>
                                 <div>
                                   <span className="text-text-secondary text-sm">Requested:</span>
-                                  <div className="font-semibold text-text-primary">${request.amount}</div>
+                                  <div className="font-semibold text-text-primary">₹{request.amount}</div>
                                 </div>
                                 <div>
                                   <span className="text-text-secondary text-sm">Verified:</span>
-                                  <div className={`font-semibold ${request.verifiedAmount ? 'text-success-color' : 'text-danger-color'}`}>
-                                    {request.verifiedAmount ? `$${request.verifiedAmount}` : 'N/A'}
+                                  <div className={`font-semibold ₹{request.verifiedAmount ? 'text-success-color' : 'text-danger-color'}`}>
+                                    {request.verifiedAmount ? `₹₹{request.verifiedAmount}` : 'N/A'}
                                   </div>
                                 </div>
                                 <div>
                                   <span className="text-text-secondary text-sm">Status:</span>
-                                  <div className={`font-semibold ${
+                                  <div className={`font-semibold ₹{
                                     request.status === 'approved' ? 'text-success-color' : 'text-danger-color'
                                   }`}>
                                     {request.status.toUpperCase()}
@@ -905,7 +996,7 @@ const AdminPanel = ({ onBack, onSignOut, onProfileClick }) => {
             <div
               className="relative"
               style={{
-                transform: `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${imageScale})`,
+                transform: `translate(₹{imagePosition.x}px, ₹{imagePosition.y}px) scale(₹{imageScale})`,
                 transition: isDragging ? 'none' : 'transform 0.1s ease-out',
                 cursor: isDragging ? 'grabbing' : 'grab'
               }}

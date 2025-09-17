@@ -4,6 +4,17 @@ import DepositModal from '../components/DepositModal';
 import { accountAPI, adminAPI, depositAPI } from '../services/api';
 
 const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccountDetails }) => {
+  // Check authentication
+  const token = sessionStorage.getItem('token');
+  const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+  
+  // Redirect to sign-in if not authenticated
+  if (!token || !user.email) {
+    console.log('No authentication token found, redirecting to sign-in');
+    onBack(); // This will redirect to sign-in page
+    return null;
+  }
+
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('activeTab') || 'LIVE';
   });
@@ -94,7 +105,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         setIsLoadingAccounts(true);
         
         // Check if user is in offline mode
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
         if (user.offline) {
           // Skip API call for offline mode, use localStorage
           const savedAccounts = localStorage.getItem('createdAccounts');
@@ -161,21 +172,21 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
 
   const demoOffers = [
     {
-      title: "Demo Forex Hedge USD 01",
+      title: "Demo Forex Hedge ₹ 01",
       status: "Demo",
       icon: "handshake",
       initialDeposit: "25000",
       leverage: "1:100",
-      description: "Demo Forex Hedge USD 01",
+      description: "Demo Forex Hedge ₹ 01",
       gradient: "from-green-400 to-teal-500"
     },
     {
-      title: "Demo Forex Hedge USD 02",
+      title: "Demo Forex Hedge ₹ 02",
       status: "Demo", 
       icon: "handshake",
       initialDeposit: "10000",
       leverage: "1:100",
-      description: "Demo Forex Hedge USD 02",
+      description: "Demo Forex Hedge ₹ 02",
       gradient: "from-green-400 to-teal-500"
     }
   ];
@@ -223,7 +234,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
       }
 
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Create account locally for offline mode
         const newAccount = {
@@ -231,7 +242,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
           type: offer.title,
           status: activeTab,
           balance: 0,
-          currency: 'USD',
+          currency: '₹',
           equity: 0,
           margin: 0,
           leverage: offer.leverage || '1:500',
@@ -277,8 +288,19 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
     setShowOffersSection(false);
   };
 
-  // Get display data for an account (admin data or fallback to account data)
+  // Get display data for an account (individual account data first, then fallback to admin data)
   const getAccountDisplayData = (account) => {
+    // Use individual account data first
+    if (account.balance !== undefined && account.balance !== null) {
+      return {
+        balance: account.balance || 0,
+        currency: account.currency || '₹',
+        equity: account.equity || 0,
+        margin: account.margin || 0
+      };
+    }
+    
+    // Fallback to admin data if individual account data is not available
     const adminAccountData = adminData[account.type];
     if (adminAccountData) {
       return {
@@ -288,11 +310,13 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         margin: adminAccountData.margin
       };
     }
+    
+    // Final fallback
     return {
-      balance: account.balance,
-      currency: account.currency,
-      equity: '0.00',
-      margin: '0.00'
+      balance: 0,
+      currency: '₹',
+      equity: 0,
+      margin: 0
     };
   };
 
@@ -300,7 +324,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
   const handleDepositRequest = async (depositRequest) => {
     try {
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Handle deposit request locally for offline mode
         const proofBase64 = await new Promise((resolve) => {
@@ -365,11 +389,18 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
   // Function to delete an account
   const handleDeleteAccount = async (accountId) => {
     try {
+      console.log('Deleting account with ID:', accountId);
+      
+      if (!accountId) {
+        alert('Error: Account ID is missing');
+        return;
+      }
+
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Delete account locally for offline mode
-        const updatedAccounts = createdAccounts.filter(account => account.id !== accountId);
+        const updatedAccounts = createdAccounts.filter(account => (account._id || account.id) !== accountId);
         setCreatedAccounts(updatedAccounts);
         setOpenMenuId(null);
         alert("Account deleted successfully! (Offline mode)");
@@ -458,6 +489,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         onProfileClick={onProfileClick} 
         onBack={onBack} 
         showBackButton={true}
+        isAdmin={false}
       />
 
       {/* Main Content */}
@@ -535,14 +567,14 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                   {createdAccounts
                     .filter(account => account.status.toUpperCase() === activeTab)
                     .map((account, index) => (
-                    <div key={account.id} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-3 sm:p-4 relative min-w-[260px] sm:min-w-[286px] max-w-[280px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
+                    <div key={account._id || account.id || `account-${index}`} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-3 sm:p-4 relative min-w-[260px] sm:min-w-[286px] max-w-[280px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
                       {/* Gradient Background Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-br from-accent-color via-primary-blue to-accent-color opacity-5 rounded-xl group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
 
                       {/* Menu Icon */}
                       <div className="absolute top-4 right-4">
                         <button 
-                          onClick={() => toggleMenu(account.id)}
+                          onClick={() => toggleMenu(account._id || account.id)}
                           className="text-text-secondary hover:text-text-primary transition-colors relative menu-container"
                         >
                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -550,17 +582,17 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                           </svg>
                           
                           {/* Dropdown Menu */}
-                          {openMenuId === account.id && (
+                          {openMenuId === (account._id || account.id) && (
                             <div className="absolute right-0 top-8 bg-card-bg border border-border-color rounded-lg shadow-xl z-50 min-w-[120px] py-1">
-                              <button
-                                onClick={() => handleDeleteAccount(account.id)}
-                                className="w-full px-3 py-2 text-left text-danger-color hover:bg-danger-color/10 transition-colors flex items-center space-x-2"
+                              <div
+                                onClick={() => handleDeleteAccount(account._id || account.id)}
+                                className="w-full px-3 py-2 text-left text-danger-color hover:bg-danger-color/10 transition-colors flex items-center space-x-2 cursor-pointer"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                                 <span className="text-sm">Delete</span>
-                              </button>
+                              </div>
                             </div>
                           )}
                         </button>
@@ -744,7 +776,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                        <div className="space-y-2 sm:space-y-2.5 mb-4">
                          <div className="flex justify-between items-center bg-accent-color/10 rounded-md p-2">
                            <span className="text-text-secondary text-xs sm:text-sm">Initial deposit:</span>
-                           <span className="text-text-primary font-bold text-xs sm:text-sm">${offer.initialDeposit}</span>
+                           <span className="text-text-primary font-bold text-xs sm:text-sm">₹{offer.initialDeposit}</span>
                        </div>
                          <div className="flex justify-between items-center bg-accent-color/10 rounded-md p-2">
                            <span className="text-text-secondary text-xs sm:text-sm">Leverage:</span>

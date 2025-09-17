@@ -1,6 +1,7 @@
 import AdminData from "../models/AdminData.js";
 import DepositRequest from "../models/DepositRequest.js";
 import Account from "../models/Account.js";
+import User from "../models/User.js";
 
 // =============== GET ALL ADMIN DATA ===============
 export const getAdminData = async (req, res) => {
@@ -115,6 +116,127 @@ export const getDepositStatistics = async (req, res) => {
     });
   } catch (error) {
     console.error("Get Deposit Statistics Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// =============== GET ALL USERS ===============
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    
+    // Get account information for each user
+    const usersWithAccounts = await Promise.all(users.map(async (user) => {
+      const accounts = await Account.find({ user: user._id });
+      const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
+      
+      return {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        accountType: user.accountType,
+        createdAt: user.createdAt,
+        lastLogin: user.updatedAt, // Using updatedAt as lastLogin for now
+        status: 'Active', // Default status
+        totalAccounts: accounts.length,
+        totalBalance: totalBalance
+      };
+    }));
+
+    res.status(200).json({
+      success: true,
+      users: usersWithAccounts
+    });
+  } catch (error) {
+    console.error("Get All Users Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// =============== GET USER BY ID ===============
+export const getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Get user's accounts
+    const accounts = await Account.find({ user: userId });
+    
+    // Get admin data for each account type
+    const adminDataMap = {};
+    const adminDataList = await AdminData.find({});
+    adminDataList.forEach(data => {
+      adminDataMap[data.accountType] = data;
+    });
+    
+    // Merge account data with admin data
+    const accountsWithAdminData = accounts.map(account => {
+      const adminData = adminDataMap[account.type];
+      return {
+        ...account.toObject(),
+        balance: adminData ? adminData.balance : account.balance,
+        currency: adminData ? adminData.currency : account.currency,
+        equity: adminData ? adminData.equity : account.equity,
+        margin: adminData ? adminData.margin : account.margin
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      user: {
+        ...user.toObject(),
+        accounts: accountsWithAdminData
+      }
+    });
+  } catch (error) {
+    console.error("Get User By ID Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// =============== GET USER DEPOSIT REQUESTS ===============
+export const getUserDepositRequests = async (req, res) => {
+  console.log("🚀 getUserDepositRequests function called!");
+  try {
+    const { userId } = req.params;
+    console.log(`🔍 Getting deposit requests for user: ${userId}`);
+    
+    // Get user's accounts
+    const userAccounts = await Account.find({ user: userId });
+    console.log(`📋 Found ${userAccounts.length} accounts for user:`, userAccounts.map(acc => ({ id: acc._id, type: acc.type, status: acc.status })));
+    
+    const accountIds = userAccounts.map(account => account._id);
+    console.log(`🆔 Account IDs to search:`, accountIds);
+    
+    // Get deposit requests for user's accounts
+    const depositRequests = await DepositRequest.find({ 
+      account: { $in: accountIds } 
+    }).sort({ createdAt: -1 });
+
+    console.log(`📊 Found ${depositRequests.length} deposit requests for user`);
+    if (depositRequests.length > 0) {
+      console.log(`📋 Deposit requests:`, depositRequests.map(req => ({ id: req._id, account: req.account, amount: req.amount, status: req.status })));
+    }
+
+    // Convert ObjectIds to strings for proper serialization
+    const serializedDepositRequests = depositRequests.map(request => ({
+      ...request.toObject(),
+      _id: request._id.toString(),
+      user: request.user.toString(),
+      account: request.account.toString(),
+      verifiedBy: request.verifiedBy ? request.verifiedBy.toString() : null
+    }));
+
+    res.status(200).json({
+      success: true,
+      depositRequests: serializedDepositRequests
+    });
+  } catch (error) {
+    console.error("Get User Deposit Requests Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

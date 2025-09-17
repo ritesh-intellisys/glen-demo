@@ -1,8 +1,12 @@
 import User from "../models/User.js";
+import Admin from "../models/Admin.js";
+import Account from "../models/Account.js";
+import AdminData from "../models/AdminData.js";
 import jwt from "jsonwebtoken";
 
 // =============== SIGNUP ===============
 export const signup = async (req, res) => {
+  console.log("🚀 SIGNUP FUNCTION CALLED - Starting signup process");
   try {
     const {
       accountType,
@@ -60,6 +64,64 @@ export const signup = async (req, res) => {
       privacyAccepted,
     });
 
+    // ✅ Automatically create account for the selected account type
+    try {
+      console.log(`🔄 Creating ${accountType} account for user: ${user.email} (ID: ${user._id})`);
+      
+      // Create account for the selected account type with Live status
+      console.log("🔄 Creating account with data:", {
+        user: user._id,
+        type: accountType,
+        status: 'Live',
+        initialDeposit: 0,
+        leverage: '1:500',
+        balance: 0
+      });
+      
+      const newAccount = await Account.create({
+        user: user._id,
+        type: accountType, // Use the account type selected during signup
+        status: 'Live',
+        initialDeposit: 0,
+        leverage: '1:500',
+        balance: 0  // Always start with zero balance
+      });
+
+      console.log(`✅ Account created successfully:`, {
+        accountId: newAccount._id,
+        accountNumber: newAccount.accountNumber,
+        type: newAccount.type,
+        status: newAccount.status,
+        balance: newAccount.balance
+      });
+
+      // Initialize admin data for the selected account type if it doesn't exist
+      const adminData = await AdminData.findOneAndUpdate(
+        { accountType: accountType },
+        {
+          accountType: accountType,
+          balance: 0,  // Always start with zero balance
+          currency: '₹',
+          equity: 0.00,
+          margin: 0.00
+        },
+        { upsert: true, new: true }
+      );
+
+      console.log(`✅ AdminData initialized for ${accountType}:`, adminData);
+    } catch (accountError) {
+      console.error("❌ Account creation error during signup:", accountError);
+      console.error("Error details:", {
+        message: accountError.message,
+        name: accountError.name,
+        code: accountError.code,
+        errors: accountError.errors,
+        stack: accountError.stack
+      });
+      // Continue with user creation even if account creation fails
+      // The user can still create accounts manually later
+    }
+
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -80,6 +142,37 @@ export const login = async (req, res) => {
       return res.status(400).json({ success: false, message: "Please enter all fields" });
     }
 
+    // First check if it's an admin user
+    const admin = await Admin.findOne({ email, isActive: true });
+    if (admin) {
+      const isMatch = await admin.matchPassword(password);
+      if (!isMatch) {
+        return res.status(401).json({ success: false, message: "Invalid email or password" });
+      }
+
+      // Update last login
+      admin.lastLogin = new Date();
+      await admin.save();
+
+      // Generate token for admin
+      const token = jwt.sign({ id: admin._id, role: 'admin' }, process.env.JWT_SECRET || "mySuperSecretKey", {
+        expiresIn: "1d",
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Admin login successful",
+        token,
+        user: {
+          id: admin._id,
+          fullName: admin.fullName,
+          email: admin.email,
+          role: admin.role,
+        },
+      });
+    }
+
+    // If not admin, check regular users
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ success: false, message: "User does not exist" });
@@ -91,8 +184,8 @@ export const login = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid email or password" });
     }
 
-    // ✅ Generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "mySuperSecretKey", {
+    // ✅ Generate token for regular user
+    const token = jwt.sign({ id: user._id, role: 'user' }, process.env.JWT_SECRET || "mySuperSecretKey", {
       expiresIn: "1d",
     });
 
@@ -104,6 +197,7 @@ export const login = async (req, res) => {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
+        role: 'user',
       },
     });
   } catch (error) {
@@ -130,6 +224,53 @@ export const getProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Get Profile Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// =============== CREATE ADMIN USER ===============
+export const createAdminUser = async (req, res) => {
+  try {
+    // Check if admin user already exists
+    const existingAdmin = await Admin.findOne({ email: 'admin@forex.com' });
+    if (existingAdmin) {
+      return res.status(409).json({ 
+        success: false, 
+        message: "Admin user already exists",
+        user: { 
+          id: existingAdmin._id, 
+          email: existingAdmin.email, 
+          fullName: existingAdmin.fullName 
+        }
+      });
+    }
+
+    // Create admin user in Admin collection
+    const adminUser = await Admin.create({
+      email: 'admin@forex.com',
+      password: 'admin123',
+      fullName: 'Admin User',
+      role: 'admin',
+      isActive: true,
+      permissions: {
+        canManageUsers: true,
+        canManageAccounts: true,
+        canViewReports: true,
+        canManageSettings: true
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Admin user created successfully",
+      user: { 
+        id: adminUser._id, 
+        email: adminUser.email, 
+        fullName: adminUser.fullName 
+      },
+    });
+  } catch (error) {
+    console.error("Create Admin User Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

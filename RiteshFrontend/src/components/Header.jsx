@@ -6,7 +6,8 @@ const Header = ({
   onSignOut, 
   onProfileClick, 
   onBack, 
-  showBackButton = false 
+  showBackButton = false,
+  isAdmin = false
 }) => {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isHamburgerMenuOpen, setIsHamburgerMenuOpen] = useState(false);
@@ -104,12 +105,24 @@ const Header = ({
                 <div className="hidden sm:flex items-center space-x-2">
                   <button 
                     onClick={onProfileClick}
-                    className="text-text-primary font-semibold text-sm hover:text-accent-color transition-colors cursor-pointer"
+                    className={`font-semibold text-sm transition-colors cursor-pointer ₹{
+                      isAdmin 
+                        ? 'text-accent-color hover:text-primary-blue' 
+                        : 'text-text-primary hover:text-accent-color'
+                    }`}
                   >
                     {userEmail}
                   </button>
-                  <div className="bg-danger-color/10 border border-danger-color/10 rounded-full px-1.5 py-0.5 flex items-center">
-                    <span className="text-danger-color text-[0.6rem] font-medium">UNVERIFIED</span>
+                  <div className={`rounded-full px-1.5 py-0.5 flex items-center ₹{
+                    isAdmin 
+                      ? 'bg-accent-color/10 border border-accent-color/20' 
+                      : 'bg-danger-color/10 border border-danger-color/10'
+                  }`}>
+                    <span className={`text-[0.6rem] font-medium ₹{
+                      isAdmin ? 'text-accent-color' : 'text-danger-color'
+                    }`}>
+                      {isAdmin ? 'ADMIN' : 'UNVERIFIED'}
+                    </span>
                   </div>
                 </div>
                 {/* Mobile email display */}
@@ -120,12 +133,24 @@ const Header = ({
                         onProfileClick();
                         setShowEmail(false);
                       }}
-                      className="text-text-primary text-xs font-medium mb-1 hover:text-accent-color transition-colors cursor-pointer w-full text-left"
+                      className={`text-xs font-medium mb-1 transition-colors cursor-pointer w-full text-left ₹{
+                        isAdmin 
+                          ? 'text-accent-color hover:text-primary-blue' 
+                          : 'text-text-primary hover:text-accent-color'
+                      }`}
                     >
                       {userEmail}
                     </button>
-                    <div className="bg-danger-color/10 border border-danger-color/10 rounded-full px-1.5 py-0.5 flex items-center justify-center">
-                      <span className="text-danger-color text-[0.5rem] font-medium">UNVERIFIED</span>
+                    <div className={`rounded-full px-1.5 py-0.5 flex items-center justify-center ₹{
+                      isAdmin 
+                        ? 'bg-accent-color/10 border border-accent-color/20' 
+                        : 'bg-danger-color/10 border border-danger-color/10'
+                    }`}>
+                      <span className={`text-[0.5rem] font-medium ₹{
+                        isAdmin ? 'text-accent-color' : 'text-danger-color'
+                      }`}>
+                        {isAdmin ? 'ADMIN' : 'UNVERIFIED'}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -165,7 +190,7 @@ const Header = ({
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
                   </svg>
                   <span className="text-text-secondary group-hover:text-text-primary transition-colors text-xs font-medium">{selectedLanguage}</span>
-                  <svg className={`w-2.5 h-2.5 transition-transform ${isLanguageDropdownOpen ? 'rotate-180' : ''} text-text-secondary group-hover:text-text-primary`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-2.5 h-2.5 transition-transform ₹{isLanguageDropdownOpen ? 'rotate-180' : ''} text-text-secondary group-hover:text-text-primary`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -207,8 +232,8 @@ const Header = ({
                 setSelectedLanguage(language.code);
                 setIsLanguageDropdownOpen(false);
               }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-accent-color/20 transition-all duration-300 ${selectedLanguage === language.code ? 'bg-gradient-to-r from-accent-color/30 to-primary-blue/30 text-accent-color' : 'text-text-secondary hover:text-text-primary'
-                } ${language.code === languages[0].code ? 'rounded-t-2xl' : ''} ${language.code === languages[languages.length - 1].code ? 'rounded-b-2xl' : ''}`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-accent-color/20 transition-all duration-300 ₹{selectedLanguage === language.code ? 'bg-gradient-to-r from-accent-color/30 to-primary-blue/30 text-accent-color' : 'text-text-secondary hover:text-text-primary'
+                } ₹{language.code === languages[0].code ? 'rounded-t-2xl' : ''} ₹{language.code === languages[languages.length - 1].code ? 'rounded-b-2xl' : ''}`}
             >
               <span className="text-lg">{language.flag}</span>
               <span className="font-medium">{language.name}</span>
@@ -258,12 +283,16 @@ const Header = ({
             <div className="border-t border-border-color my-2 mx-4"></div>
             <button
               onClick={onSignOut}
-              className="w-full text-left px-6 py-3 text-text-primary hover:bg-danger-color/10 transition-all duration-300 hover:scale-105 rounded-xl flex items-center space-x-2"
+              className={`w-full text-left px-6 py-3 transition-all duration-300 hover:scale-105 rounded-xl flex items-center space-x-2 ₹{
+                isAdmin 
+                  ? 'text-accent-color hover:bg-accent-color/10' 
+                  : 'text-text-primary hover:bg-danger-color/10'
+              }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <span>Sign Out</span>
+              <span>{isAdmin ? 'Admin Logout' : 'Sign Out'}</span>
             </button>
           </div>
         </div>,

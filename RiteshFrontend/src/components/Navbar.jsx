@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TickerTape from '../widgets/TickerTape';
 import LogoPng from '../assets/Logo.png';
 
-const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, currentPage }) => {
+const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, onAdminClick, onAccountsClick, currentPage, userEmail, adminEmail }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -17,9 +17,9 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
 
   const marketData = [
     { instrument: 'US 100', value: '18,234.50', change: '+0.45%', isPositive: true },
-    { instrument: 'EUR/USD', value: '1.0856', change: '-0.12%', isPositive: false },
-    { instrument: 'Bitcoin', value: '$43,250', change: '+2.34%', isPositive: true },
-    { instrument: 'Gold', value: '$2,045', change: '+0.78%', isPositive: true },
+    { instrument: 'EUR/₹', value: '1.0856', change: '-0.12%', isPositive: false },
+    { instrument: 'Bitcoin', value: '₹43,250', change: '+2.34%', isPositive: true },
+    { instrument: 'Gold', value: '₹2,045', change: '+0.78%', isPositive: true },
   ];
 
   const handleHomeClick = () => {
@@ -81,15 +81,31 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                   <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gray-900"></div>
                 )}
               </button>
+              {/* Always visible admin link */}
+                <button 
+                  onClick={onAdminClick}
+                  className={`font-medium relative ${
+                  currentPage === 'admin' || currentPage === 'adminlogin' ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
+                  } transition-colors`}
+                >
+                  Admin
+                {(currentPage === 'admin' || currentPage === 'adminlogin') && (
+                    <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gray-900"></div>
+                  )}
+                </button>
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button - Shows Sign In when logged out, Accounts when logged in */}
             <div className="hidden lg:block">
               <button 
-                onClick={onSignInClick}
-                className="bg-accent-color text-text-quaternary font-semibold px-6 py-3 rounded-xl hover:bg-accent-color/90 transition-colors"
+                onClick={userEmail ? onAccountsClick : onSignInClick}
+                className={`font-semibold px-6 py-3 rounded-xl transition-colors ${
+                  userEmail 
+                    ? 'bg-gray-100 text-gray-900 hover:bg-gray-200' 
+                    : 'bg-accent-color text-text-quaternary hover:bg-accent-color/90'
+                }`}
               >
-                Sign In
+                {userEmail ? 'Accounts' : 'Sign In'}
               </button>
             </div>
 
@@ -136,11 +152,24 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                 >
                   Contact
                 </button>
+                {/* Always visible admin link */}
+                  <button 
+                    onClick={onAdminClick}
+                    className={`text-left font-medium ${
+                    currentPage === 'admin' || currentPage === 'adminlogin' ? 'text-gray-900' : 'text-gray-600'
+                    }`}
+                  >
+                    Admin
+                  </button>
                 <button 
-                  onClick={onSignInClick}
-                  className="bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors w-full mt-4"
+                  onClick={userEmail ? onAccountsClick : onSignInClick}
+                  className={`font-semibold px-6 py-3 rounded-xl transition-colors w-full mt-4 ${
+                    userEmail 
+                      ? 'bg-gray-100 text-gray-900 hover:bg-gray-200' 
+                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                  }`}
                 >
-                  Sign In
+                  {userEmail ? 'Accounts' : 'Sign In'}
                 </button>
               </div>
             </div>

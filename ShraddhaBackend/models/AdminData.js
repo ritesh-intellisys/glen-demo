@@ -7,7 +7,7 @@ const adminDataSchema = new mongoose.Schema(
     
     // Financial data managed by admin
     balance: { type: Number, default: 0.00 },
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: '₹' },
     equity: { type: Number, default: 0.00 },
     margin: { type: Number, default: 0.00 },
     

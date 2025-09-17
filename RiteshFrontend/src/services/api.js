@@ -3,7 +3,12 @@ const API_BASE_URL = 'http://localhost:5000/api';
 
 // Helper function to get auth token
 const getAuthToken = () => {
-  return localStorage.getItem('token');
+  return sessionStorage.getItem('token');
+};
+
+// Helper function to get admin auth token
+const getAdminAuthToken = () => {
+  return sessionStorage.getItem('adminToken');
 };
 
 // Helper function to make API requests
@@ -34,6 +39,34 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 };
 
+// Helper function to make admin API requests
+const adminApiRequest = async (endpoint, options = {}) => {
+  const token = getAdminAuthToken();
+  
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Admin API request failed');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Admin API Error:', error);
+    throw error;
+  }
+};
+
 // =============== AUTH API ===============
 export const authAPI = {
   // Sign up
@@ -55,6 +88,13 @@ export const authAPI = {
   // Get profile
   getProfile: async () => {
     return apiRequest('/auth/profile');
+  },
+
+  // Create admin user
+  createAdminUser: async () => {
+    return apiRequest('/auth/create-admin', {
+      method: 'POST',
+    });
   },
 };
 
@@ -139,12 +179,12 @@ export const depositAPI = {
 export const adminAPI = {
   // Get admin data
   getAdminData: async () => {
-    return apiRequest('/admin/data');
+    return adminApiRequest('/admin/data');
   },
 
   // Update admin data
   updateAdminData: async (adminData) => {
-    return apiRequest('/admin/data', {
+    return adminApiRequest('/admin/data', {
       method: 'PUT',
       body: JSON.stringify(adminData),
     });
@@ -152,12 +192,27 @@ export const adminAPI = {
 
   // Get account types
   getAccountTypes: async () => {
-    return apiRequest('/admin/account-types');
+    return adminApiRequest('/admin/account-types');
   },
 
   // Get deposit statistics
   getDepositStatistics: async () => {
-    return apiRequest('/admin/statistics');
+    return adminApiRequest('/admin/statistics');
+  },
+
+  // Get all users
+  getAllUsers: async () => {
+    return adminApiRequest('/admin/users');
+  },
+
+  // Get user by ID
+  getUserById: async (userId) => {
+    return adminApiRequest(`/admin/users/${userId}`);
+  },
+
+  // Get user deposit requests
+  getUserDepositRequests: async (userId) => {
+    return adminApiRequest(`/admin/users/${userId}/deposits`);
   },
 };
 

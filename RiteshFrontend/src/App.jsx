@@ -9,6 +9,8 @@ import ProfilePage from './pages/ProfilePage';
 import AboutUs from './pages/AboutUs'; // Add this import
 import ContactUs from './pages/ContactUs';
 import AdminPanel from './pages/AdminPanel';
+import UserListPage from './pages/UserListPage';
+import AdminLogin from './components/AdminLogin';
 import Footer from './components/Footer';
 
 import './App.css';
@@ -18,13 +20,43 @@ function App() {
     return localStorage.getItem('currentPage') || 'home';
   });
   const [userEmail, setUserEmail] = useState(() => {
-    return localStorage.getItem('userEmail') || '';
+    return sessionStorage.getItem('userEmail') || '';
   });
   const [previousPage, setPreviousPage] = useState(() => {
     return localStorage.getItem('previousPage') || 'home';
   });
   const [selectedAccount, setSelectedAccount] = useState(() => {
     const saved = localStorage.getItem('selectedAccount');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [adminEmail, setAdminEmail] = useState(() => {
+    // Check for admin session in sessionStorage
+    const adminUser = sessionStorage.getItem('adminUser');
+    const adminToken = sessionStorage.getItem('adminToken');
+    const adminEmailStorage = sessionStorage.getItem('adminEmail');
+    
+    // First check if adminEmail is directly stored
+    if (adminEmailStorage) {
+      return adminEmailStorage;
+    }
+    
+    // Fallback to parsing adminUser data
+    if (adminUser && adminToken) {
+      try {
+        const adminData = JSON.parse(adminUser);
+        return adminData.email || '';
+      } catch (error) {
+        console.error('Error parsing admin user data:', error);
+        return '';
+      }
+    }
+    
+    return '';
+  });
+
+  // Add selectedUser state for admin panel
+  const [selectedUser, setSelectedUser] = useState(() => {
+    const saved = localStorage.getItem('selectedUser');
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -34,7 +66,7 @@ function App() {
   }, [currentPage]);
 
   useEffect(() => {
-    localStorage.setItem('userEmail', userEmail);
+    sessionStorage.setItem('userEmail', userEmail);
   }, [userEmail]);
 
   useEffect(() => {
@@ -48,6 +80,34 @@ function App() {
       localStorage.removeItem('selectedAccount');
     }
   }, [selectedAccount]);
+
+  useEffect(() => {
+    if (adminEmail) {
+      sessionStorage.setItem('adminEmail', adminEmail);
+      // Also ensure adminUser and adminToken are set
+      if (!sessionStorage.getItem('adminUser')) {
+        sessionStorage.setItem('adminUser', JSON.stringify({ 
+          email: adminEmail, 
+          name: 'Admin User', 
+          role: 'admin' 
+        }));
+      }
+      if (!sessionStorage.getItem('adminToken')) {
+        sessionStorage.setItem('adminToken', 'admin-master-token');
+      }
+    } else {
+      sessionStorage.removeItem('adminEmail');
+    }
+  }, [adminEmail]);
+
+  // Save selectedUser to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedUser) {
+      localStorage.setItem('selectedUser', JSON.stringify(selectedUser));
+    } else {
+      localStorage.removeItem('selectedUser');
+    }
+  }, [selectedUser]);
 
   // Admin panel access via keyboard shortcut (Ctrl + Shift + A)
   useEffect(() => {
@@ -71,10 +131,12 @@ function App() {
   const handleSignOut = () => {
     setUserEmail('');
     setPreviousPage('home');
-    setCurrentPage('home');
-    // Clear localStorage on sign out
-    localStorage.removeItem('userEmail');
-    localStorage.setItem('currentPage', 'home');
+    setCurrentPage('signin'); // Redirect to sign-in page after logout
+    // Clear sessionStorage on sign out
+    sessionStorage.removeItem('userEmail');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    localStorage.setItem('currentPage', 'signin');
     localStorage.setItem('previousPage', 'home');
   };
 
@@ -144,7 +206,67 @@ function App() {
   };
 
   const handleAdminClick = () => {
+    // Check if admin is logged in by checking sessionStorage
+    const adminToken = sessionStorage.getItem('adminToken');
+    const adminUser = sessionStorage.getItem('adminUser');
+    const isAdminLoggedIn = adminToken && adminUser;
+    
+    if (isAdminLoggedIn) {
+      // If admin is logged in, go directly to user list
+      setCurrentPage('userlist');
+    } else {
+      // If admin is not logged in, go to admin login page
+      setPreviousPage(currentPage);
+      setCurrentPage('adminlogin');
+    }
+  };
+
+  const handleAccountsClick = () => {
+    // Check if user is authenticated before allowing access to account page
+    if (!userEmail) {
+      // If not authenticated, redirect to sign-in page
+      setPreviousPage(currentPage);
+      setCurrentPage('signin');
+      return;
+    }
+    setPreviousPage(currentPage);
+    setCurrentPage('account');
+  };
+
+  const handleAdminLogin = (email) => {
+    setAdminEmail(email);
+    setCurrentPage('userlist');
+  };
+
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
     setCurrentPage('admin');
+  };
+
+  const handleBackToUserList = () => {
+    setSelectedUser(null);
+    setCurrentPage('userlist');
+  };
+
+  const handleAdminLogout = () => {
+    console.log('Admin logout called');
+    setAdminEmail('');
+    setPreviousPage('home');
+    setCurrentPage('home');
+    // Clear admin sessionStorage on logout
+    sessionStorage.removeItem('adminToken');
+    sessionStorage.removeItem('adminUser');
+    sessionStorage.removeItem('adminEmail');
+    // Update localStorage
+    localStorage.setItem('currentPage', 'home');
+    localStorage.setItem('previousPage', 'home');
+    // Dispatch custom event to notify components of admin logout
+    window.dispatchEvent(new CustomEvent('adminLogout'));
+    console.log('Admin logout completed');
+  };
+
+  const handleAdminBack = () => {
+    setCurrentPage('home');
   };
   const renderPage = () => {
     switch (currentPage) {
@@ -162,8 +284,12 @@ function App() {
         return <AboutUs onSignUpClick={handleSignUpClick} />;
       case 'contactus':
         return <ContactUs onSignUpClick={handleSignUpClick} />;
+      case 'adminlogin':
+        return <AdminLogin onAdminLogin={handleAdminLogin} onBack={handleAdminBack} />;
+      case 'userlist':
+        return <UserListPage onBack={handleAdminBack} onSignOut={handleAdminLogout} onProfileClick={handleProfileClick} onUserSelect={handleUserSelect} onAdminLogin={() => setCurrentPage('adminlogin')} adminEmail={adminEmail} />;
       case 'admin':
-        return <AdminPanel onBack={handleHomeClick} onSignOut={handleSignOut} onProfileClick={handleProfileClick} />;
+        return <AdminPanel selectedUser={selectedUser} onBack={handleBackToUserList} onSignOut={handleAdminLogout} onProfileClick={handleProfileClick} />;
 
       default:
         return (
@@ -183,7 +309,11 @@ function App() {
           onAboutUsClick={handleAboutUsClick}
           onContactUsClick={handleContactUsClick}
           onHomeClick={handleHomeClick}
+          onAdminClick={handleAdminClick}
+          onAccountsClick={handleAccountsClick}
           currentPage={currentPage}
+          userEmail={userEmail}
+          adminEmail={adminEmail}
         />
       }
       {renderPage()}

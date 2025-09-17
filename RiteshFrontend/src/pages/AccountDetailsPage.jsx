@@ -8,7 +8,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
     balance: '0.00',
     equity: '0.00',
     margin: '0.00',
-    currency: 'USD'
+    currency: '₹'
   });
   const [showDepositModal, setShowDepositModal] = useState(false);
 
@@ -18,7 +18,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
       if (!account?._id && !account?.id) return;
       
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Use localStorage for offline mode
         const savedData = localStorage.getItem('adminAccountTypesData');
@@ -75,7 +75,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
   const handleDepositRequest = async (depositRequest) => {
     try {
       // Check if user is in offline mode
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (user.offline) {
         // Handle deposit request locally for offline mode
         const proofBase64 = await new Promise((resolve) => {
@@ -120,13 +120,13 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
       alert('Deposit request submitted successfully! Admin will verify and process your payment.');
     } catch (error) {
       console.error('Error submitting deposit request:', error);
-      alert(`Error submitting deposit request: ${error.message}`);
+      alert(`Error submitting deposit request: ₹{error.message}`);
     }
   };
   if (!account) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
-        <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} />
+        <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={false} />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="text-text-secondary mb-4">No account selected.</div>
@@ -144,7 +144,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
-      <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} />
+      <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={false} />
 
       <main className="py-6">
         <div className="container-custom">
@@ -157,9 +157,9 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4 sm:gap-10 mb-6">
-                <div className="text-text-secondary">Equity: <span className="font-semibold text-text-primary">{adminData.equity} USD</span></div>
+                <div className="text-text-secondary">Equity: <span className="font-semibold text-text-primary">{adminData.equity} ₹</span></div>
                 <div className="hidden sm:block h-4 w-px bg-border-color" />
-                <div className="text-text-secondary">Margin: <span className="font-semibold text-text-primary">{adminData.margin} USD</span></div>
+                <div className="text-text-secondary">Margin: <span className="font-semibold text-text-primary">{adminData.margin} ₹</span></div>
               </div>
 
               <div className="text-center text-text-secondary mb-6">

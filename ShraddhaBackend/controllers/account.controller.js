@@ -29,7 +29,7 @@ export const createAccount = async (req, res) => {
       status: status,
       initialDeposit: initialDeposit || 0,
       leverage: leverage || '1:500',
-      balance: initialDeposit || 0
+      balance: 0  // Always start with zero balance
     });
 
     // Initialize admin data for this account type if it doesn't exist
@@ -38,8 +38,8 @@ export const createAccount = async (req, res) => {
         { accountType },
         {
           accountType,
-          balance: initialDeposit || 0,
-          currency: 'USD',
+          balance: 0,  // Always start with zero balance
+          currency: '₹',
           equity: 0.00,
           margin: 0.00
         },
@@ -70,6 +70,48 @@ export const getUserAccounts = async (req, res) => {
     
     const accounts = await Account.find({ user: userId }).sort({ createdAt: -1 });
     
+    // If user has no accounts, create account for their selected account type
+    if (accounts.length === 0) {
+      console.log(`📝 No accounts found for user ${userId}, creating account for selected type...`);
+      
+      // Get user's selected account type
+      const user = await User.findById(userId);
+      if (user && user.accountType) {
+        try {
+          await Account.create({
+            user: userId,
+            type: user.accountType, // Use the account type selected during signup
+            status: 'Live',
+            initialDeposit: 0,
+            leverage: '1:500',
+            balance: 0  // Always start with zero balance
+          });
+
+          // Initialize admin data for the selected account type if it doesn't exist
+          await AdminData.findOneAndUpdate(
+            { accountType: user.accountType },
+            {
+              accountType: user.accountType,
+              balance: 0,  // Always start with zero balance
+              currency: '₹',
+              equity: 0.00,
+              margin: 0.00
+            },
+            { upsert: true, new: true }
+          );
+          
+          console.log(`✅ Created ${user.accountType} account for user ${userId}`);
+        } catch (accountError) {
+          console.error(`Error creating ${user.accountType} account:`, accountError);
+        }
+      } else {
+        console.log(`⚠️  User ${userId} not found or no account type selected`);
+      }
+    }
+    
+    // Get all accounts for the user (including newly created ones)
+    const allAccounts = await Account.find({ user: userId }).sort({ createdAt: -1 });
+    
     // Get admin data for each account type
     const adminDataMap = {};
     const adminDataList = await AdminData.find({});
@@ -78,7 +120,7 @@ export const getUserAccounts = async (req, res) => {
     });
 
     // Merge account data with admin data
-    const accountsWithAdminData = accounts.map(account => {
+    const accountsWithAdminData = allAccounts.map(account => {
       const adminData = adminDataMap[account.type];
       return {
         ...account.toObject(),

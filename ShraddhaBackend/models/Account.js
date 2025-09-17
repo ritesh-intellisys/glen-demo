@@ -12,7 +12,7 @@ const accountSchema = new mongoose.Schema(
     
     // Financial data
     balance: { type: Number, default: 0.00 },
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: '₹' },
     equity: { type: Number, default: 0.00 },
     margin: { type: Number, default: 0.00 },
     leverage: { type: String, default: '1:500' },
@@ -30,10 +30,32 @@ const accountSchema = new mongoose.Schema(
 
 // Generate unique account number
 accountSchema.pre('save', async function(next) {
-  if (this.isNew) {
+  if (this.isNew && !this.accountNumber) {
     const prefix = (this.status === 'Demo' || this.status === 'DEMO') ? 'DEMO' : 'LIVE';
-    const randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    this.accountNumber = `${prefix}${randomNum}`;
+    let accountNumber;
+    let isUnique = false;
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    while (!isUnique && attempts < maxAttempts) {
+      const randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+      accountNumber = `${prefix}${randomNum}`;
+      
+      // Check if this account number already exists
+      const existingAccount = await this.constructor.findOne({ accountNumber });
+      if (!existingAccount) {
+        isUnique = true;
+      }
+      attempts++;
+    }
+    
+    if (isUnique) {
+      this.accountNumber = accountNumber;
+    } else {
+      // Fallback: use timestamp-based account number
+      const timestamp = Date.now().toString().slice(-6);
+      this.accountNumber = `${prefix}${timestamp}`;
+    }
   }
   next();
 });

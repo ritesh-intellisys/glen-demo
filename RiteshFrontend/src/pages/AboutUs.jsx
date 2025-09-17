@@ -5,7 +5,7 @@ import MiniChartGold from '../widgets/MiniChartGold';
 const AboutUs = ({ onSignUpClick }) => {
   const stats = [
     { value: "12,000+", label: "Active Traders" },
-    { value: "$2B+", label: "Monthly Trading Volume" },
+    { value: "₹2B+", label: "Monthly Trading Volume" },
     { value: "150+", label: "Countries Served" },
     { value: "24/7", label: "Customer Support" }
   ];
@@ -201,7 +201,6 @@ const AboutUs = ({ onSignUpClick }) => {
         </div>
       </section>
 
-      
 
       {/* Technology Section */}
       <section className="py-20 bg-gradient-to-br from-bg-primary to-bg-secondary relative">

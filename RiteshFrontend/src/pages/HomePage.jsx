@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import MiniChartUsd from '../widgets/MiniChartUsd';
 import MiniChartGold from '../widgets/MiniChartGold';
 import Squares from '../backgrounds/Square.jsx';
+import Promo1 from '../assets/promo1.png';
+import Promo2 from '../assets/promo2.png';
+import Promo3 from '../assets/promo3.png';
 
 
 const HomePage = ({ onSignUpClick }) => {
@@ -9,9 +12,9 @@ const HomePage = ({ onSignUpClick }) => {
   const carouselRef = useRef(null);
 
   const features = [
-    { icon: "📊", title: "Ultra-Low Spreads", desc: "on XAUUSD EURUSD" },
+    { icon: "📊", title: "Ultra-Low Spreads", desc: "on XAU₹ EUR₹" },
     { icon: "🌍", title: "200+ Instruments", desc: "Forex, Crypto & More" },
-    { icon: "💰", title: "$50 Minimum", desc: "Start with just $50" },
+    { icon: "💰", title: "₹50 Minimum", desc: "Start with just ₹50" },
     { icon: "🛡️", title: "24/7 Support", desc: "Round-the-clock assistance" }
   ];
 
@@ -21,14 +24,14 @@ const HomePage = ({ onSignUpClick }) => {
     {
       bonus: "Standard",
       description: "Start trading with standard account",
-      minDeposit: "$50",
+      minDeposit: "₹50",
       features: ["Instant credit", "No hidden fees", "Trade immediately"],
       popular: true
     },
     {
       bonus: "Pro Account",
       description: "Start trading with pro account",
-      minDeposit: "$100",
+      minDeposit: "₹100",
       features: ["No deposit needed", "Instant activation", "Withdrawable profits"],
       popular: false
     }
@@ -226,7 +229,60 @@ const HomePage = ({ onSignUpClick }) => {
         </div>
       </section>
 
-
+      {/* Promotional Images Section */}
+      <section className="py-20 bg-bg-primary relative">
+        <div className="absolute top-1/2 right-10 w-32 h-32 bg-accent-color/5 rounded-full blur-2xl"></div>
+        
+        <div className="container-custom">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4 text-text-primary">
+              <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Special Offers</span>
+            </h2>
+            <p className="text-xl text-text-secondary">Discover our latest promotions and trading opportunities</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/20">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+              <img 
+                src={Promo1} 
+                alt="Promotional Offer 1" 
+                className="w-full h-100 object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-20">
+                <h3 className="text-white font-bold text-lg mb-2">Trading Bonus</h3>
+                <p className="text-gray-200 text-sm">Get up to 100% bonus on your first deposit</p>
+              </div>
+            </div>
+            
+            <div className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/20">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+              <img 
+                src={Promo2} 
+                alt="Promotional Offer 2" 
+                className="w-full h-90 object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-20">
+                <h3 className="text-white font-bold text-lg mb-2">Zero Spread</h3>
+                <p className="text-gray-200 text-sm">Trade with zero spreads on major pairs</p>
+              </div>
+            </div>
+            
+            <div className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/20">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+              <img 
+                src={Promo3} 
+                alt="Promotional Offer 3" 
+                className="w-full h-90 object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-20">
+                <h3 className="text-white font-bold text-lg mb-2">VIP Support</h3>
+                <p className="text-gray-200 text-sm">Exclusive VIP support for premium traders</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Market Overview */}
       <section className="py-20 bg-bg-secondary relative">

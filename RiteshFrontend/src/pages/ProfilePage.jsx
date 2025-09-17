@@ -83,7 +83,7 @@ const [loading, setLoading] = useState(false);
  useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         if (!token) {
           alert("Please log in first");
           onSignOut();
@@ -93,7 +93,7 @@ const [loading, setLoading] = useState(false);
         const res = await fetch("http://localhost:5000/api/auth/profile", {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ₹{token}`,
           },
         });
 
@@ -143,8 +143,8 @@ const [loading, setLoading] = useState(false);
   e.preventDefault();
   setLoading(true);
 
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+  const token = sessionStorage.getItem("token");
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   const form = new FormData();
   form.append("email", user.email);
@@ -169,7 +169,7 @@ const [loading, setLoading] = useState(false);
   try {
     const res = await fetch("http://localhost:5000/api/profile/save", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ₹{token}` },
       body: form,
     });
 
@@ -200,6 +200,7 @@ const [loading, setLoading] = useState(false);
         onProfileClick={onProfileClick}
         onBack={onBack} 
         showBackButton={true}
+        isAdmin={false}
       />
 
       {/* Profile Title Bar */}
@@ -328,15 +329,22 @@ const [loading, setLoading] = useState(false);
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">Gender</label>
-                    <select
-                      value={formData.gender}
-                      onChange={(e) => handleInputChange('gender', e.target.value)}
-                      className="w-full border-b-2 border-accent-color pb-2 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
-                    >
-                      {genderOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={formData.gender}
+                        onChange={(e) => handleInputChange('gender', e.target.value)}
+                        className="appearance-none w-full border-b-2 border-accent-color pb-2 pr-8 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
+                      >
+                        {genderOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
+                        <svg className="w-4 h-4 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">Date of Birth</label>
@@ -350,16 +358,23 @@ const [loading, setLoading] = useState(false);
                 <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">Mobile Number</label>
                   <div className="flex space-x-2">
-                                         <select
-                       value={formData.mobileCode}
-                       onChange={(e) => handleInputChange('mobileCode', e.target.value)}
-                       className="w-16 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center"
-                       title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
-                     >
-                       {mobileCodes.map(code => (
-                         <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
-                       ))}
-                     </select>
+                    <div className="relative">
+                      <select
+                        value={formData.mobileCode}
+                        onChange={(e) => handleInputChange('mobileCode', e.target.value)}
+                        className="appearance-none w-16 px-2 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all text-center pr-6"
+                        title={mobileCodes.find(code => code.value === formData.mobileCode)?.country}
+                      >
+                        {mobileCodes.map(code => (
+                          <option key={code.value} value={code.value} title={code.country}>{code.label}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-1 flex items-center pointer-events-none">
+                        <svg className="w-3 h-3 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   <input
                     type="tel"
                        value={formData.mobileNumber}
@@ -378,27 +393,41 @@ const [loading, setLoading] = useState(false);
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">Country</label>
-                    <select
-                      value={formData.country}
-                      onChange={(e) => handleInputChange('country', e.target.value)}
-                      className="w-full border-b-2 border-accent-color pb-2 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
-                    >
-                      {countries.map(country => (
-                        <option key={country.value} value={country.value}>{country.label}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={formData.country}
+                        onChange={(e) => handleInputChange('country', e.target.value)}
+                        className="appearance-none w-full border-b-2 border-accent-color pb-2 pr-8 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
+                      >
+                        {countries.map(country => (
+                          <option key={country.value} value={country.value}>{country.label}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
+                        <svg className="w-4 h-4 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">State</label>
-                    <select
-                      value={formData.state}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
-                      className="w-full border-b-2 border-accent-color pb-2 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
-                    >
-                      {indianStates.map(state => (
-                        <option key={state} value={state}>{state}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={formData.state}
+                        onChange={(e) => handleInputChange('state', e.target.value)}
+                        className="appearance-none w-full border-b-2 border-accent-color pb-2 pr-8 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
+                      >
+                        {indianStates.map(state => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
+                        <svg className="w-4 h-4 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">City</label>
@@ -494,7 +523,7 @@ const [loading, setLoading] = useState(false);
               <button
                 onClick={handleSaveProfile}
                 disabled={loading}
-                className={`bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold px-8 py-3 rounded-lg transition-colors ${
+                className={`bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold px-8 py-3 rounded-lg transition-colors ₹{
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
