@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect, useRef } from 'react';
 import Header from '../components/Header';
-import { adminAPI, depositAPI } from '../services/api';
+import { adminAPI, depositAPI, withdrawalAPI } from '../services/api';
 
 const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
   const [selectedAccountType, setSelectedAccountType] = useState('');
   const [accountTypesData, setAccountTypesData] = useState({});
   const [createdAccounts, setCreatedAccounts] = useState([]);
   const [depositRequests, setDepositRequests] = useState([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [showImagePopup, setShowImagePopup] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -14,6 +15,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const imagePopupRef = useRef(null);
   const [editData, setEditData] = useState({
     balance: '0.00',
     equity: '0.00',
@@ -35,7 +37,12 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
           
           const uniqueAccountTypes = [...new Set(parsedAccounts.map(account => account.type))];
           if (uniqueAccountTypes.length > 0 && !selectedAccountType) {
+            // Prioritize user's primary account if available, otherwise use first account
+            if (selectedUser && selectedUser.accountType && uniqueAccountTypes.includes(selectedUser.accountType)) {
+              setSelectedAccountType(selectedUser.accountType);
+            } else {
             setSelectedAccountType(uniqueAccountTypes[0]);
+            }
           }
         }
 
@@ -70,7 +77,12 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
           
           // Set first account type as selected if none is selected
           if (accountTypes.length > 0 && !selectedAccountType) {
+            // Prioritize user's primary account if available, otherwise use first account
+            if (selectedUser && selectedUser.accountType && accountTypes.some(acc => acc.type === selectedUser.accountType)) {
+              setSelectedAccountType(selectedUser.accountType);
+            } else {
             setSelectedAccountType(accountTypes[0].type);
+            }
           }
         }
 
@@ -85,7 +97,12 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
           
           const uniqueAccountTypes = [...new Set(parsedAccounts.map(account => account.type))];
           if (uniqueAccountTypes.length > 0 && !selectedAccountType) {
+            // Prioritize user's primary account if available, otherwise use first account
+            if (selectedUser && selectedUser.accountType && uniqueAccountTypes.includes(selectedUser.accountType)) {
+              setSelectedAccountType(selectedUser.accountType);
+            } else {
             setSelectedAccountType(uniqueAccountTypes[0]);
+            }
           }
         }
 
@@ -124,43 +141,32 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
     localStorage.setItem('adminAccountTypesData', JSON.stringify(accountTypesData));
   }, [accountTypesData]);
 
+  // Set Primary Account as default when user is selected
+  useEffect(() => {
+    if (selectedUser && selectedUser.accountType) {
+      setSelectedAccountType(selectedUser.accountType);
+    }
+  }, [selectedUser]);
+
   // Load deposit requests based on selectedUser
   useEffect(() => {
     const loadDepositRequests = async () => {
-      console.log('🔄 Loading deposit requests, selectedUser:', selectedUser?.fullName);
-      
       if (!selectedUser) {
         // If no user selected, load all deposit requests for verification
-        console.log('📋 No user selected, loading all deposit requests for verification...');
         try {
           const depositResponse = await depositAPI.getDepositRequests();
-          console.log('📊 All deposit requests response:', depositResponse);
           if (depositResponse.success) {
-            console.log('✅ All deposit requests loaded:', depositResponse.depositRequests.length);
             setDepositRequests(depositResponse.depositRequests);
-          } else {
-            console.log('❌ Failed to load all deposit requests:', depositResponse.message);
           }
         } catch (error) {
           console.error('Error loading all deposit requests:', error);
         }
       } else {
         // If user selected, load user-specific deposit requests
-        console.log('👤 User selected, loading user-specific payment history for:', selectedUser.fullName);
-        console.log('👤 User details:', { id: selectedUser.id, email: selectedUser.email, fullName: selectedUser.fullName });
-        
-        // Check admin token
-        const adminToken = sessionStorage.getItem('adminToken');
-        console.log('🔑 Admin token:', adminToken ? 'Present' : 'Missing');
-        
         try {
           const userDepositResponse = await adminAPI.getUserDepositRequests(selectedUser.id);
-          console.log('📊 User deposit requests response:', userDepositResponse);
           if (userDepositResponse.success) {
-            console.log('✅ User deposit requests loaded:', userDepositResponse.depositRequests.length);
             setDepositRequests(userDepositResponse.depositRequests);
-          } else {
-            console.log('❌ Failed to load user deposit requests:', userDepositResponse.message);
           }
         } catch (error) {
           console.error('Error loading user deposit requests:', error);
@@ -170,6 +176,40 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
     };
 
     loadDepositRequests();
+  }, [selectedUser]);
+
+  // Load withdrawal requests based on selectedUser
+  useEffect(() => {
+    const loadWithdrawalRequests = async () => {
+      if (!selectedUser) {
+        // If no user selected, load all withdrawal requests for verification
+        try {
+          const withdrawalResponse = await withdrawalAPI.getWithdrawalRequests();
+          if (withdrawalResponse.success) {
+            setWithdrawalRequests(withdrawalResponse.withdrawalRequests);
+          }
+        } catch (error) {
+          console.error('Error loading all withdrawal requests:', error);
+        }
+      } else {
+        // If user selected, load their specific withdrawal requests
+        try {
+          const withdrawalResponse = await withdrawalAPI.getWithdrawalRequests();
+          if (withdrawalResponse.success) {
+            // Filter for current user's requests
+            const userWithdrawals = withdrawalResponse.withdrawalRequests.filter(
+              req => req.userId === selectedUser._id || req.userId === selectedUser.id
+            );
+            setWithdrawalRequests(userWithdrawals);
+          }
+        } catch (error) {
+          console.error('Error loading user withdrawal requests:', error);
+          setWithdrawalRequests([]);
+        }
+      }
+    };
+
+    loadWithdrawalRequests();
   }, [selectedUser]);
 
   const handleEdit = () => {
@@ -235,7 +275,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
       alert('Account details updated successfully!');
     } catch (error) {
       console.error('Error updating admin data:', error);
-      alert(`Error updating account details: ₹{error.message}`);
+      alert(`Error updating account details: ${error.message}`);
     }
   };
 
@@ -296,6 +336,24 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
     const delta = e.deltaY > 0 ? -0.2 : 0.2;
     setImageScale(prev => Math.max(0.5, Math.min(5, prev + delta)));
   };
+
+  // Add wheel event listener with passive: false
+  useEffect(() => {
+    const popupElement = imagePopupRef.current;
+    if (popupElement && showImagePopup) {
+      const wheelHandler = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.2 : 0.2;
+        setImageScale(prev => Math.max(0.5, Math.min(5, prev + delta)));
+      };
+
+      popupElement.addEventListener('wheel', wheelHandler, { passive: false });
+      
+      return () => {
+        popupElement.removeEventListener('wheel', wheelHandler);
+      };
+    }
+  }, [showImagePopup]);
 
   // Drag functionality
   const handleMouseDown = (e) => {
@@ -412,7 +470,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
         // Update localStorage
         localStorage.setItem('depositRequests', JSON.stringify(updatedRequests));
         
-        alert(`Payment ₹{action === 'approve' ? 'approved' : 'rejected'} successfully! (Offline mode)`);
+        alert(`Payment ${action === 'approve' ? 'approved' : 'rejected'} successfully! (Offline mode)`);
         return;
       }
 
@@ -468,19 +526,85 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
 
       // Show success message for approved payments
       if (action === 'approve' && verifiedAmount) {
-        alert(`Payment approved! ₹₹{verifiedAmount} has been added to ₹{depositRequests.find(r => r.id === requestId)?.accountType} account balance.`);
+        alert(`Payment approved! ₹${verifiedAmount} has been added to ${depositRequests.find(r => r.id === requestId)?.accountType} account balance.`);
       } else if (action === 'reject') {
-        alert(`Payment rejected for ₹{depositRequests.find(r => r.id === requestId)?.accountType} account.`);
+        alert(`Payment rejected for ${depositRequests.find(r => r.id === requestId)?.accountType} account.`);
       }
     } catch (error) {
       console.error('Error verifying payment:', error);
-      alert(`Error verifying payment: ₹{error.message}`);
+      alert(`Error verifying payment: ${error.message}`);
+    }
+  };
+
+  // Handle withdrawal verification
+  const handleWithdrawalVerification = async (requestId, action, rejectionReason = null) => {
+    try {
+      // Check if requestId is valid
+      if (!requestId) {
+        alert('Invalid request ID. Please try again.');
+        return;
+      }
+
+      // Check if user is in offline mode
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Handle withdrawal verification locally for offline mode
+        const updatedRequests = withdrawalRequests.map(request => {
+          if (request._id === requestId || request.id === requestId) {
+            return {
+              ...request,
+              status: action === 'approve' ? 'approved' : 'rejected',
+              rejectionReason: action === 'reject' ? (rejectionReason || 'Withdrawal rejected by admin') : null,
+              verifiedAt: new Date().toISOString()
+            };
+          }
+          return request;
+        });
+
+        setWithdrawalRequests(updatedRequests);
+        
+        // Update localStorage
+        localStorage.setItem('withdrawalRequests', JSON.stringify(updatedRequests));
+        
+        alert(`Withdrawal ${action === 'approve' ? 'approved' : 'rejected'} successfully! (Offline mode)`);
+        return;
+      }
+
+      // Call API to verify withdrawal request
+      await withdrawalAPI.verifyWithdrawalRequest(requestId, action, { 
+        rejectionReason: action === 'reject' ? (rejectionReason || 'Withdrawal rejected by admin') : null
+      });
+
+      // Update local state
+      const updatedRequests = withdrawalRequests.map(request => {
+        if (request._id === requestId || request.id === requestId) {
+          return {
+            ...request,
+            status: action === 'approve' ? 'approved' : 'rejected',
+            rejectionReason: action === 'reject' ? (rejectionReason || 'Withdrawal rejected by admin') : null,
+            verifiedAt: new Date().toISOString()
+          };
+        }
+        return request;
+      });
+      
+      setWithdrawalRequests(updatedRequests);
+
+      // Show success message
+      if (action === 'approve') {
+        alert(`Withdrawal approved! The amount will be processed according to the selected method.`);
+      } else if (action === 'reject') {
+        alert(`Withdrawal rejected for ${withdrawalRequests.find(r => r.id === requestId)?.accountType} account.`);
+      }
+    } catch (error) {
+      console.error('Error verifying withdrawal:', error);
+      alert(`Error verifying withdrawal: ${error.message}`);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
-      <Header userEmail={'admin@forex.com'} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={true} />
+      <Header userEmail={'admin@forex.com'} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={true} onHomeClick={() => window.location.href = '/'} />
       
       <main className="py-6">
         <div className="container-custom">
@@ -521,16 +645,17 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                   <div>
                     <h2 className="text-2xl font-bold text-text-primary">
-                      {selectedUser ? `₹{selectedUser.fullName}'s Account Details` : 'Account Financial Details'}
+                      {selectedUser ? `${selectedUser.fullName}'s Account Details` : 'Account Financial Details'}
                     </h2>
                     <div className="mt-2">
                       <label className="text-text-secondary text-sm">Select Account Type:</label>
                       {getUniqueAccountTypes().length > 0 ? (
-                        <div className="relative ml-2">
+                        <div className="relative ml-2 inline-block">
                           <select
                             value={selectedAccountType}
                             onChange={(e) => setSelectedAccountType(e.target.value)}
-                            className="appearance-none bg-card-bg backdrop-blur-sm border border-border-color text-text-primary rounded-lg px-4 py-2 pr-12 focus:outline-none focus:border-accent-color focus:ring-2 focus:ring-accent-color/20 transition-all duration-300 hover:border-accent-color/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
+                            className="appearance-none bg-card-bg backdrop-blur-sm border border-border-color text-text-primary rounded-lg px-4 py-2 pr-12 focus:outline-none focus:border-accent-color focus:ring-2 focus:ring-accent-color/20 transition-all duration-300 hover:border-accent-color/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-w-[150px] w-auto"
+                            style={{ width: `${Math.max(selectedAccountType?.length * 10 + 80, 150)}px` }}
                             disabled={isEditing}
                           >
                             {getUniqueAccountTypes().map(accountType => (
@@ -554,7 +679,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                     <button
                       onClick={handleEdit}
                       disabled={!selectedAccountType}
-                      className={`font-semibold py-2 px-4 rounded-lg transition-all duration-300 ₹{
+                      className={`font-semibold py-2 px-4 rounded-lg transition-all duration-300 ${
                         selectedAccountType 
                           ? 'bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary hover:scale-105 shadow-lg' 
                           : 'bg-gray-400 text-gray-600 cursor-not-allowed'
@@ -659,7 +784,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                 <div className="text-center text-text-secondary mb-6">
                   <div className="text-sm">
                     {selectedUser 
-                      ? `Changes made here will be reflected in ₹{selectedUser.fullName}'s Account Details page`
+                      ? `Changes made here will be reflected in ${selectedUser.fullName}'s Account Details page`
                       : 'Changes made here will be reflected in the Account Details page'
                     }
                   </div>
@@ -713,18 +838,12 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
               </div>
 
             {/* Payment Verification Section */}
-            {console.log('🔍 AdminPanel render - depositRequests:', depositRequests.length, 'selectedUser:', selectedUser?.fullName)}
-            {depositRequests.length > 0 && (
+            {depositRequests.filter(request => request.status === 'pending').length > 0 && (
               <div className="mt-8">
                 <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
                   <h3 className="text-2xl font-bold text-text-primary mb-6">
-                    {selectedUser ? `₹{selectedUser.fullName}'s Payment Verification` : 'Payment Verification'}
+                    {selectedUser ? `${selectedUser.fullName}'s Payment Verification` : 'Payment Verification'}
                   </h3>
-                  {/* Debug info */}
-                  <div className="text-xs text-text-secondary mb-4">
-                    Debug: Total requests: {depositRequests.length}, Pending: {depositRequests.filter(request => request.status === 'pending').length}
-                    {selectedUser ? ` for user ₹{selectedUser.fullName}` : ' for all users'}
-                  </div>
                   
                   <div className="space-y-4">
                     {depositRequests
@@ -745,7 +864,14 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                                 <div>
                                   <span className="text-text-secondary text-sm">Date:</span>
                                   <div className="font-semibold text-text-primary">
-                                    {new Date(request.timestamp).toLocaleDateString()}
+                                    {(() => {
+                                      try {
+                                        const date = new Date(request.submittedAt || request.createdAt);
+                                        return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString();
+                                      } catch (error) {
+                                        return 'Invalid Date';
+                                      }
+                                    })()}
                                   </div>
                                 </div>
                                 {request.upiApp && (
@@ -758,16 +884,16 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                                 )}
                               </div>
                               
-                              {request.proof && (
+                              {request.paymentProof && (
                                 <div className="mb-3">
                                   <span className="text-text-secondary text-sm">Payment Proof:</span>
                                   <div className="mt-1">
                                     <img 
-                                      src={request.proof.startsWith('data:') ? request.proof : `http://localhost:5000/₹{request.proof}`} 
+                                      src={request.paymentProof.startsWith('data:') ? request.paymentProof : `http://localhost:5000/uploads/${request.paymentProof}`} 
                                       alt="Payment Proof" 
                                       className="max-w-xs max-h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
                                       onClick={() => handleImageClick(
-                                        request.proof.startsWith('data:') ? request.proof : `http://localhost:5000/₹{request.proof}`, 
+                                        request.paymentProof.startsWith('data:') ? request.paymentProof : `http://localhost:5000/uploads/${request.paymentProof}`, 
                                         request.proofName || 'Payment Proof'
                                       )}
                                     />
@@ -790,12 +916,12 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                                   placeholder="Verified Amount"
                                   defaultValue={request.amount}
                                   className="bg-transparent border border-border-color text-text-primary rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-color w-32"
-                                  id={`amount-₹{request._id || request.id}`}
+                                  id={`amount-${request._id || request.id}`}
                                 />
                                 <button
                                   onClick={() => {
                                     const requestId = request._id || request.id;
-                                    const amountInput = document.getElementById(`amount-₹{requestId}`);
+                                    const amountInput = document.getElementById(`amount-${requestId}`);
                                     const verifiedAmount = amountInput.value || request.amount;
                                     if (verifiedAmount && parseFloat(verifiedAmount) > 0) {
                                       handlePaymentVerification(requestId, 'approve', verifiedAmount);
@@ -830,7 +956,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                     {depositRequests.filter(request => request.status === 'pending').length === 0 && (
                       <div className="text-center text-text-secondary py-8">
                         <div className="text-4xl mb-2">✅</div>
-                        <p>No pending payment verifications</p>
+                        <p>No pending payment verifications for {selectedUser ? selectedUser.fullName : 'any user'}</p>
                       </div>
                     )}
                   </div>
@@ -843,18 +969,21 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
               <div className="mt-8">
                 <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
                   <h3 className="text-2xl font-bold text-text-primary mb-6">
-                    {selectedUser ? `₹{selectedUser.fullName}'s Payment History` : 'Payment History'}
+                    {selectedUser ? `${selectedUser.fullName}'s Payment History` : 'Payment History'}
                   </h3>
-                  {/* Debug info */}
-                  <div className="text-xs text-text-secondary mb-4">
-                    Debug: Showing {depositRequests.filter(request => request.status !== 'pending').length} completed requests
-                    {selectedUser ? ` for user ₹{selectedUser.fullName}` : ' for all users'}
-                  </div>
                   
                   <div className="space-y-3">
                     {depositRequests
                       .filter(request => request.status !== 'pending')
-                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                      .sort((a, b) => {
+                        try {
+                          const dateA = new Date(a.submittedAt || a.createdAt);
+                          const dateB = new Date(b.submittedAt || b.createdAt);
+                          return isNaN(dateB.getTime()) ? -1 : (isNaN(dateA.getTime()) ? 1 : dateB - dateA);
+                        } catch (error) {
+                          return 0;
+                        }
+                      })
                       .map(request => (
                         <div key={request._id || request.id} className="bg-hover-bg border border-border-color rounded-lg p-4">
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -870,13 +999,13 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                                 </div>
                                 <div>
                                   <span className="text-text-secondary text-sm">Verified:</span>
-                                  <div className={`font-semibold ₹{request.verifiedAmount ? 'text-success-color' : 'text-danger-color'}`}>
-                                    {request.verifiedAmount ? `₹₹{request.verifiedAmount}` : 'N/A'}
+                                  <div className={`font-semibold ${request.verifiedAmount ? 'text-success-color' : 'text-danger-color'}`}>
+                                    {request.verifiedAmount ? `₹${request.verifiedAmount}` : 'N/A'}
                                   </div>
                                 </div>
                                 <div>
                                   <span className="text-text-secondary text-sm">Status:</span>
-                                  <div className={`font-semibold ₹{
+                                  <div className={`font-semibold ${
                                     request.status === 'approved' ? 'text-success-color' : 'text-danger-color'
                                   }`}>
                                     {request.status.toUpperCase()}
@@ -892,6 +1021,160 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                                 )}
                               </div>
                             </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+              )}
+
+            {/* Withdrawal Requests Section */}
+            {withdrawalRequests.filter(request => request.status === 'pending').length > 0 && (
+              <div className="mt-8">
+                <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
+                  <h3 className="text-2xl font-bold text-text-primary mb-6">
+                    {selectedUser ? `${selectedUser.fullName}'s Withdrawal Requests` : 'Withdrawal Requests'}
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    {withdrawalRequests
+                      .filter(request => request.status === 'pending')
+                      .map(request => (
+                        <div key={request._id || request.id} className="bg-hover-bg rounded-xl p-4 border border-border-color">
+                          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <span className="text-text-secondary text-sm">Amount:</span>
+                                  <div className="font-bold text-accent-color text-lg">₹{request.amount}</div>
+                                </div>
+                                <div>
+                                  <span className="text-text-secondary text-sm">Method:</span>
+                                  <div className="font-semibold text-text-primary capitalize">
+                                    {request.method === 'bank' ? 'Bank Transfer' : 'UPI Transfer'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <span className="text-text-secondary text-sm">Account Type:</span>
+                                  <div className="font-semibold text-text-primary">{request.accountType}</div>
+                                </div>
+                                <div>
+                                  <span className="text-text-secondary text-sm">Request Date:</span>
+                                  <div className="font-semibold text-text-primary">
+                                    {new Date(request.createdAt || request.timestamp).toLocaleDateString()}
+                                  </div>
+                                </div>
+                                {request.method === 'bank' && request.accountDetails && (
+                                  <>
+                                    <div>
+                                      <span className="text-text-secondary text-sm">Account Number:</span>
+                                      <div className="font-semibold text-text-primary">{request.accountDetails.bankAccount}</div>
+                                    </div>
+                                    <div>
+                                      <span className="text-text-secondary text-sm">Bank Name:</span>
+                                      <div className="font-semibold text-text-primary">{request.accountDetails.bankName}</div>
+                                    </div>
+                                    <div>
+                                      <span className="text-text-secondary text-sm">IFSC Code:</span>
+                                      <div className="font-semibold text-text-primary">{request.accountDetails.ifscCode}</div>
+                                    </div>
+                                  </>
+                                )}
+                                {request.method === 'upi' && request.accountDetails && (
+                                  <div>
+                                    <span className="text-text-secondary text-sm">UPI ID:</span>
+                                    <div className="font-semibold text-text-primary">{request.accountDetails.upiId}</div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <button
+                                onClick={() => handleWithdrawalVerification(request._id || request.id, 'approve')}
+                                className="bg-success-color hover:bg-success-color/80 text-text-quaternary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const reason = prompt('Enter rejection reason (optional):');
+                                  handleWithdrawalVerification(request._id || request.id, 'reject', reason);
+                                }}
+                                className="bg-danger-color hover:bg-danger-color/80 text-text-quaternary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    
+                    {withdrawalRequests.filter(request => request.status === 'pending').length === 0 && (
+                      <div className="text-center text-text-secondary py-8">
+                        <div className="text-4xl mb-2">✅</div>
+                        <p>No pending withdrawal requests for {selectedUser ? selectedUser.fullName : 'any user'}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Withdrawal History */}
+            {withdrawalRequests.filter(request => request.status !== 'pending').length > 0 && (
+              <div className="mt-8">
+                <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
+                  <h3 className="text-2xl font-bold text-text-primary mb-6">
+                    {selectedUser ? `${selectedUser.fullName}'s Withdrawal History` : 'Withdrawal History'}
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    {withdrawalRequests
+                      .filter(request => request.status !== 'pending')
+                      .sort((a, b) => {
+                        const dateA = new Date(a.verifiedAt || a.createdAt || a.timestamp);
+                        const dateB = new Date(b.verifiedAt || b.createdAt || b.timestamp);
+                        return dateB - dateA;
+                      })
+                      .map(request => (
+                        <div key={request._id || request.id} className="bg-hover-bg rounded-xl p-4 border border-border-color">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <span className="text-text-secondary text-sm">Amount:</span>
+                              <div className="font-bold text-accent-color">₹{request.amount}</div>
+                            </div>
+                            <div>
+                              <span className="text-text-secondary text-sm">Method:</span>
+                              <div className="font-semibold text-text-primary capitalize">
+                                {request.method === 'bank' ? 'Bank Transfer' : 'UPI Transfer'}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-text-secondary text-sm">Status:</span>
+                              <div className={`font-semibold ${
+                                request.status === 'approved' ? 'text-success-color' : 'text-danger-color'
+                              }`}>
+                                {request.status.toUpperCase()}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-text-secondary text-sm">Account Type:</span>
+                              <div className="font-semibold text-text-primary">{request.accountType}</div>
+                            </div>
+                            <div>
+                              <span className="text-text-secondary text-sm">Processed:</span>
+                              <div className="font-semibold text-text-primary">
+                                {new Date(request.verifiedAt || request.createdAt || request.timestamp).toLocaleDateString()}
+                              </div>
+                            </div>
+                            {request.rejectionReason && (
+                              <div className="md:col-span-3">
+                                <span className="text-text-secondary text-sm">Rejection Reason:</span>
+                                <div className="font-semibold text-danger-color">{request.rejectionReason}</div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -922,8 +1205,8 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
       {/* Full-Screen Image Popup Modal */}
       {showImagePopup && selectedImage && (
         <div 
+          ref={imagePopupRef}
           className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col"
-          onWheel={handleWheel}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
@@ -996,7 +1279,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
             <div
               className="relative"
               style={{
-                transform: `translate(₹{imagePosition.x}px, ₹{imagePosition.y}px) scale(₹{imageScale})`,
+                transform: `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${imageScale})`,
                 transition: isDragging ? 'none' : 'transform 0.1s ease-out',
                 cursor: isDragging ? 'grabbing' : 'grab'
               }}

@@ -11,6 +11,43 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
     currency: '₹'
   });
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositRequests, setDepositRequests] = useState([]);
+
+  // Load deposit requests
+  const loadDepositRequests = async () => {
+    try {
+      // Check if user is in offline mode
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Load from localStorage for offline mode
+        const savedRequests = JSON.parse(localStorage.getItem('depositRequests') || '[]');
+        // Filter requests for current account type
+        const accountRequests = savedRequests.filter(request => 
+          request.accountType === account.type
+        );
+        setDepositRequests(accountRequests);
+        return;
+      }
+
+      // Load from API
+      const response = await depositAPI.getCurrentUserDepositRequests();
+      if (response.success) {
+        // Filter requests for current account type
+        const accountRequests = response.depositRequests.filter(request => 
+          request.accountType === account.type
+        );
+        setDepositRequests(accountRequests);
+      }
+    } catch (error) {
+      console.error('Error loading deposit requests:', error);
+      // Fallback to localStorage
+      const savedRequests = JSON.parse(localStorage.getItem('depositRequests') || '[]');
+      const accountRequests = savedRequests.filter(request => 
+        request.accountType === account.type
+      );
+      setDepositRequests(accountRequests);
+    }
+  };
 
   // Load account data from API
   useEffect(() => {
@@ -57,6 +94,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
     };
 
     loadAccountData();
+    loadDepositRequests();
 
     // Listen for balance updates
     const handleBalanceUpdate = (event) => {
@@ -89,6 +127,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
         const newRequest = {
           id: Date.now().toString(),
           accountId: account._id || account.id,
+          accountType: account.type,
           amount: depositRequest.amount,
           upiApp: depositRequest.upiApp,
           paymentProof: proofBase64,
@@ -102,12 +141,15 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
         localStorage.setItem('depositRequests', JSON.stringify(depositRequests));
         
         alert('Deposit request submitted successfully! (Offline mode)');
+        // Refresh deposit requests
+        loadDepositRequests();
         return;
       }
 
       // Create request object with file
       const requestData = {
         accountId: account._id || account.id,
+        accountType: account.type,
         amount: depositRequest.amount,
         upiApp: depositRequest.upiApp,
         paymentProof: depositRequest.proof // Send file directly
@@ -118,6 +160,8 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
       
       // Show success message
       alert('Deposit request submitted successfully! Admin will verify and process your payment.');
+      // Refresh deposit requests
+      loadDepositRequests();
     } catch (error) {
       console.error('Error submitting deposit request:', error);
       alert(`Error submitting deposit request: ₹{error.message}`);
@@ -126,7 +170,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
   if (!account) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
-        <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={false} />
+        <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={false} onHomeClick={() => window.location.href = '/'} onAccountsClick={onBack} />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="text-text-secondary mb-4">No account selected.</div>
@@ -144,7 +188,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
-      <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={false} />
+      <Header userEmail={''} onSignOut={onSignOut} onProfileClick={onProfileClick} onBack={onBack} showBackButton={true} isAdmin={false} onHomeClick={() => window.location.href = '/'} onAccountsClick={onBack} />
 
       <main className="py-6">
         <div className="container-custom">
@@ -184,10 +228,77 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
               <button className="px-4 py-2 rounded-t-lg bg-hover-bg text-text-primary font-semibold">Payment History</button>
               <button className="px-4 py-2 rounded-t-lg text-text-secondary hover:text-text-primary">Trading History</button>
             </div>
-            <div className="bg-card-bg border border-border-color rounded-xl p-6 text-center">
-              <div className="text-text-secondary mb-3">No records found in last 7 days</div>
-              <button className="mx-auto border border-border-color text-text-secondary hover:text-text-primary px-4 py-2 rounded-lg">Show All</button>
-            </div>
+            
+            {/* Payment History Content */}
+            {depositRequests.length > 0 ? (
+              <div className="bg-card-bg border border-border-color rounded-xl p-6">
+                <div className="space-y-4">
+                  {depositRequests
+                    .sort((a, b) => {
+                      const dateA = new Date(a.createdAt || a.submittedAt);
+                      const dateB = new Date(b.createdAt || b.submittedAt);
+                      return dateB - dateA;
+                    })
+                    .map((request, index) => (
+                      <div key={request._id || request.id || index} className="bg-hover-bg rounded-lg p-4 border border-border-color">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                              <div>
+                                <span className="text-text-secondary text-sm">Amount:</span>
+                                <div className="font-bold text-accent-color text-lg">₹{request.amount}</div>
+                              </div>
+                              <div>
+                                <span className="text-text-secondary text-sm">Status:</span>
+                                <div className={`font-semibold ${
+                                  request.status === 'approved' ? 'text-success-color' : 
+                                  request.status === 'rejected' ? 'text-danger-color' : 
+                                  'text-warning-color'
+                                }`}>
+                                  {request.status?.toUpperCase() || 'PENDING'}
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-text-secondary text-sm">Date:</span>
+                                <div className="font-semibold text-text-primary">
+                                  {new Date(request.createdAt || request.submittedAt).toLocaleDateString()}
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-text-secondary text-sm">UPI App:</span>
+                                <div className="font-semibold text-text-primary capitalize">
+                                  {request.upiApp || 'N/A'}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {request.verifiedAmount && (
+                              <div className="mt-3 pt-3 border-t border-border-color">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-text-secondary text-sm">Verified Amount:</span>
+                                  <span className="font-bold text-success-color">₹{request.verifiedAmount}</span>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {request.rejectionReason && (
+                              <div className="mt-3 pt-3 border-t border-border-color">
+                                <div className="text-text-secondary text-sm mb-1">Rejection Reason:</div>
+                                <div className="text-danger-color text-sm">{request.rejectionReason}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-card-bg border border-border-color rounded-xl p-6 text-center">
+                <div className="text-text-secondary mb-3">No payment records found</div>
+                <div className="text-text-secondary text-sm">Your deposit requests will appear here once submitted.</div>
+              </div>
+            )}
           </div>
 
           

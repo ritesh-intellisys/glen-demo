@@ -142,6 +142,7 @@ const UserListPage = ({ onBack, onSignOut, onProfileClick, onUserSelect, onAdmin
           onBack={onBack} 
           showBackButton={true}
           isAdmin={true}
+          onHomeClick={() => window.location.href = '/'}
         />
         
         <main className="py-6">
@@ -197,6 +198,7 @@ const UserListPage = ({ onBack, onSignOut, onProfileClick, onUserSelect, onAdmin
         onBack={onBack} 
         showBackButton={true}
         isAdmin={true}
+        onHomeClick={() => window.location.href = '/'}
       />
       
       <main className="py-6">

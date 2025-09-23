@@ -2,9 +2,14 @@ import React, { useState, useRef } from 'react';
 import MiniChartUsd from '../widgets/MiniChartUsd';
 import MiniChartGold from '../widgets/MiniChartGold';
 import Squares from '../backgrounds/Square.jsx';
-import Promo1 from '../assets/promo1.png';
-import Promo2 from '../assets/promo2.png';
-import Promo3 from '../assets/promo3.png';
+import { 
+  FaChartLine, 
+  FaGlobe, 
+  FaRupeeSign, 
+  FaShieldAlt,
+  FaBolt,
+  FaCheck
+} from 'react-icons/fa';
 
 
 const HomePage = ({ onSignUpClick }) => {
@@ -12,10 +17,10 @@ const HomePage = ({ onSignUpClick }) => {
   const carouselRef = useRef(null);
 
   const features = [
-    { icon: "📊", title: "Ultra-Low Spreads", desc: "on XAU₹ EUR₹" },
-    { icon: "🌍", title: "200+ Instruments", desc: "Forex, Crypto & More" },
-    { icon: "💰", title: "₹50 Minimum", desc: "Start with just ₹50" },
-    { icon: "🛡️", title: "24/7 Support", desc: "Round-the-clock assistance" }
+    { icon: FaChartLine, title: "Ultra-Low Spreads", desc: "on XAU₹ EUR₹" },
+    { icon: FaGlobe, title: "200+ Instruments", desc: "Forex, Crypto & More" },
+    { icon: FaRupeeSign, title: "₹50 Minimum", desc: "Start with just ₹50" },
+    { icon: FaShieldAlt, title: "24/7 Support", desc: "Round-the-clock assistance" }
   ];
 
 
@@ -69,7 +74,8 @@ const HomePage = ({ onSignUpClick }) => {
             <div className="space-y-8">
               
               <div className="inline-flex items-center bg-gradient-to-r from-accent-color/20 to-primary-blue/20 text-accent-color px-4 py-2 rounded-full shadow-lg animate-pulse">
-                <span>⚡ Trusted by 12,400+ Traders</span>
+                <FaBolt className="mr-2" />
+                <span>Trusted by 12,400+ Traders</span>
             </div>
               <h1 className="text-5xl md:text-6xl font-bold">
                 <span className="text-text-primary">Trade Smarter</span>
@@ -124,9 +130,13 @@ const HomePage = ({ onSignUpClick }) => {
               >
                 <div className="absolute -inset-1 bg-gradient-to-r from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
                 <div className="relative z-10">
-                  <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
-                  <h3 className="text-xl font-bold mb-2 text-text-primary">{feature.title}</h3>
-                  <p className="text-text-secondary">{feature.desc}</p>
+                  <div className="flex justify-center mb-4">
+                    <div className="text-4xl transform group-hover:scale-110 transition-transform duration-300 text-accent-color">
+                      <feature.icon />
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-text-primary text-center">{feature.title}</h3>
+                  <p className="text-text-secondary text-center">{feature.desc}</p>
           </div>
           </div>
             ))}
@@ -200,7 +210,7 @@ const HomePage = ({ onSignUpClick }) => {
                 <div className="space-y-2 mb-8">
                   {promotions[currentPromoIndex].features.map((feature, idx) => (
                     <div key={idx} className="flex items-center space-x-2 transition-transform duration-300 hover:translate-x-1">
-                      <span className="text-success-color">✓</span>
+                      <FaCheck className="text-success-color" />
                       <span className="text-text-secondary text-sm">{feature}</span>
                     </div>
                   ))}
@@ -229,7 +239,7 @@ const HomePage = ({ onSignUpClick }) => {
         </div>
       </section>
 
-      {/* Promotional Images Section */}
+      {/* Special Offers Section */}
       <section className="py-20 bg-bg-primary relative">
         <div className="absolute top-1/2 right-10 w-32 h-32 bg-accent-color/5 rounded-full blur-2xl"></div>
         
@@ -241,43 +251,86 @@ const HomePage = ({ onSignUpClick }) => {
             <p className="text-xl text-text-secondary">Discover our latest promotions and trading opportunities</p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/20">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-              <img 
-                src={Promo1} 
-                alt="Promotional Offer 1" 
-                className="w-full h-100 object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-20">
-                <h3 className="text-white font-bold text-lg mb-2">Trading Bonus</h3>
-                <p className="text-gray-200 text-sm">Get up to 100% bonus on your first deposit</p>
+          <div className="flex flex-wrap gap-8 justify-center">
+            {/* Card 1 - Referral */}
+            <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-visible flex flex-col justify-center">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-accent-color/10 to-transparent rounded-full blur-2xl"></div>
+              
+              {/* INVITE Badge - positioned like "Most Popular" */}
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 animate-pulse">
+                <span className="bg-gradient-to-r from-accent-color to-primary-blue text-text-quaternary px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  INVITE
+                </span>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-center mb-4 text-text-secondary leading-relaxed">
+                  Refer your friend and earn 
+                  <span className="text-accent-color font-bold text-lg"> $20 per lot</span> 
+                  and <span className="font-bold text-accent-color text-lg">10% bonus</span> of referral deposit
+                </p>
+                <div className="bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-xl p-4">
+                  <h3 className="text-xl font-bold text-accent-color text-center mb-4">SHARE REFERRAL LINK</h3>
+                  <ul className="space-y-3 text-text-secondary">
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-accent-color rounded-full"></div>
+                      <span>Share your referral link</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-accent-color rounded-full"></div>
+                      <span>Earn 10% referral deposit directly</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-accent-color rounded-full"></div>
+                      <span>Receive $20 per lot as your referral trade</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
-            
-            <div className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/20">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-              <img 
-                src={Promo2} 
-                alt="Promotional Offer 2" 
-                className="w-full h-90 object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-20">
-                <h3 className="text-white font-bold text-lg mb-2">Zero Spread</h3>
-                <p className="text-gray-200 text-sm">Trade with zero spreads on major pairs</p>
+
+            {/* Card 2 - Zero Spread */}
+            <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 text-center transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-hidden flex flex-col justify-center">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
+              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-primary-blue/10 to-transparent rounded-full blur-2xl"></div>
+              <div className="relative z-10">
+                <div className="mb-4">
+                  <h3 className="text-sm uppercase tracking-widest text-text-secondary mb-3 font-semibold">Lowest Spread</h3>
+                  <div className="relative">
+                    <h2 className="text-5xl font-extrabold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">0%</h2>
+                    <div className="absolute -inset-4 bg-gradient-to-r from-accent-color/5 to-primary-blue/5 rounded-full blur-xl"></div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-text-primary mb-4">SPREAD</h3>
+                </div>
+                <div className="bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-xl p-4">
+                  <p className="text-text-secondary font-semibold text-lg">XAUUSD • EURUSD • BITCOIN</p>
+                </div>
               </div>
             </div>
-            
-            <div className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/20">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-              <img 
-                src={Promo3} 
-                alt="Promotional Offer 3" 
-                className="w-full h-90 object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-20">
-                <h3 className="text-white font-bold text-lg mb-2">VIP Support</h3>
-                <p className="text-gray-200 text-sm">Exclusive VIP support for premium traders</p>
+
+            {/* Card 3 - Scalper Mode */}
+            <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-hidden flex flex-col justify-center">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-accent-color/10 to-transparent rounded-full blur-2xl"></div>
+              <div className="relative z-10">
+                <div className="text-center mb-4">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">SCALPER MODE</h2>
+                  <h3 className="text-lg font-bold text-text-primary mb-2">FASTEST</h3>
+                  <p className="text-text-secondary text-sm">Trade execution • Withdrawal • Deposit</p>
+                </div>
+                <div className="flex justify-center mb-4">
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-accent-color/20 to-primary-blue/20 rounded-full blur-xl animate-pulse"></div>
+                    <div className="relative bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-full p-4">
+                      <FaBolt className="text-4xl text-accent-color animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-extrabold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">SCALPER</h3>
+                  <p className="text-accent-color/80 font-semibold">Now catch small moves</p>
+                </div>
               </div>
             </div>
           </div>

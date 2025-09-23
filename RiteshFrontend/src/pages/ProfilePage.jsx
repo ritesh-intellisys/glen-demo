@@ -31,6 +31,12 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
     bankName: ''
   });
 
+  // Form state for UPI details
+  const [upiInfo, setUpiInfo] = useState({
+    upiId: '',
+    upiApp: ''
+  });
+
   // Document verification state
   const [uploadedFiles, setUploadedFiles] = useState({
     panDocument: null,
@@ -80,6 +86,17 @@ const [loading, setLoading] = useState(false);
     'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
   ];
 
+  const upiApps = [
+    { value: 'phonepe', label: 'PhonePe' },
+    { value: 'gpay', label: 'Google Pay' },
+    { value: 'paytm', label: 'Paytm' },
+    { value: 'bharatpe', label: 'BharatPe' },
+    { value: 'mobikwik', label: 'MobiKwik' },
+    { value: 'amazonpay', label: 'Amazon Pay' },
+    { value: 'cred', label: 'CRED' },
+    { value: 'other', label: 'Other' }
+  ];
+
  useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -93,7 +110,7 @@ const [loading, setLoading] = useState(false);
         const res = await fetch("http://localhost:5000/api/auth/profile", {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ₹{token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -131,6 +148,14 @@ const [loading, setLoading] = useState(false);
     }));
   };
 
+  // Handle UPI info change
+  const handleUpiInfoChange = (field, value) => {
+    setUpiInfo(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   // Handle file upload
   const handleFileUpload = (field, file) => {
     setUploadedFiles(prev => ({
@@ -159,6 +184,11 @@ const [loading, setLoading] = useState(false);
     form.append(key, bankInfo[key]);
   });
 
+  // Add UPI info
+  Object.keys(upiInfo).forEach((key) => {
+    form.append(key, upiInfo[key]);
+  });
+
   // Add uploaded documents
   Object.keys(uploadedFiles).forEach((key) => {
     if (uploadedFiles[key]) {
@@ -169,7 +199,7 @@ const [loading, setLoading] = useState(false);
   try {
     const res = await fetch("http://localhost:5000/api/profile/save", {
       method: "POST",
-      headers: { Authorization: `Bearer ₹{token}` },
+      headers: { Authorization: `Bearer ${token}` },
       body: form,
     });
 
@@ -201,6 +231,8 @@ const [loading, setLoading] = useState(false);
         onBack={onBack} 
         showBackButton={true}
         isAdmin={false}
+        onHomeClick={() => window.location.href = '/'}
+        onAccountsClick={onBack}
       />
 
       {/* Profile Title Bar */}
@@ -517,13 +549,51 @@ const [loading, setLoading] = useState(false);
                   />
                 </div>
               </div>
+            </section>
+
+            {/* UPI Details Section */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-bold text-accent-color mb-6">UPI Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">UPI ID</label>
+                  <input 
+                    type="text" 
+                    value={upiInfo.upiId}
+                    onChange={(e) => handleUpiInfoChange('upiId', e.target.value)}
+                    className="w-full border-b-2 border-accent-color pb-2 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
+                    placeholder="Enter UPI ID (e.g., user@paytm)"
+                  />
+                  <p className="text-xs text-text-secondary mt-1">This will be used for refunds and withdrawals</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">UPI App</label>
+                  <div className="relative">
+                    <select
+                      value={upiInfo.upiApp}
+                      onChange={(e) => handleUpiInfoChange('upiApp', e.target.value)}
+                      className="appearance-none w-full px-3 py-3 bg-hover-bg border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color/50 focus:border-transparent transition-all pr-8"
+                    >
+                      <option value="">Select UPI App</option>
+                      {upiApps.map(app => (
+                        <option key={app.value} value={app.value}>{app.label}</option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
               
               {/* Save Button */}
               <div className="text-center mt-8">
               <button
                 onClick={handleSaveProfile}
                 disabled={loading}
-                className={`bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold px-8 py-3 rounded-lg transition-colors ₹{
+                className={`bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold px-8 py-3 rounded-lg transition-colors ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >

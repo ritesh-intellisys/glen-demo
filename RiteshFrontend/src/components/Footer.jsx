@@ -69,20 +69,20 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-forest-green to-sky-blue text-white">
+    <footer className="bg-gradient-to-br from-teal-800 to-purple-900 text-white">
       {/* Main Footer */}
       <div className="container-custom py-16">
-        <div className="grid lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company Info */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center space-x-3 mb-6">
+          <div className="md:col-span-2 lg:col-span-2 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start space-x-3 mb-6">
               <img src={LogoPng} alt="Express Forex" className="w-28 h-auto object-contain" />
             </div>
             <p className="text-white/80 mb-6 leading-relaxed">
               Experience the future of forex trading with cutting-edge technology, 
               ultra-competitive spreads, and unwavering support that grows with you.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex justify-center md:justify-start space-x-4">
               {socialLinks.map((social, index) => (
                 <a
                   key={index}
@@ -97,7 +97,7 @@ const Footer = () => {
           </div>
 
           {/* Footer Links */}
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-lg font-semibold mb-4">Company</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link, index) => (
@@ -110,7 +110,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-lg font-semibold mb-4">Trading</h4>
             <ul className="space-y-3">
               {footerLinks.trading.map((link, index) => (
@@ -123,7 +123,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-lg font-semibold mb-4">Platform</h4>
             <ul className="space-y-3">
               {footerLinks.platform.map((link, index) => (

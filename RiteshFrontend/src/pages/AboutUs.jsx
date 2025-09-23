@@ -157,7 +157,7 @@ const AboutUs = ({ onSignUpClick }) => {
               </p>
             </div>
             <div className="relative">
-              <div className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl transform -rotate-2 hover:rotate-0 transition-all duration-700 shadow-xl hover:shadow-accent-color/20 relative overflow-hidden">
+              <div className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl shadow-xl hover:shadow-accent-color/20 relative overflow-hidden">
                 <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-accent-color/10 rounded-full blur-xl"></div>
                 <div className="text-center space-y-4 relative z-10">
                   <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">🚀</div>
@@ -246,13 +246,13 @@ const AboutUs = ({ onSignUpClick }) => {
               </div>
             </div>
             <div className="relative">
-              <div className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl transform rotate-3 hover:rotate-0 transition-all duration-700 shadow-xl hover:shadow-accent-color/20 relative overflow-hidden">
+              <div className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl shadow-xl hover:shadow-accent-color/20 relative overflow-visible">
                 <div className="absolute -top-8 -left-8 w-32 h-32 bg-accent-color/10 rounded-full blur-xl"></div>
                 <div className="text-center space-y-4 relative z-10">
                   <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">💻</div>
                   <h3 className="text-2xl font-bold text-accent-color">Express Forex Platform</h3>
                   <p className="text-text-secondary">Advanced yet intuitive</p>
-                  <div className="w-full h-64">
+                  <div className="w-full h-80 min-h-80">
                     <MiniChartUsd />
                   </div>
                 </div>

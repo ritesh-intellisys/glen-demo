@@ -120,10 +120,10 @@ const ContactUs = ({ onSignUpClick }) => {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl">
-              <h2 className="text-3xl font-bold mb-6 text-text-primary">Send us a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-card-bg backdrop-blur-sm border border-border-color p-6 rounded-2xl flex flex-col justify-center min-h-fit">
+              <h2 className="text-3xl font-bold mb-4 text-text-primary">Send us a Message</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="name" className="block text-text-primary mb-2">Your Name</label>
                     <input
@@ -192,15 +192,6 @@ const ContactUs = ({ onSignUpClick }) => {
                     <p className="text-text-secondary">{faq.answer}</p>
                   </div>
                 ))}
-              </div>
-              
-              {/* Support CTA */}
-              <div className="bg-gradient-to-r from-accent-color/20 to-primary-blue/20 p-6 rounded-2xl mt-8">
-                <h3 className="text-xl font-bold text-text-primary mb-3">Need Immediate Assistance?</h3>
-                <p className="text-text-secondary mb-4">Our support team is available 24/7 to help you with any urgent issues.</p>
-                <button className="bg-accent-color text-text-quaternary font-semibold px-6 py-3 rounded-xl hover:bg-accent-color/90 transition-colors">
-                  Start Live Chat
-                </button>
               </div>
             </div>
           </div>

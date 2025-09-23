@@ -7,6 +7,7 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import profileRoutes from "./routes/profile.routes.js";
 import accountRoutes from "./routes/account.routes.js";
 import depositRoutes from "./routes/deposit.routes.js";
+import withdrawalRoutes from "./routes/withdrawal.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/accounts", accountRoutes);
 app.use("/api/deposits", depositRoutes);
+app.use("/api/withdrawals", withdrawalRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/uploads", express.static("uploads"));
 

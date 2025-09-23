@@ -39,7 +39,7 @@ const AdminLogin = ({ onAdminLogin, onBack }) => {
       }
     } catch (error) {
       console.error('Admin login error:', error);
-      setErrorMessage(`Login failed: ₹{error.message}`);
+      setErrorMessage(`Login failed: ${error.message}`);
     }
 
     setIsLoading(false);

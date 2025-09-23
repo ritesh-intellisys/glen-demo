@@ -155,8 +155,8 @@ export const depositAPI = {
     return data;
   },
 
-  // Get user deposit requests
-  getUserDepositRequests: async () => {
+  // Get current user deposit requests
+  getCurrentUserDepositRequests: async () => {
     return apiRequest('/deposits/user');
   },
 
@@ -216,6 +216,36 @@ export const adminAPI = {
   },
 };
 
+// =============== WITHDRAWAL API ===============
+export const withdrawalAPI = {
+  // Submit withdrawal request
+  submitWithdrawalRequest: async (withdrawalData) => {
+    return apiRequest('/withdrawals/submit', {
+      method: 'POST',
+      body: JSON.stringify(withdrawalData),
+    });
+  },
+
+  // Get current user withdrawal requests
+  getCurrentUserWithdrawalRequests: async () => {
+    return apiRequest('/withdrawals/user');
+  },
+
+  // Get all withdrawal requests (admin)
+  getWithdrawalRequests: async (status = null) => {
+    const query = status ? `?status=${status}` : '';
+    return apiRequest(`/withdrawals/admin${query}`);
+  },
+
+  // Verify withdrawal request (admin)
+  verifyWithdrawalRequest: async (requestId, action, data = {}) => {
+    return apiRequest(`/withdrawals/admin/${requestId}/verify`, {
+      method: 'PUT',
+      body: JSON.stringify({ action, ...data }),
+    });
+  },
+};
+
 // =============== PROFILE API ===============
 export const profileAPI = {
   // Save profile with documents
@@ -264,6 +294,7 @@ export default {
   authAPI,
   accountAPI,
   depositAPI,
+  withdrawalAPI,
   adminAPI,
   profileAPI,
 };

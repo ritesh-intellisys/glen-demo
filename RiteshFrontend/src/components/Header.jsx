@@ -7,7 +7,9 @@ const Header = ({
   onProfileClick, 
   onBack, 
   showBackButton = false,
-  isAdmin = false
+  isAdmin = false,
+  onHomeClick,
+  onAccountsClick
 }) => {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isHamburgerMenuOpen, setIsHamburgerMenuOpen] = useState(false);
@@ -259,20 +261,42 @@ const Header = ({
           }}
         >
           <div className="py-3">
+            {/* User-only options */}
+            {!isAdmin && (
+              <>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onProfileClick();
+                    setIsHamburgerMenuOpen(false);
+                  }}
+                  className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl"
+                >
+                  Profile
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAccountsClick && onAccountsClick();
+                    setIsHamburgerMenuOpen(false);
+                  }}
+                  className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl"
+                >
+                  Accounts
+                </button>
+              </>
+            )}
+            
+            {/* Common options for both admin and user */}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
-                onProfileClick();
+                onHomeClick && onHomeClick();
+                setIsHamburgerMenuOpen(false);
               }}
               className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl"
             >
-              Profile
-            </button>
-            <button className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl">
-              Security
-            </button>
-            <button className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl">
-              Become an IB
+              Home
             </button>
             <button className="w-full text-left px-6 py-3 text-text-primary hover:bg-hover-bg transition-all duration-300 hover:scale-105 rounded-xl flex items-center space-x-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

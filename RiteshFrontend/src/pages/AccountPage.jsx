@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Header from '../components/Header';
 import DepositModal from '../components/DepositModal';
-import { accountAPI, adminAPI, depositAPI } from '../services/api';
+import WithdrawalModal from '../components/WithdrawalModal';
+import { accountAPI, adminAPI, depositAPI, withdrawalAPI } from '../services/api';
 
 const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccountDetails }) => {
   // Check authentication
@@ -24,6 +25,8 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
   const [adminData, setAdminData] = useState({});
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [selectedAccountForDeposit, setSelectedAccountForDeposit] = useState(null);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [selectedAccountForWithdrawal, setSelectedAccountForWithdrawal] = useState(null);
 
   // Save activeTab and showOffersSection to localStorage
   useEffect(() => {
@@ -338,6 +341,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         const newRequest = {
           id: Date.now().toString(),
           accountId: depositRequest.accountType,
+          accountType: depositRequest.accountType,
           amount: depositRequest.amount,
           upiApp: depositRequest.upiApp,
           paymentProof: proofBase64,
@@ -364,6 +368,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
       // Create request object with file
       const requestData = {
         accountId: account._id || account.id,
+        accountType: depositRequest.accountType,
         amount: depositRequest.amount,
         upiApp: depositRequest.upiApp,
         paymentProof: depositRequest.proof // Send file directly
@@ -384,6 +389,64 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
   const handleDepositClick = (account) => {
     setSelectedAccountForDeposit(account);
     setShowDepositModal(true);
+  };
+
+  // Handle withdrawal request
+  const handleWithdrawalRequest = async (withdrawalRequest) => {
+    try {
+      // Check if user is in offline mode
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Handle withdrawal request locally for offline mode
+        const withdrawalRequests = JSON.parse(localStorage.getItem('withdrawalRequests') || '[]');
+        const newRequest = {
+          id: Date.now().toString(),
+          accountId: withdrawalRequest.accountType,
+          accountType: withdrawalRequest.accountType,
+          amount: withdrawalRequest.amount,
+          method: withdrawalRequest.method,
+          accountDetails: withdrawalRequest.accountDetails,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+        
+        withdrawalRequests.push(newRequest);
+        localStorage.setItem('withdrawalRequests', JSON.stringify(withdrawalRequests));
+        
+        alert('Withdrawal request submitted successfully! (Offline mode)');
+        return;
+      }
+
+      // Find the account ID for the selected account
+      const account = createdAccounts.find(acc => acc.type === withdrawalRequest.accountType);
+      if (!account) {
+        alert('Account not found. Please try again.');
+        return;
+      }
+
+      // Create request object
+      const requestData = {
+        accountId: account._id || account.id,
+        accountType: withdrawalRequest.accountType,
+        amount: withdrawalRequest.amount,
+        method: withdrawalRequest.method,
+        accountDetails: withdrawalRequest.accountDetails
+      };
+
+      // Submit to API
+      await withdrawalAPI.submitWithdrawalRequest(requestData);
+      
+      alert('Withdrawal request submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting withdrawal request:', error);
+      alert(`Error submitting withdrawal request: ${error.message}`);
+    }
+  };
+
+  // Handle withdrawal button click
+  const handleWithdrawalClick = (account) => {
+    setSelectedAccountForWithdrawal(account);
+    setShowWithdrawalModal(true);
   };
 
   // Function to delete an account
@@ -490,10 +553,12 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         onBack={onBack} 
         showBackButton={true}
         isAdmin={false}
+        onHomeClick={() => window.location.href = '/'}
+        onAccountsClick={onBack}
       />
 
       {/* Main Content */}
-      <main className="py-4 sm:py-8">
+      <main className="py-4 sm:py-8 pb-20 sm:pb-8">
         <div className="container-custom">
           {!showOffersSection ? (
             /* Accounts View or Details */
@@ -559,15 +624,15 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                 )}
 
                 {/* Accounts Horizontal Row */}
-                <div
-                  ref={carouselRef}
-                  className="flex space-x-3 sm:space-x-5 px-4 sm:px-20 py-7 overflow-x-auto scrollbar-hide scroll-smooth"
-                >
+              <div
+                ref={carouselRef}
+                className="flex space-x-4 sm:space-x-5 px-6 sm:px-20 py-7 overflow-x-auto scrollbar-hide scroll-smooth"
+              >
                   {/* Existing Accounts */}
                   {createdAccounts
                     .filter(account => account.status.toUpperCase() === activeTab)
                     .map((account, index) => (
-                    <div key={account._id || account.id || `account-${index}`} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-3 sm:p-4 relative min-w-[260px] sm:min-w-[286px] max-w-[280px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
+                    <div key={account._id || account.id || `account-${index}`} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-4 sm:p-4 relative min-w-[300px] sm:min-w-[286px] max-w-[320px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
                       {/* Gradient Background Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-br from-accent-color via-primary-blue to-accent-color opacity-5 rounded-xl group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
 
@@ -623,13 +688,16 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                       <div className="space-y-2">
                         <button 
                           onClick={() => handleDepositClick(account)}
-                          className="w-full bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl text-xs"
+                          className="w-full bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-bold py-3 px-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm"
                         >
                           DEPOSIT
                         </button>
-                        <button className="w-full bg-transparent border border-danger-color text-danger-color hover:bg-danger-color hover:text-text-quaternary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 text-xs">
+                        <button 
+                          onClick={() => handleWithdrawalClick(account)}
+                          className="w-full bg-transparent border border-danger-color text-danger-color hover:bg-danger-color hover:text-text-quaternary font-bold py-3 px-3 rounded-lg transition-all duration-300 hover:scale-105 text-sm"
+                        >
                           WITHDRAW
-                </button>
+                        </button>
               </div>
 
                       {/* No Transactions Message */}
@@ -640,7 +708,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                       {/* Show Account Details Button */}
                       <button
                         onClick={() => onShowAccountDetails(account)}
-                        className="w-full mt-3 bg-gradient-to-r from-accent-color/20 to-accent-color/10 hover:from-accent-color/30 hover:to-accent-color/20 text-text-primary font-bold py-2 px-3 rounded-lg transition-all duration-300 hover:scale-105 border border-border-color text-xs"
+                        className="w-full mt-3 bg-gradient-to-r from-accent-color/20 to-accent-color/10 hover:from-accent-color/30 hover:to-accent-color/20 text-text-primary font-bold py-3 px-3 rounded-lg transition-all duration-300 hover:scale-105 border border-border-color text-sm"
                       >
                         SHOW ACCOUNT DETAILS
                       </button>
@@ -650,7 +718,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                   {/* Add New Account Card */}
                   <div 
                     onClick={handleAddAccount}
-                    className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-3 sm:p-4 relative min-w-[260px] sm:min-w-[286px] max-w-[280px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50 flex flex-col items-center justify-center cursor-pointer"
+                    className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-4 sm:p-4 relative min-w-[300px] sm:min-w-[286px] max-w-[320px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50 flex flex-col items-center justify-center cursor-pointer"
                   >
                     <div className="w-16 h-16 bg-gradient-to-br from-accent-color to-primary-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                       <svg className="w-8 h-8 text-text-quaternary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -747,10 +815,10 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
               {/* Offers Horizontal Row */}
               <div
                 ref={carouselRef}
-                  className="flex space-x-3 sm:space-x-5 px-4 sm:px-20 py-7 overflow-x-auto scrollbar-hide scroll-smooth"
+                  className="flex space-x-4 sm:space-x-5 px-6 sm:px-20 py-7 overflow-x-auto scrollbar-hide scroll-smooth"
               >
                 {currentOffers.map((offer, index) => (
-                    <div key={index} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-3 sm:p-4 relative min-w-[260px] sm:min-w-[286px] max-w-[280px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
+                    <div key={index} className="group bg-gradient-to-br from-card-bg via-hover-bg to-transparent backdrop-blur-md border border-border-color rounded-xl p-4 sm:p-4 relative min-w-[300px] sm:min-w-[286px] max-w-[320px] sm:max-w-[294px] flex-shrink-0 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:border-accent-color/50">
                     {/* Gradient Background Overlay */}
                     <div className={`absolute inset-0 bg-gradient-to-br ${offer.gradient} opacity-5 rounded-xl group-hover:opacity-10 transition-opacity duration-500`}></div>
 
@@ -791,7 +859,7 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
                      {/* Action Button */}
                        <button 
                          onClick={() => handleCreateAccount(offer)}
-                         className="w-full bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-bold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl transform group-hover:shadow-2xl text-xs sm:text-sm"
+                         className="w-full bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-bold py-3 sm:py-2.5 px-4 sm:px-4 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-xl transform group-hover:shadow-2xl text-sm sm:text-sm"
                        >
                        CREATE {activeTab} ACCOUNT
                      </button>
@@ -804,19 +872,19 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         </div>
       </main>
 
-      {/* Support Footer (simplified) */}
-      <section className="bg-gradient-to-r from-accent-color/10 via-accent-color/5 to-transparent border-t border-border-color backdrop-blur-md">
-        <div className="container-custom py-6">
+      {/* Support Footer (simplified) - Fixed at bottom on mobile */}
+      <section className="bg-gradient-to-r from-accent-color/10 via-accent-color/5 to-transparent border-t border-border-color backdrop-blur-md fixed bottom-0 left-0 right-0 z-40 sm:relative sm:z-auto">
+        <div className="container-custom py-3 sm:py-6">
           <div className="text-center">
-            <div className="bg-gradient-to-r from-accent-color/20 to-primary-blue/20 backdrop-blur-sm rounded-lg p-3 border border-border-color inline-block">
+            <div className="bg-gradient-to-r from-accent-color/20 to-primary-blue/20 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-border-color inline-block">
               <p className="text-accent-color font-bold text-xs sm:text-sm">support@expressforex.com</p>
             </div>
           </div>
         </div>
       </section>
 
-             {/* Sign Out Button */}
-       <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6">
+             {/* Sign Out Button - Hidden on mobile, visible on desktop */}
+       <div className="hidden sm:block fixed bottom-4 sm:bottom-6 right-4 sm:right-6">
          <button
            onClick={onSignOut}
            className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 sm:px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl flex items-center space-x-2 shadow-lg"
@@ -833,6 +901,14 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
          onClose={() => setShowDepositModal(false)}
          accountType={selectedAccountForDeposit?.type}
          onDepositRequest={handleDepositRequest}
+       />
+
+       <WithdrawalModal
+         isOpen={showWithdrawalModal}
+         onClose={() => setShowWithdrawalModal(false)}
+         accountType={selectedAccountForWithdrawal?.type}
+         currentBalance={selectedAccountForWithdrawal?.balance || 0}
+         onWithdrawalRequest={handleWithdrawalRequest}
        />
      </div>
    );

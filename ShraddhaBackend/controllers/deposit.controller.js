@@ -19,14 +19,15 @@ export const submitDepositRequest = async (req, res) => {
       return res.status(404).json({ success: false, message: "Account not found" });
     }
 
-    // Create deposit request with file path
+    // Create deposit request with relative file path
+    const relativePath = req.file.path.replace(/\\/g, '/').split('uploads/')[1]; // Convert to relative path
     const depositRequest = await DepositRequest.create({
       user: userId,
       account: accountId,
       accountType: account.type,
       amount,
       upiApp,
-      paymentProof: req.file.path, // Store file path instead of base64
+      paymentProof: relativePath, // Store relative path instead of absolute path
       proofName: req.file.originalname,
       proofType: req.file.mimetype
     });
@@ -132,8 +133,8 @@ export const verifyDepositRequest = async (req, res) => {
   }
 };
 
-// =============== GET USER DEPOSIT REQUESTS ===============
-export const getUserDepositRequests = async (req, res) => {
+// =============== GET CURRENT USER DEPOSIT REQUESTS ===============
+export const getCurrentUserDepositRequests = async (req, res) => {
   try {
     const userId = req.user.id;
 
