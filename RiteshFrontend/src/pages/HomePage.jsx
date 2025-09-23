@@ -29,15 +29,22 @@ const HomePage = ({ onSignUpClick }) => {
     {
       bonus: "Standard",
       description: "Start trading with standard account",
-      minDeposit: "₹50",
+      minDeposit: "$50",
       features: ["Instant credit", "No hidden fees", "Trade immediately"],
       popular: true
     },
     {
-      bonus: "Pro Account",
-      description: "Start trading with pro account",
-      minDeposit: "₹100",
-      features: ["No deposit needed", "Instant activation", "Withdrawable profits"],
+      bonus: "Premium",
+      description: "Advanced features for serious traders",
+      minDeposit: "$100",
+      features: ["Priority support", "Advanced analytics", "Lower spreads"],
+      popular: false
+    },
+    {
+      bonus: "Platinum",
+      description: "Premium trading experience with exclusive benefits",
+      minDeposit: "$200",
+      features: ["Personal account manager", "VIP support", "Exclusive market insights"],
       popular: false
     }
   ];
@@ -267,7 +274,7 @@ const HomePage = ({ onSignUpClick }) => {
               <div className="relative z-10">
                 <p className="text-center mb-4 text-text-secondary leading-relaxed">
                   Refer your friend and earn 
-                  <span className="text-accent-color font-bold text-lg"> $20 per lot</span> 
+                  <span className="text-accent-color font-bold text-lg"> $20 per lot </span> 
                   and <span className="font-bold text-accent-color text-lg">10% bonus</span> of referral deposit
                 </p>
                 <div className="bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-xl p-4">

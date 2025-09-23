@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import messageGif from '../assets/message.gif';
+import chatGif from '../assets/chat.gif';
+import phoneCallGif from '../assets/phone-call.gif';
+import locationPinGif from '../assets/location-pin.gif';
 
 const ContactUs = ({ onSignUpClick }) => {
   const [formData, setFormData] = useState({
@@ -7,6 +11,7 @@ const ContactUs = ({ onSignUpClick }) => {
     subject: '',
     message: ''
   });
+
 
   const handleChange = (e) => {
     setFormData({
@@ -31,25 +36,29 @@ const ContactUs = ({ onSignUpClick }) => {
 
   const contactMethods = [
     {
-      icon: "📧",
+      icon: messageGif,
+      isGif: true,
       title: "Email Us",
       details: "support@expressforex.com",
       description: "Send us an email anytime"
     },
     {
-      icon: "💬",
+      icon: chatGif,
+      isGif: true,
       title: "Live Chat",
       details: "Available 24/7",
       description: "Get instant support from our team"
     },
     {
-      icon: "📞",
+      icon: phoneCallGif,
+      isGif: true,
       title: "Call Us",
       details: "+1 (555) 123-4567",
       description: "Mon-Fri from 8am to 5pm"
     },
     {
-      icon: "📍",
+      icon: locationPinGif,
+      isGif: true,
       title: "Visit Us",
       details: "123 Trading Street, Market City",
       description: "Come by our headquarters"
@@ -103,12 +112,22 @@ const ContactUs = ({ onSignUpClick }) => {
             {contactMethods.map((method, index) => (
               <div 
                 key={index} 
-                className="bg-card-bg backdrop-blur-sm border border-border-color p-6 rounded-2xl text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/10 group"
+                className="bg-white border border-gray-200 p-6 rounded-2xl text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-gray-300/20 group"
               >
-                <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{method.icon}</div>
-                <h3 className="text-xl font-bold mb-2 text-text-primary">{method.title}</h3>
-                <p className="text-lg font-semibold text-accent-color mb-1">{method.details}</p>
-                <p className="text-text-secondary text-sm">{method.description}</p>
+                <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                  {method.isGif ? (
+                    <img 
+                      src={method.icon} 
+                      alt={method.title} 
+                      className="w-16 h-16 mx-auto"
+                    />
+                  ) : (
+                    <span>{method.icon}</span>
+                  )}
+                </div>
+                <h3 className="text-xl font-bold mb-2 text-gray-800">{method.title}</h3>
+                <p className="text-lg font-semibold text-blue-600 mb-1">{method.details}</p>
+                <p className="text-gray-600 text-sm">{method.description}</p>
               </div>
             ))}
           </div>

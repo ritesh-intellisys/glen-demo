@@ -1,6 +1,13 @@
 import React from 'react';
 import MiniChartUsd from '../widgets/MiniChartUsd';
 import MiniChartGold from '../widgets/MiniChartGold';
+import openLockGif from '../assets/open-lock.gif';
+import artificialIntelligenceGif from '../assets/artificial-intelligence.gif';
+import settlementGif from '../assets/settlement.gif';
+import arcticGif from '../assets/arctic.gif';
+import videoConferenceGif from '../assets/video-conference.gif';
+import rocketGif from '../assets/rocket.gif';
+import businessGif from '../assets/business.gif';
 
 const AboutUs = ({ onSignUpClick }) => {
   const stats = [
@@ -39,22 +46,26 @@ const AboutUs = ({ onSignUpClick }) => {
 
   const values = [
     { 
-      icon: "🔒", 
+      icon: openLockGif, 
+      isGif: true,
       title: "Security First", 
       desc: "Your funds and data are protected with bank-level security measures" 
     },
     { 
-      icon: "⚡", 
+      icon: artificialIntelligenceGif, 
+      isGif: true,
       title: "Innovation", 
       desc: "Continuously improving our platform with cutting-edge technology" 
     },
     { 
-      icon: "🤝", 
+      icon: settlementGif, 
+      isGif: true,
       title: "Transparency", 
       desc: "Clear pricing, no hidden fees, and honest communication" 
     },
     { 
-      icon: "🌍", 
+      icon: arcticGif, 
+      isGif: true,
       title: "Global Access", 
       desc: "Democratizing forex trading for everyone, everywhere" 
     }
@@ -187,13 +198,23 @@ const AboutUs = ({ onSignUpClick }) => {
             {values.map((value, index) => (
               <div 
                 key={index} 
-                className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-accent-color/10 group relative overflow-hidden"
+                className="bg-white border border-gray-200 p-8 rounded-2xl text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-gray-300/20 group relative overflow-hidden"
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-gray-100/20 to-gray-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
                 <div className="relative z-10">
-                  <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{value.icon}</div>
-                  <h3 className="text-xl font-bold mb-2 text-text-primary">{value.title}</h3>
-                  <p className="text-text-secondary">{value.desc}</p>
+                  <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    {value.isGif ? (
+                      <img 
+                        src={value.icon} 
+                        alt={value.title} 
+                        className="w-16 h-16 mx-auto"
+                      />
+                    ) : (
+                      <span>{value.icon}</span>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-gray-800">{value.title}</h3>
+                  <p className="text-gray-600">{value.desc}</p>
                 </div>
               </div>
             ))}
@@ -216,31 +237,31 @@ const AboutUs = ({ onSignUpClick }) => {
                 Our platform is built on robust, secure technology that ensures lightning-fast execution and reliable performance even during high volatility.
               </p>
               <div className="space-y-6">
-                <div className="flex items-center space-x-4 p-4 rounded-xl bg-hover-bg hover:bg-accent-color/10 transition-all duration-300 hover:-translate-y-1">
-                  <div className="w-12 h-12 bg-accent-color/20 rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">⚡</span>
+                <div className="flex items-center space-x-4 p-4 rounded-xl bg-white border border-gray-200 hover:shadow-gray-300/20 transition-all duration-300 hover:-translate-y-1">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
+                    <img src={rocketGif} alt="Lightning Execution" className="w-8 h-8 rounded-lg" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-primary">Lightning Execution</h3>
-                    <p className="text-text-secondary">Average trade execution under 40ms</p>
+                    <h3 className="text-lg font-semibold text-gray-800">Lightning Execution</h3>
+                    <p className="text-gray-600">Average trade execution under 40ms</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4 p-4 rounded-xl bg-hover-bg hover:bg-accent-color/10 transition-all duration-300 hover:-translate-y-1">
-                  <div className="w-12 h-12 bg-accent-color/20 rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">🔒</span>
+                <div className="flex items-center space-x-4 p-4 rounded-xl bg-white border border-gray-200 hover:shadow-gray-300/20 transition-all duration-300 hover:-translate-y-1">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
+                    <img src={openLockGif} alt="Bank-Level Security" className="w-8 h-8 rounded-lg" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-primary">Bank-Level Security</h3>
-                    <p className="text-text-secondary">Encryption and segregated client funds</p>
+                    <h3 className="text-lg font-semibold text-gray-800">Bank-Level Security</h3>
+                    <p className="text-gray-600">Encryption and segregated client funds</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4 p-4 rounded-xl bg-hover-bg hover:bg-accent-color/10 transition-all duration-300 hover:-translate-y-1">
-                  <div className="w-12 h-12 bg-accent-color/20 rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">📊</span>
+                <div className="flex items-center space-x-4 p-4 rounded-xl bg-white border border-gray-200 hover:shadow-gray-300/20 transition-all duration-300 hover:-translate-y-1">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
+                    <img src={businessGif} alt="Advanced Tools" className="w-8 h-8 rounded-lg" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-primary">Advanced Tools</h3>
-                    <p className="text-text-secondary">Professional charts, indicators, and analytics</p>
+                    <h3 className="text-lg font-semibold text-gray-800">Advanced Tools</h3>
+                    <p className="text-gray-600">Professional charts, indicators, and analytics</p>
                   </div>
                 </div>
               </div>
@@ -249,7 +270,9 @@ const AboutUs = ({ onSignUpClick }) => {
               <div className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl shadow-xl hover:shadow-accent-color/20 relative overflow-visible">
                 <div className="absolute -top-8 -left-8 w-32 h-32 bg-accent-color/10 rounded-full blur-xl"></div>
                 <div className="text-center space-y-4 relative z-10">
-                  <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">💻</div>
+                  <div className="mb-4 transform hover:scale-110 transition-transform duration-300">
+                    <img src={videoConferenceGif} alt="Express Forex Platform" className="w-16 h-16 mx-auto rounded-xl" />
+                  </div>
                   <h3 className="text-2xl font-bold text-accent-color">Express Forex Platform</h3>
                   <p className="text-text-secondary">Advanced yet intuitive</p>
                   <div className="w-full h-80 min-h-80">
@@ -290,4 +313,4 @@ const AboutUs = ({ onSignUpClick }) => {
   );
 };
 
-export default AboutUs;
+export default AboutUs; 
