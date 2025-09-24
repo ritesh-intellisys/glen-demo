@@ -6,20 +6,20 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
   // Form state matching SignUpPage structure
   const [formData, setFormData] = useState({
     // Personal details
-    fullName: 'Ritesh Jawale',
-    fatherName: 'Father Name',
-    motherName: 'Mother Name',
+    fullName: '',
+    fatherName: '',
+    motherName: '',
     gender: 'male',
-    dateOfBirth: '1990-01-01',
+    dateOfBirth: '',
     mobileCode: '+91',
-    mobileNumber: '9876543210',
+    mobileNumber: '',
     
     // Address details
     country: 'IN',
-    state: 'Maharashtra',
-    city: 'Mumbai',
-    postalCode: '400001',
-    streetAddress: '123 Main Street',
+    state: '',
+    city: '',
+    postalCode: '',
+    streetAddress: '',
   });
 
   // Form state for bank info (keeping at the end as requested)
@@ -39,12 +39,15 @@ const ProfilePage = ({ userEmail, onSignOut, onBack, onProfileClick }) => {
 
   // Document verification state
   const [uploadedFiles, setUploadedFiles] = useState({
+    profilePicture: null,
     panDocument: null,
     aadharFront: null,
     aadharBack: null
   });
 
 const [loading, setLoading] = useState(false);
+const [profileLoaded, setProfileLoaded] = useState(false);
+const fetchingProfile = useRef(false);
 
   // Arrays for dropdowns (matching SignUpPage)
   const genderOptions = [
@@ -86,6 +89,43 @@ const [loading, setLoading] = useState(false);
     'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
   ];
 
+  // State code to full name mapping
+  const stateCodeMapping = {
+    'AP': 'Andhra Pradesh',
+    'AR': 'Arunachal Pradesh',
+    'AS': 'Assam',
+    'BR': 'Bihar',
+    'CG': 'Chhattisgarh',
+    'GA': 'Goa',
+    'GJ': 'Gujarat',
+    'HR': 'Haryana',
+    'HP': 'Himachal Pradesh',
+    'JH': 'Jharkhand',
+    'KA': 'Karnataka',
+    'KL': 'Kerala',
+    'MP': 'Madhya Pradesh',
+    'MH': 'Maharashtra',
+    'MN': 'Manipur',
+    'ML': 'Meghalaya',
+    'MZ': 'Mizoram',
+    'NL': 'Nagaland',
+    'OR': 'Odisha',
+    'PB': 'Punjab',
+    'RJ': 'Rajasthan',
+    'SK': 'Sikkim',
+    'TN': 'Tamil Nadu',
+    'TG': 'Telangana',
+    'TR': 'Tripura',
+    'UP': 'Uttar Pradesh',
+    'UK': 'Uttarakhand',
+    'WB': 'West Bengal'
+  };
+
+  // Reverse mapping for saving
+  const stateNameToCode = Object.fromEntries(
+    Object.entries(stateCodeMapping).map(([code, name]) => [name, code])
+  );
+
   const upiApps = [
     { value: 'phonepe', label: 'PhonePe' },
     { value: 'gpay', label: 'Google Pay' },
@@ -98,6 +138,11 @@ const [loading, setLoading] = useState(false);
   ];
 
  useEffect(() => {
+    if (profileLoaded || fetchingProfile.current) {
+      return;
+    }
+    
+    fetchingProfile.current = true;
     const fetchProfile = async () => {
       try {
         const token = sessionStorage.getItem("token");
@@ -115,8 +160,68 @@ const [loading, setLoading] = useState(false);
         });
 
         const data = await res.json();
+        
         if (res.ok && data.success) {
-          setFormData(data.user);
+          const userData = data.user;
+          
+          // Set personal details
+          const personalData = {
+            fullName: userData.fullName || '',
+            fatherName: userData.fatherName || '',
+            motherName: userData.motherName || '',
+            gender: userData.gender || 'male',
+            dateOfBirth: userData.dateOfBirth || '',
+            mobileCode: userData.mobileCode || '+91',
+            mobileNumber: userData.mobileNumber || '',
+            country: userData.country || 'IN',
+            state: stateCodeMapping[userData.state] || userData.state || '',
+            city: userData.city || '',
+            postalCode: userData.postalCode || '',
+            streetAddress: userData.streetAddress || ''
+          };
+          setFormData(personalData);
+
+          // Set bank info
+          const bankData = {
+            accountName: userData.accountName || '',
+            bankAccount: userData.bankAccount || '',
+            bankAddress: userData.bankAddress || '',
+            swiftCode: userData.swiftCode || '',
+            bankName: userData.bankName || ''
+          };
+          setBankInfo(bankData);
+
+          // Set UPI info
+          const upiData = {
+            upiId: userData.upiId || '',
+            upiApp: userData.upiApp || ''
+          };
+          setUpiInfo(upiData);
+
+          // Set uploaded files (if any)
+          const fileData = {
+            profilePicture: userData.profilePicture ? { 
+              name: 'Profile Picture', 
+              url: userData.profilePicture.startsWith('data:') ? userData.profilePicture : `http://localhost:5000/uploads/${userData.profilePicture}` 
+            } : null,
+            panDocument: userData.idDocument ? { 
+              name: 'PAN Document', 
+              url: userData.idDocument.startsWith('data:') ? userData.idDocument : `http://localhost:5000/uploads/${userData.idDocument}` 
+            } : null,
+            aadharFront: userData.addressProof ? { 
+              name: 'Aadhar Front', 
+              url: userData.addressProof.startsWith('data:') ? userData.addressProof : `http://localhost:5000/uploads/${userData.addressProof}` 
+            } : null,
+            aadharBack: userData.aadharBack ? { 
+              name: 'Aadhar Back', 
+              url: userData.aadharBack.startsWith('data:') ? userData.aadharBack : `http://localhost:5000/uploads/${userData.aadharBack}` 
+            } : null
+          };
+          
+          
+          setUploadedFiles(fileData);
+
+          setProfileLoaded(true);
         } else {
           alert(data.message || "Failed to fetch profile");
         }
@@ -124,6 +229,7 @@ const [loading, setLoading] = useState(false);
         console.error("Error fetching profile:", error);
       } finally {
         setLoading(false);
+        fetchingProfile.current = false;
       }
     };
 
@@ -158,11 +264,13 @@ const [loading, setLoading] = useState(false);
 
   // Handle file upload
   const handleFileUpload = (field, file) => {
+    console.log('File upload:', field, file);
     setUploadedFiles(prev => ({
       ...prev,
       [field]: file
     }));
   };
+
 
   const handleSaveProfile = async (e) => {
   e.preventDefault();
@@ -171,12 +279,18 @@ const [loading, setLoading] = useState(false);
   const token = sessionStorage.getItem("token");
   const user = JSON.parse(sessionStorage.getItem("user"));
 
+
   const form = new FormData();
   form.append("email", user.email);
 
   // Add personal details
   Object.keys(formData).forEach((key) => {
-    form.append(key, formData[key]);
+    let value = formData[key];
+    // Convert state name back to code for saving
+    if (key === 'state' && value && stateNameToCode[value]) {
+      value = stateNameToCode[value];
+    }
+    form.append(key, value);
   });
 
   // Add bank info
@@ -192,7 +306,14 @@ const [loading, setLoading] = useState(false);
   // Add uploaded documents
   Object.keys(uploadedFiles).forEach((key) => {
     if (uploadedFiles[key]) {
-      form.append(key, uploadedFiles[key]);
+      // If it's a File object (new upload), append the file
+      // If it's an object with URL (saved image), don't append (already saved)
+      if (uploadedFiles[key] instanceof File) {
+        console.log('Appending file to form:', key, uploadedFiles[key]);
+        form.append(key, uploadedFiles[key]);
+      } else {
+        console.log('Skipping saved file:', key, uploadedFiles[key]);
+      }
     }
   });
 
@@ -247,6 +368,59 @@ const [loading, setLoading] = useState(false);
         <div className="container-custom">
           <div className="bg-card-bg rounded-2xl shadow-xl p-8 max-w-4xl mx-auto">
             
+            {/* Profile Picture Section */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-accent-color mb-6">Profile Picture</h2>
+              <div className="flex justify-center">
+                <div className="relative">
+                  {uploadedFiles.profilePicture ? (
+                    <div className="text-center">
+                      <img 
+                        src={uploadedFiles.profilePicture.url || URL.createObjectURL(uploadedFiles.profilePicture)}
+                        alt="Profile Picture"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-accent-color shadow-lg cursor-pointer hover:scale-105 transition-transform duration-300"
+                        onClick={() => {
+                          // Open image in new tab for full size view
+                          const imageUrl = uploadedFiles.profilePicture.url || URL.createObjectURL(uploadedFiles.profilePicture);
+                          window.open(imageUrl, '_blank');
+                        }}
+                      />
+                      <p className="text-xs text-text-secondary mt-2">Click to view full size</p>
+                      <button
+                        type="button"
+                        onClick={() => handleFileUpload('profilePicture', null)}
+                        className="mt-2 text-red-500 text-sm hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center border-4 border-border-color">
+                      <svg className="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  )}
+                  
+                  {/* Upload Button */}
+                  <div className="mt-4 text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload('profilePicture', e.target.files[0])}
+                      className="hidden"
+                      id="profilePicture"
+                    />
+                    <label htmlFor="profilePicture" className="cursor-pointer">
+                      <div className="bg-accent-color text-white px-4 py-2 rounded-lg hover:bg-accent-color/90 transition-colors">
+                        {uploadedFiles.profilePicture ? 'Change Picture' : 'Upload Picture'}
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* Document Verification Section */}
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-accent-color mb-6">Document Verification</h2>
@@ -254,6 +428,23 @@ const [loading, setLoading] = useState(false);
                 {/* PAN Document */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-text-secondary mb-2">PAN Document</label>
+                  {uploadedFiles.panDocument && uploadedFiles.panDocument.url ? (
+                    <div className="border border-border-color rounded-lg p-4">
+                      <img 
+                        src={uploadedFiles.panDocument.url}
+                        alt="PAN Document"
+                        className="max-w-full h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
+                      />
+                      <p className="text-xs text-text-secondary mt-2">Click to view full size</p>
+                      <button
+                        type="button"
+                        onClick={() => handleFileUpload('panDocument', null)}
+                        className="mt-2 text-red-500 text-sm hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
                   <div className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-accent-color transition-colors">
                     <input
                       type="file"
@@ -273,11 +464,29 @@ const [loading, setLoading] = useState(false);
                       </div>
                     </label>
                   </div>
+                  )}
                 </div>
 
                 {/* Aadhar Front */}
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2">Aadhar Front Side</label>
+                  {uploadedFiles.aadharFront && uploadedFiles.aadharFront.url ? (
+                    <div className="border border-border-color rounded-lg p-4">
+                      <img 
+                        src={uploadedFiles.aadharFront.url}
+                        alt="Aadhar Front"
+                        className="max-w-full h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
+                      />
+                      <p className="text-xs text-text-secondary mt-2">Click to view full size</p>
+                      <button
+                        type="button"
+                        onClick={() => handleFileUpload('aadharFront', null)}
+                        className="mt-2 text-red-500 text-sm hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
                   <div className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-accent-color transition-colors">
                     <input
                       type="file"
@@ -297,30 +506,49 @@ const [loading, setLoading] = useState(false);
                       </div>
                     </label>
                   </div>
+                  )}
                 </div>
 
                 {/* Aadhar Back */}
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2">Aadhar Back Side</label>
-                  <div className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-accent-color transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileUpload('aadharBack', e.target.files[0])}
-                      className="hidden"
-                      id="aadharBack"
-                    />
-                    <label htmlFor="aadharBack" className="cursor-pointer">
-                      <div className="flex flex-col items-center">
-                        <svg className="w-8 h-8 text-text-secondary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        <span className="text-text-secondary text-sm">
-                          {uploadedFiles.aadharBack ? uploadedFiles.aadharBack.name : 'Click to upload Aadhar back'}
-                        </span>
-                      </div>
-                    </label>
-                  </div>
+                  {uploadedFiles.aadharBack && uploadedFiles.aadharBack.url ? (
+                    <div className="border border-border-color rounded-lg p-4">
+                      <img 
+                        src={uploadedFiles.aadharBack.url}
+                        alt="Aadhar Back"
+                        className="max-w-full h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
+                      />
+                      <p className="text-xs text-text-secondary mt-2">Click to view full size</p>
+                      <button
+                        type="button"
+                        onClick={() => handleFileUpload('aadharBack', null)}
+                        className="mt-2 text-red-500 text-sm hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-accent-color transition-colors">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload('aadharBack', e.target.files[0])}
+                        className="hidden"
+                        id="aadharBack"
+                      />
+                      <label htmlFor="aadharBack" className="cursor-pointer">
+                        <div className="flex flex-col items-center">
+                          <svg className="w-8 h-8 text-text-secondary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span className="text-text-secondary text-sm">
+                            {uploadedFiles.aadharBack ? uploadedFiles.aadharBack.name : 'Click to upload Aadhar back'}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -450,6 +678,7 @@ const [loading, setLoading] = useState(false);
                         onChange={(e) => handleInputChange('state', e.target.value)}
                         className="appearance-none w-full border-b-2 border-accent-color pb-2 pr-8 focus:outline-none focus:border-accent-color/70 text-text-primary font-medium bg-transparent"
                       >
+                        <option value="">Select State</option>
                         {indianStates.map(state => (
                           <option key={state} value={state}>{state}</option>
                         ))}

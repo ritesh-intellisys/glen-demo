@@ -22,13 +22,17 @@ export const saveProfile = async (req, res) => {
       bankAddress,
       swiftCode,
       bankName,
+      upiId,
+      upiApp,
     } = req.body;
+
 
     // ✅ Get user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+
 
     // ✅ Handle uploaded documents
     const panDocument = req.files?.panDocument
@@ -40,33 +44,43 @@ export const saveProfile = async (req, res) => {
     const aadharBack = req.files?.aadharBack
       ? req.files.aadharBack[0].filename
       : null;
+    const profilePicture = req.files?.profilePicture
+      ? req.files.profilePicture[0].filename
+      : null;
+
+    console.log('Profile picture received:', profilePicture);
 
     // ✅ Upsert profile (create or update)
+    const profileData = {
+      user: user._id,
+      fullName,
+      fatherName,
+      motherName,
+      gender,
+      dateOfBirth,
+      mobileCode,
+      mobileNumber,
+      country,
+      state,
+      city,
+      postalCode,
+      streetAddress,
+      accountName,
+      bankAccount,
+      bankAddress,
+      swiftCode,
+      bankName,
+      upiId,
+      upiApp,
+      ...(panDocument && { panDocument }),
+      ...(aadharFront && { aadharFront }),
+      ...(aadharBack && { aadharBack }),
+      ...(profilePicture && { profilePicture }),
+    };
+
     const profile = await Profile.findOneAndUpdate(
       { user: user._id },
-      {
-        user: user._id,
-        fullName,
-        fatherName,
-        motherName,
-        gender,
-        dateOfBirth,
-        mobileCode,
-        mobileNumber,
-        country,
-        state,
-        city,
-        postalCode,
-        streetAddress,
-        accountName,
-        bankAccount,
-        bankAddress,
-        swiftCode,
-        bankName,
-        ...(panDocument && { panDocument }),
-        ...(aadharFront && { aadharFront }),
-        ...(aadharBack && { aadharBack }),
-      },
+      profileData,
       { upsert: true, new: true }
     );
 

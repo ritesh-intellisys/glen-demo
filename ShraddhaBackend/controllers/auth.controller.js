@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import Admin from "../models/Admin.js";
 import Account from "../models/Account.js";
 import AdminData from "../models/AdminData.js";
+import Profile from "../models/Profile.js";
 import jwt from "jsonwebtoken";
 
 // =============== SIGNUP ===============
@@ -213,6 +214,22 @@ export const getProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    // Get profile data if it exists
+    const Profile = (await import("../models/Profile.js")).default;
+    // Try both ObjectId and String lookup since existing Profile records might have String user field
+    let profile = await Profile.findOne({ user: user._id });
+    
+    if (!profile) {
+      // Try with String user field (for existing records)
+      profile = await Profile.findOne({ user: user._id.toString() });
+      
+      if (profile) {
+        // Update the Profile record to use ObjectId instead of String
+        await Profile.findByIdAndUpdate(profile._id, { user: user._id });
+      }
+    }
+    
+
     res.status(200).json({
       success: true,
       user: {
@@ -220,6 +237,31 @@ export const getProfile = async (req, res) => {
         dateOfBirth: user.dateOfBirth
           ? user.dateOfBirth.toISOString().split("T")[0]
           : null,
+        // Override with profile data if it exists (Profile data takes precedence)
+        fullName: profile?.fullName || user.fullName,
+        fatherName: profile?.fatherName || user.fatherName,
+        motherName: profile?.motherName || user.motherName,
+        gender: profile?.gender || user.gender,
+        dateOfBirth: profile?.dateOfBirth || (user.dateOfBirth ? user.dateOfBirth.toISOString().split("T")[0] : null),
+        mobileCode: profile?.mobileCode || user.mobileCode,
+        mobileNumber: profile?.mobileNumber || user.mobileNumber,
+        country: profile?.country || user.country,
+        state: profile?.state || user.state,
+        city: profile?.city || user.city,
+        postalCode: profile?.postalCode || user.postalCode,
+        streetAddress: profile?.streetAddress || user.streetAddress,
+        // Include additional profile data
+        profilePicture: profile?.profilePicture || null,
+        idDocument: profile?.panDocument || null,
+        addressProof: profile?.aadharFront || null,
+        aadharBack: profile?.aadharBack || null,
+        bankAccount: profile?.bankAccount || null,
+        bankName: profile?.bankName || null,
+        bankAddress: profile?.bankAddress || null,
+        swiftCode: profile?.swiftCode || null,
+        accountName: profile?.accountName || null,
+        upiId: profile?.upiId || null,
+        upiApp: profile?.upiApp || null
       },
     });
   } catch (error) {

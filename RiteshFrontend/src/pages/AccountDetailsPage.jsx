@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import DepositModal from '../components/DepositModal';
-import { accountAPI, depositAPI } from '../services/api';
+import WithdrawalModal from '../components/WithdrawalModal';
+import { accountAPI, depositAPI, withdrawalAPI } from '../services/api';
 
 const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
   const [adminData, setAdminData] = useState({
@@ -11,7 +12,9 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
     currency: '₹'
   });
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [depositRequests, setDepositRequests] = useState([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState([]);
 
   // Load deposit requests
   const loadDepositRequests = async () => {
@@ -46,6 +49,42 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
         request.accountType === account.type
       );
       setDepositRequests(accountRequests);
+    }
+  };
+
+  // Load withdrawal requests
+  const loadWithdrawalRequests = async () => {
+    try {
+      // Check if user is in offline mode
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Load from localStorage for offline mode
+        const savedRequests = JSON.parse(localStorage.getItem('withdrawalRequests') || '[]');
+        // Filter requests for current account type
+        const accountRequests = savedRequests.filter(request => 
+          request.accountType === account.type
+        );
+        setWithdrawalRequests(accountRequests);
+        return;
+      }
+
+      // Load from API
+      const response = await withdrawalAPI.getCurrentUserWithdrawalRequests();
+      if (response.success) {
+        // Filter requests for current account type
+        const accountRequests = response.withdrawalRequests.filter(request => 
+          request.accountType === account.type
+        );
+        setWithdrawalRequests(accountRequests);
+      }
+    } catch (error) {
+      console.error('Error loading withdrawal requests:', error);
+      // Fallback to localStorage
+      const savedRequests = JSON.parse(localStorage.getItem('withdrawalRequests') || '[]');
+      const accountRequests = savedRequests.filter(request => 
+        request.accountType === account.type
+      );
+      setWithdrawalRequests(accountRequests);
     }
   };
 
@@ -95,6 +134,7 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
 
     loadAccountData();
     loadDepositRequests();
+    loadWithdrawalRequests();
 
     // Listen for balance updates
     const handleBalanceUpdate = (event) => {
@@ -164,7 +204,57 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
       loadDepositRequests();
     } catch (error) {
       console.error('Error submitting deposit request:', error);
-      alert(`Error submitting deposit request: ₹{error.message}`);
+      alert(`Error submitting deposit request: ${error.message}`);
+    }
+  };
+
+  const handleWithdrawalRequest = async (withdrawalRequest) => {
+    try {
+      // Check if user is in offline mode
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (user.offline) {
+        // Handle withdrawal request locally for offline mode
+        const withdrawalRequests = JSON.parse(localStorage.getItem('withdrawalRequests') || '[]');
+        const newRequest = {
+          id: Date.now().toString(),
+          accountId: account._id || account.id,
+          accountType: account.type,
+          amount: withdrawalRequest.amount,
+          method: withdrawalRequest.method,
+          accountDetails: withdrawalRequest.accountDetails,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+        
+        withdrawalRequests.push(newRequest);
+        localStorage.setItem('withdrawalRequests', JSON.stringify(withdrawalRequests));
+        
+        alert('Withdrawal request submitted successfully! (Offline mode)');
+        // Refresh withdrawal requests
+        loadWithdrawalRequests();
+        return;
+      }
+
+      // Create request object
+      const requestData = {
+        accountId: account._id || account.id,
+        accountType: account.type,
+        amount: withdrawalRequest.amount,
+        method: withdrawalRequest.method,
+        accountDetails: withdrawalRequest.accountDetails
+      };
+
+      console.log('🔍 Withdrawal request data:', requestData);
+
+      // Submit to API
+      await withdrawalAPI.submitWithdrawalRequest(requestData);
+      
+      alert('Withdrawal request submitted successfully!');
+      // Refresh withdrawal requests
+      loadWithdrawalRequests();
+    } catch (error) {
+      console.error('Error submitting withdrawal request:', error);
+      alert(`Error submitting withdrawal request: ${error.message}`);
     }
   };
   if (!account) {
@@ -217,7 +307,12 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
                 >
                   Deposit
                 </button>
-                <button className="bg-transparent border border-danger-color text-danger-color hover:bg-danger-color hover:text-text-quaternary font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105">Withdraw</button>
+                <button 
+                  onClick={() => setShowWithdrawalModal(true)}
+                  className="bg-transparent border border-danger-color text-danger-color hover:bg-danger-color hover:text-text-quaternary font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105"
+                >
+                  Withdraw
+                </button>
                 <button className="bg-transparent border border-border-color text-text-secondary hover:text-text-primary hover:border-text-primary font-semibold py-3 px-6 rounded-xl transition-all duration-300">Change Password</button>
               </div>
             </div>
@@ -230,9 +325,10 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
             </div>
             
             {/* Payment History Content */}
-            {depositRequests.length > 0 ? (
+            {(depositRequests.length > 0 || withdrawalRequests.length > 0) ? (
               <div className="bg-card-bg border border-border-color rounded-xl p-6">
                 <div className="space-y-4">
+                  {/* Deposit Requests */}
                   {depositRequests
                     .sort((a, b) => {
                       const dateA = new Date(a.createdAt || a.submittedAt);
@@ -240,7 +336,11 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
                       return dateB - dateA;
                     })
                     .map((request, index) => (
-                      <div key={request._id || request.id || index} className="bg-hover-bg rounded-lg p-4 border border-border-color">
+                      <div key={`deposit-${request._id || request.id || index}`} className="bg-hover-bg rounded-lg p-4 border border-border-color">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 bg-accent-color rounded-full"></div>
+                          <span className="text-sm font-semibold text-accent-color">DEPOSIT</span>
+                        </div>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex-1">
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -291,12 +391,76 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
                         </div>
                       </div>
                     ))}
+
+                  {/* Withdrawal Requests */}
+                  {withdrawalRequests
+                    .sort((a, b) => {
+                      const dateA = new Date(a.createdAt || a.submittedAt);
+                      const dateB = new Date(b.createdAt || b.submittedAt);
+                      return dateB - dateA;
+                    })
+                    .map((request, index) => (
+                      <div key={`withdrawal-${request._id || request.id || index}`} className="bg-hover-bg rounded-lg p-4 border border-border-color">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 bg-danger-color rounded-full"></div>
+                          <span className="text-sm font-semibold text-danger-color">WITHDRAWAL</span>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                              <div>
+                                <span className="text-text-secondary text-sm">Amount:</span>
+                                <div className="font-bold text-danger-color text-lg">₹{request.amount}</div>
+                              </div>
+                              <div>
+                                <span className="text-text-secondary text-sm">Status:</span>
+                                <div className={`font-semibold ${
+                                  request.status === 'approved' ? 'text-success-color' : 
+                                  request.status === 'rejected' ? 'text-danger-color' : 
+                                  'text-warning-color'
+                                }`}>
+                                  {request.status?.toUpperCase() || 'PENDING'}
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-text-secondary text-sm">Date:</span>
+                                <div className="font-semibold text-text-primary">
+                                  {new Date(request.createdAt || request.submittedAt).toLocaleDateString()}
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-text-secondary text-sm">Method:</span>
+                                <div className="font-semibold text-text-primary capitalize">
+                                  {request.method === 'upi' ? 'UPI Transfer' : 'Bank Transfer'}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {request.verifiedAmount && (
+                              <div className="mt-3 pt-3 border-t border-border-color">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-text-secondary text-sm">Verified Amount:</span>
+                                  <span className="font-bold text-success-color">₹{request.verifiedAmount}</span>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {request.rejectionReason && (
+                              <div className="mt-3 pt-3 border-t border-border-color">
+                                <div className="text-text-secondary text-sm mb-1">Rejection Reason:</div>
+                                <div className="text-danger-color text-sm">{request.rejectionReason}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
             ) : (
               <div className="bg-card-bg border border-border-color rounded-xl p-6 text-center">
                 <div className="text-text-secondary mb-3">No payment records found</div>
-                <div className="text-text-secondary text-sm">Your deposit requests will appear here once submitted.</div>
+                <div className="text-text-secondary text-sm">Your deposit and withdrawal requests will appear here once submitted.</div>
               </div>
             )}
           </div>
@@ -310,6 +474,14 @@ const AccountDetailsPage = ({ account, onBack, onSignOut, onProfileClick }) => {
         onClose={() => setShowDepositModal(false)}
         accountType={account?.type}
         onDepositRequest={handleDepositRequest}
+      />
+
+      <WithdrawalModal
+        isOpen={showWithdrawalModal}
+        onClose={() => setShowWithdrawalModal(false)}
+        accountType={account?.type}
+        currentBalance={adminData.balance || 0}
+        onWithdrawalRequest={handleWithdrawalRequest}
       />
     </div>
   );

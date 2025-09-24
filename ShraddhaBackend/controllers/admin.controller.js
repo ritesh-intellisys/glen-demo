@@ -2,6 +2,7 @@ import AdminData from "../models/AdminData.js";
 import DepositRequest from "../models/DepositRequest.js";
 import Account from "../models/Account.js";
 import User from "../models/User.js";
+import Profile from "../models/Profile.js";
 
 // =============== GET ALL ADMIN DATA ===============
 export const getAdminData = async (req, res) => {
@@ -125,10 +126,13 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({}).select('-password').sort({ createdAt: -1 });
     
-    // Get account information for each user
+    // Get account information and profile data for each user
     const usersWithAccounts = await Promise.all(users.map(async (user) => {
       const accounts = await Account.find({ user: user._id });
       const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
+      
+      // Get profile data if it exists
+      const profile = await Profile.findOne({ user: user._id });
       
       return {
         id: user._id,
@@ -139,7 +143,31 @@ export const getAllUsers = async (req, res) => {
         lastLogin: user.updatedAt, // Using updatedAt as lastLogin for now
         status: 'Active', // Default status
         totalAccounts: accounts.length,
-        totalBalance: totalBalance
+        totalBalance: totalBalance,
+        // Include profile information from User model
+        phone: user.mobileCode && user.mobileNumber ? `${user.mobileCode}${user.mobileNumber}` : null,
+        country: user.country,
+        city: user.city,
+        state: user.state,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
+        fatherName: user.fatherName,
+        motherName: user.motherName,
+        postalCode: user.postalCode,
+        streetAddress: user.streetAddress,
+        verified: user.verified || false,
+        // Include profile data from Profile model (documents, etc.)
+        profilePicture: profile?.profilePicture || null,
+        idDocument: profile?.panDocument || null,
+        addressProof: profile?.aadharFront || null,
+        aadharBack: profile?.aadharBack || null,
+        bankAccount: profile?.bankAccount || null,
+        bankName: profile?.bankName || null,
+        bankAddress: profile?.bankAddress || null,
+        swiftCode: profile?.swiftCode || null,
+        accountName: profile?.accountName || null,
+        upiId: profile?.upiId || null,
+        upiApp: profile?.upiApp || null
       };
     }));
 
@@ -237,6 +265,48 @@ export const getUserDepositRequests = async (req, res) => {
     });
   } catch (error) {
     console.error("Get User Deposit Requests Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// =============== VERIFY USER ===============
+export const verifyUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { verified } = req.body;
+
+    if (typeof verified !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'Verified status must be a boolean value'
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { verified },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `User ${verified ? 'verified' : 'unverified'} successfully`,
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        verified: user.verified
+      }
+    });
+  } catch (error) {
+    console.error("Verify User Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

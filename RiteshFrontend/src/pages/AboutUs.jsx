@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MiniChartUsd from '../widgets/MiniChartUsd';
 import MiniChartGold from '../widgets/MiniChartGold';
 import openLockGif from '../assets/open-lock.gif';
@@ -10,12 +10,87 @@ import rocketGif from '../assets/rocket.gif';
 import businessGif from '../assets/business.gif';
 
 const AboutUs = ({ onSignUpClick }) => {
+  const [activeTradersCount, setActiveTradersCount] = useState(0);
+  const [countriesCount, setCountriesCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+
   const stats = [
-    { value: "12,000+", label: "Active Traders" },
-    { value: "₹2B+", label: "Monthly Trading Volume" },
-    { value: "150+", label: "Countries Served" },
-    { value: "24/7", label: "Customer Support" }
+    { 
+      value: activeTradersCount.toLocaleString() + "+", 
+      label: "Active Traders",
+      animated: true,
+      targetValue: 12000
+    },
+    { value: "₹2B+", label: "Monthly Trading Volume", animated: false },
+    { 
+      value: countriesCount + "+", 
+      label: "Countries Served",
+      animated: true,
+      targetValue: 150
+    },
+    { value: "24/7", label: "Customer Support", animated: false }
   ];
+
+  // Counter animation effect
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    const statsElement = document.getElementById('stats-section');
+    if (statsElement) {
+      observer.observe(statsElement);
+    }
+
+    return () => {
+      if (statsElement) {
+        observer.unobserve(statsElement);
+      }
+    };
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (isVisible) {
+      // Animate Active Traders counter
+      const animateActiveTraders = () => {
+        let current = 0;
+        const increment = 12000 / 60; // 60 steps for faster animation
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= 12000) {
+            setActiveTradersCount(12000);
+            clearInterval(timer);
+          } else {
+            setActiveTradersCount(Math.floor(current));
+          }
+        }, 15); // Faster interval
+      };
+
+      // Animate Countries counter
+      const animateCountries = () => {
+        let current = 0;
+        const increment = 150 / 60; // Same 60 steps for matching speed
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= 150) {
+            setCountriesCount(150);
+            clearInterval(timer);
+          } else {
+            setCountriesCount(Math.floor(current));
+          }
+        }, 15); // Same interval as Active Traders
+      };
+
+      // Start both animations simultaneously
+      animateActiveTraders();
+      animateCountries();
+    }
+  }, [isVisible]);
 
   const team = [
     { 
@@ -126,7 +201,7 @@ const AboutUs = ({ onSignUpClick }) => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-bg-secondary relative">
+      <section id="stats-section" className="py-20 bg-bg-secondary relative">
         <div className="absolute -top-10 left-1/2 w-24 h-24 bg-accent-color/5 rounded-full blur-2xl"></div>
         
         <div className="container-custom">
@@ -138,7 +213,15 @@ const AboutUs = ({ onSignUpClick }) => {
               >
                 <div className="absolute -inset-1 bg-gradient-to-r from-accent-color/10 to-primary-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
                 <div className="relative z-10">
-                  <div className="text-4xl font-bold text-accent-color mb-2 transform group-hover:scale-110 transition-transform duration-300">{stat.value}</div>
+                  <div className="text-4xl font-bold text-accent-color mb-2 transform group-hover:scale-110 transition-transform duration-300">
+                    {stat.animated ? (
+                      <span className="inline-block animate-pulse">
+                        {stat.value}
+                      </span>
+                    ) : (
+                      stat.value
+                    )}
+                  </div>
                   <h3 className="text-lg font-bold text-text-primary">{stat.label}</h3>
                 </div>
               </div>
@@ -187,7 +270,7 @@ const AboutUs = ({ onSignUpClick }) => {
       <section className="py-20 bg-bg-secondary relative">
         <div className="absolute bottom-10 left-1/4 w-28 h-28 bg-accent-color/5 rounded-full blur-2xl"></div>
         
-        <div className="container-custom">
+        <div className="container-custom max-w-xs sm:max-w-sm md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 text-text-primary">
               Our <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Values</span>

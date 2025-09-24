@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const ProfileSchema = new mongoose.Schema(
   {
-    // Linked User (store email instead of ObjectId)
-    user: { type: String, required: true },
+    // Linked User (store ObjectId)
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
     // Personal Details
     fullName: { type: String },
@@ -27,6 +27,13 @@ const ProfileSchema = new mongoose.Schema(
     bankAddress: { type: String },
     swiftCode: { type: String },
     bankName: { type: String },
+
+    // UPI Info
+    upiId: { type: String },
+    upiApp: { type: String },
+
+    // Profile Picture
+    profilePicture: { type: String },
 
     // Document Uploads
     panDocument: { type: String },

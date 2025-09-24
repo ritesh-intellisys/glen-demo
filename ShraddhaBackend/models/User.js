@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
     streetAddress: { type: String, required: true },
     termsAccepted: { type: Boolean, required: true },
     privacyAccepted: { type: Boolean, required: true },
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

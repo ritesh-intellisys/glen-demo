@@ -10,6 +10,7 @@ router.post(
     { name: "panDocument", maxCount: 1 },
     { name: "aadharFront", maxCount: 1 },
     { name: "aadharBack", maxCount: 1 },
+    { name: "profilePicture", maxCount: 1 },
   ]),
   saveProfile
 );

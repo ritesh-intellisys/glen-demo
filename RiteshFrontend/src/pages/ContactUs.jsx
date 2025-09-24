@@ -95,7 +95,7 @@ const ContactUs = ({ onSignUpClick }) => {
 
       {/* Header Section */}
       <section className="py-12 bg-bg-secondary relative">
-        <div className="container-custom text-center">
+        <div className="container-custom max-w-xs sm:max-w-sm md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-text-primary">
             Get in <span className="text-accent-color bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent">Touch</span>
           </h1>
@@ -107,7 +107,7 @@ const ContactUs = ({ onSignUpClick }) => {
 
       {/* Contact Methods */}
       <section className="py-16 bg-bg-primary relative">
-        <div className="container-custom">
+        <div className="container-custom max-w-xs sm:max-w-sm md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {contactMethods.map((method, index) => (
               <div 
@@ -136,7 +136,7 @@ const ContactUs = ({ onSignUpClick }) => {
 
       {/* Contact Form & FAQ */}
       <section className="py-16 bg-bg-secondary relative">
-        <div className="container-custom">
+        <div className="container-custom max-w-xs sm:max-w-sm md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div className="bg-card-bg backdrop-blur-sm border border-border-color p-6 rounded-2xl flex flex-col justify-center min-h-fit">
@@ -221,7 +221,7 @@ const ContactUs = ({ onSignUpClick }) => {
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-br from-bg-primary to-bg-secondary relative">
-        <div className="container-custom text-center">
+        <div className="container-custom max-w-xs sm:max-w-sm md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4 text-text-primary">Ready to Start Trading?</h2>
           <p className="text-xl text-text-secondary mb-8 max-w-2xl mx-auto">
             Join thousands of successful traders who have chosen Express Forex as their trading partner.

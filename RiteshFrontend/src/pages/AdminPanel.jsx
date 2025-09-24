@@ -22,6 +22,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
     margin: '0.00',
     currency: '₹'
   });
+  const [showProfileSection, setShowProfileSection] = useState(false);
 
   // Load data from API on component mount
   useEffect(() => {
@@ -181,29 +182,44 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
   // Load withdrawal requests based on selectedUser
   useEffect(() => {
     const loadWithdrawalRequests = async () => {
+      console.log('🔄 Loading withdrawal requests...', { selectedUser: selectedUser?.id || selectedUser?._id });
+      
       if (!selectedUser) {
         // If no user selected, load all withdrawal requests for verification
         try {
+          console.log('📡 Fetching all withdrawal requests...');
+          console.log('🔑 Admin token:', sessionStorage.getItem('adminToken') ? 'Present' : 'Missing');
           const withdrawalResponse = await withdrawalAPI.getWithdrawalRequests();
+          console.log('📡 Withdrawal API response:', withdrawalResponse);
+          
           if (withdrawalResponse.success) {
+            console.log('✅ Setting withdrawal requests:', withdrawalResponse.withdrawalRequests);
             setWithdrawalRequests(withdrawalResponse.withdrawalRequests);
+          } else {
+            console.log('❌ Withdrawal API failed:', withdrawalResponse);
           }
         } catch (error) {
-          console.error('Error loading all withdrawal requests:', error);
+          console.error('❌ Error loading all withdrawal requests:', error);
         }
       } else {
         // If user selected, load their specific withdrawal requests
         try {
+          console.log('📡 Fetching withdrawal requests for user:', selectedUser.id || selectedUser._id);
           const withdrawalResponse = await withdrawalAPI.getWithdrawalRequests();
+          console.log('📡 Withdrawal API response for user:', withdrawalResponse);
+          
           if (withdrawalResponse.success) {
             // Filter for current user's requests
             const userWithdrawals = withdrawalResponse.withdrawalRequests.filter(
               req => req.userId === selectedUser._id || req.userId === selectedUser.id
             );
+            console.log('🔍 Filtered user withdrawals:', userWithdrawals);
             setWithdrawalRequests(userWithdrawals);
+          } else {
+            console.log('❌ Withdrawal API failed for user:', withdrawalResponse);
           }
         } catch (error) {
-          console.error('Error loading user withdrawal requests:', error);
+          console.error('❌ Error loading user withdrawal requests:', error);
           setWithdrawalRequests([]);
         }
       }
@@ -402,8 +418,49 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
     setIsDragging(false);
   };
 
+  // Handle user verification
+  const handleUserVerification = async (userId, isVerified) => {
+    // Show confirmation dialog
+    const action = isVerified ? 'verify' : 'unverify';
+    const confirmMessage = `Are you sure you want to ${action} this user?\n\nThis action will ${isVerified ? 'mark the user as verified' : 'mark the user as unverified'} and may affect their account status.`;
+    
+    if (!window.confirm(confirmMessage)) {
+      return; // User cancelled the action
+    }
+
+    try {
+      const adminToken = sessionStorage.getItem('adminToken');
+      if (!adminToken) {
+        alert('Please log in to perform this action');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/api/admin/verify-user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ verified: isVerified })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        alert(`✅ User ${isVerified ? 'verified' : 'unverified'} successfully!`);
+        // Note: The verification status will be updated in the database
+        // The UI will reflect the change when the user data is refreshed
+      } else {
+        alert(data.message || 'Failed to update verification status');
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+      alert('Something went wrong while updating verification status');
+    }
+  };
+
   // Handle payment verification
-  const handlePaymentVerification = async (requestId, action, verifiedAmount = null) => {
+  const handlePaymentVerification = async (requestId, action, verifiedAmount = null, rejectionReason = null) => {
     try {
       // Check if requestId is valid
       if (!requestId) {
@@ -458,7 +515,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
               ...request,
               status: action === 'approve' ? 'approved' : 'rejected',
               verifiedAmount: action === 'approve' ? verifiedAmount : null,
-              rejectionReason: action === 'reject' ? 'Payment rejected by admin' : null,
+              rejectionReason: action === 'reject' ? (rejectionReason || 'Deposit rejected by admin') : null,
               verifiedAt: new Date().toISOString()
             };
           }
@@ -477,7 +534,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
       // Call API to verify deposit request
       await depositAPI.verifyDepositRequest(requestId, action, { 
         verifiedAmount: verifiedAmount || null,
-        rejectionReason: action === 'reject' ? 'Payment rejected by admin' : null
+        rejectionReason: action === 'reject' ? (rejectionReason || 'Deposit rejected by admin') : null
       });
 
       // Update local state
@@ -516,6 +573,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
             ...request,
             status: action === 'approve' ? 'approved' : 'rejected',
             verifiedAmount: action === 'approve' ? verifiedAmount : null,
+            rejectionReason: action === 'reject' ? (rejectionReason || 'Deposit rejected by admin') : null,
             verifiedAt: new Date().toISOString()
           };
         }
@@ -537,7 +595,7 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
   };
 
   // Handle withdrawal verification
-  const handleWithdrawalVerification = async (requestId, action, rejectionReason = null) => {
+  const handleWithdrawalVerification = async (requestId, action, verifiedAmount = null, rejectionReason = null) => {
     try {
       // Check if requestId is valid
       if (!requestId) {
@@ -551,9 +609,47 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
         // Handle withdrawal verification locally for offline mode
         const updatedRequests = withdrawalRequests.map(request => {
           if (request._id === requestId || request.id === requestId) {
+            if (action === 'approve' && verifiedAmount) {
+              // Update account balance (subtract for withdrawal)
+              const currentData = accountTypesData[request.accountType] || {
+                balance: '0.00',
+                equity: '0.00',
+                margin: '0.00',
+                currency: '₹'
+              };
+              
+              const newBalance = Math.max(0, parseFloat(currentData.balance) - parseFloat(verifiedAmount)).toFixed(2);
+              
+              setAccountTypesData(prev => ({
+                ...prev,
+                [request.accountType]: {
+                  ...currentData,
+                  balance: newBalance
+                }
+              }));
+
+              // Update localStorage
+              const currentAdminData = JSON.parse(localStorage.getItem('adminAccountTypesData') || '{}');
+              currentAdminData[request.accountType] = {
+                ...currentData,
+                balance: newBalance
+              };
+              localStorage.setItem('adminAccountTypesData', JSON.stringify(currentAdminData));
+
+              // Trigger custom event to notify other components of balance update
+              window.dispatchEvent(new CustomEvent('balanceUpdated', {
+                detail: {
+                  accountType: request.accountType,
+                  newBalance: newBalance,
+                  deductedAmount: verifiedAmount
+                }
+              }));
+            }
+            
             return {
               ...request,
               status: action === 'approve' ? 'approved' : 'rejected',
+              verifiedAmount: action === 'approve' ? verifiedAmount : null,
               rejectionReason: action === 'reject' ? (rejectionReason || 'Withdrawal rejected by admin') : null,
               verifiedAt: new Date().toISOString()
             };
@@ -572,15 +668,46 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
 
       // Call API to verify withdrawal request
       await withdrawalAPI.verifyWithdrawalRequest(requestId, action, { 
+        verifiedAmount: verifiedAmount || null,
         rejectionReason: action === 'reject' ? (rejectionReason || 'Withdrawal rejected by admin') : null
       });
 
       // Update local state
       const updatedRequests = withdrawalRequests.map(request => {
         if (request._id === requestId || request.id === requestId) {
+          if (action === 'approve' && verifiedAmount) {
+            // Update account balance (subtract for withdrawal)
+            const currentData = accountTypesData[request.accountType] || {
+              balance: '0.00',
+              equity: '0.00',
+              margin: '0.00',
+              currency: '₹'
+            };
+            
+            const newBalance = Math.max(0, parseFloat(currentData.balance) - parseFloat(verifiedAmount)).toFixed(2);
+            
+            setAccountTypesData(prev => ({
+              ...prev,
+              [request.accountType]: {
+                ...currentData,
+                balance: newBalance
+              }
+            }));
+
+            // Trigger custom event to notify other components of balance update
+            window.dispatchEvent(new CustomEvent('balanceUpdated', {
+              detail: {
+                accountType: request.accountType,
+                newBalance: newBalance,
+                deductedAmount: verifiedAmount
+              }
+            }));
+          }
+          
           return {
             ...request,
             status: action === 'approve' ? 'approved' : 'rejected',
+            verifiedAmount: action === 'approve' ? verifiedAmount : null,
             rejectionReason: action === 'reject' ? (rejectionReason || 'Withdrawal rejected by admin') : null,
             verifiedAt: new Date().toISOString()
           };
@@ -591,8 +718,8 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
       setWithdrawalRequests(updatedRequests);
 
       // Show success message
-      if (action === 'approve') {
-        alert(`Withdrawal approved! The amount will be processed according to the selected method.`);
+      if (action === 'approve' && verifiedAmount) {
+        alert(`Withdrawal approved! ₹${verifiedAmount} has been deducted from ${withdrawalRequests.find(r => r.id === requestId)?.accountType} account balance.`);
       } else if (action === 'reject') {
         alert(`Withdrawal rejected for ${withdrawalRequests.find(r => r.id === requestId)?.accountType} account.`);
       }
@@ -674,6 +801,37 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                         <span className="ml-2 text-text-secondary text-sm">No accounts created yet</span>
                       )}
                     </div>
+                    
+                    {/* Toggle Switch for Profile Section */}
+                    {selectedUser && (
+                      <div className="mt-4 flex items-center gap-3">
+                        <label className="text-text-secondary text-sm font-medium">Show Profile Details:</label>
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            id="profileToggle"
+                            checked={showProfileSection}
+                            onChange={(e) => setShowProfileSection(e.target.checked)}
+                            className="sr-only"
+                          />
+                          <label
+                            htmlFor="profileToggle"
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent-color focus:ring-offset-2 ${
+                              showProfileSection ? 'bg-accent-color' : 'bg-gray-400'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${
+                                showProfileSection ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </label>
+                        </div>
+                        <span className="text-xs text-text-secondary">
+                          {showProfileSection ? 'Profile visible' : 'Profile hidden'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   {!isEditing ? (
                     <button
@@ -801,6 +959,332 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                 </div>
               </div>
 
+              {/* User Profile Section */}
+              {showProfileSection && selectedUser && (
+                <div className="mt-8">
+                  <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                    <div className="absolute -top-6 right-6 w-24 h-24 bg-primary-blue/10 rounded-full blur-xl"></div>
+                    <div className="relative z-10">
+                      <h3 className="text-2xl font-bold text-text-primary mb-6 flex items-center gap-3">
+                        <svg className="w-6 h-6 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        {selectedUser.fullName}'s Profile
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Profile Information */}
+                        <div className="space-y-6">
+                          <div className="bg-hover-bg border border-border-color rounded-xl p-6">
+                            <h4 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Personal Information
+                            </h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Full Name:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.fullName}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Email:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.email}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Phone:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.phone || 'Not provided'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Account Type:</span>
+                                <span className="font-semibold text-accent-color">{selectedUser.accountType}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Registration Date:</span>
+                                <span className="font-semibold text-text-primary">
+                                  {selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'N/A'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Account Status */}
+                          <div className="bg-hover-bg border border-border-color rounded-xl p-6">
+                            <h4 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5 text-success-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Account Status
+                            </h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Status:</span>
+                                <span className="px-3 py-1 bg-success-color/20 text-success-color rounded-full text-sm font-semibold">
+                                  Active
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Verification:</span>
+                                <span className="px-3 py-1 bg-accent-color/20 text-accent-color rounded-full text-sm font-semibold">
+                                  {selectedUser.verified ? 'Verified' : 'Pending'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Last Login:</span>
+                                <span className="font-semibold text-text-primary">
+                                  {selectedUser.lastLogin ? new Date(selectedUser.lastLogin).toLocaleDateString() : 'Never'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Profile Images and Documents */}
+                        <div className="space-y-6">
+                          {/* Profile Picture */}
+                          <div className="bg-hover-bg border border-border-color rounded-xl p-6">
+                            <h4 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              Profile Picture
+                            </h4>
+                            <div className="flex justify-center">
+                              {selectedUser.profilePicture ? (
+                                <div className="relative">
+                                  <img 
+                                    src={selectedUser.profilePicture.startsWith('data:') ? selectedUser.profilePicture : `http://localhost:5000/uploads/${selectedUser.profilePicture}`}
+                                    alt="Profile Picture"
+                                    className="w-32 h-32 rounded-full object-cover border-4 border-accent-color shadow-lg cursor-pointer hover:scale-105 transition-transform duration-300"
+                                    onClick={() => handleImageClick(
+                                      selectedUser.profilePicture.startsWith('data:') ? selectedUser.profilePicture : `http://localhost:5000/uploads/${selectedUser.profilePicture}`,
+                                      'Profile Picture'
+                                    )}
+                                  />
+                                  <div className="absolute -bottom-2 -right-2 bg-accent-color text-white rounded-full p-1">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center border-4 border-border-color">
+                                  <svg className="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-center text-text-secondary text-sm mt-2">
+                              {selectedUser.profilePicture ? 'Click to view full size' : 'No profile picture uploaded'}
+                            </p>
+                          </div>
+
+                          {/* Identity Documents */}
+                          <div className="bg-hover-bg border border-border-color rounded-xl p-6">
+                            <h4 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5 text-warning-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Identity Documents
+                            </h4>
+                            <div className="space-y-4">
+                              {/* ID Document */}
+                              <div>
+                                <label className="text-text-secondary text-sm">ID Document:</label>
+                                {selectedUser.idDocument ? (
+                                  <div className="mt-2">
+                                    <img 
+                                      src={selectedUser.idDocument.startsWith('data:') ? selectedUser.idDocument : `http://localhost:5000/uploads/${selectedUser.idDocument}`}
+                                      alt="ID Document"
+                                      className="max-w-full h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
+                                      onClick={() => handleImageClick(
+                                        selectedUser.idDocument.startsWith('data:') ? selectedUser.idDocument : `http://localhost:5000/uploads/${selectedUser.idDocument}`,
+                                        'ID Document'
+                                      )}
+                                    />
+                                    <p className="text-xs text-text-secondary mt-1">Click to view full size</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-text-secondary text-sm mt-2">No ID document uploaded</p>
+                                )}
+                              </div>
+
+                              {/* Address Proof */}
+                              <div>
+                                <label className="text-text-secondary text-sm">Address Proof:</label>
+                                {selectedUser.addressProof ? (
+                                  <div className="mt-2">
+                                    <img 
+                                      src={selectedUser.addressProof.startsWith('data:') ? selectedUser.addressProof : `http://localhost:5000/uploads/${selectedUser.addressProof}`}
+                                      alt="Address Proof"
+                                      className="max-w-full h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
+                                      onClick={() => handleImageClick(
+                                        selectedUser.addressProof.startsWith('data:') ? selectedUser.addressProof : `http://localhost:5000/uploads/${selectedUser.addressProof}`,
+                                        'Address Proof'
+                                      )}
+                                    />
+                                    <p className="text-xs text-text-secondary mt-1">Click to view full size</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-text-secondary text-sm mt-2">No address proof uploaded</p>
+                                )}
+                              </div>
+
+                              {/* Aadhar Back */}
+                              <div>
+                                <label className="text-text-secondary text-sm">Aadhar Back:</label>
+                                {selectedUser.aadharBack ? (
+                                  <div className="mt-2">
+                                    <img 
+                                      src={selectedUser.aadharBack.startsWith('data:') ? selectedUser.aadharBack : `http://localhost:5000/uploads/${selectedUser.aadharBack}`}
+                                      alt="Aadhar Back"
+                                      className="max-w-full h-32 object-contain border border-border-color rounded cursor-pointer hover:border-accent-color transition-colors"
+                                      onClick={() => handleImageClick(
+                                        selectedUser.aadharBack.startsWith('data:') ? selectedUser.aadharBack : `http://localhost:5000/uploads/${selectedUser.aadharBack}`,
+                                        'Aadhar Back'
+                                      )}
+                                    />
+                                    <p className="text-xs text-text-secondary mt-1">Click to view full size</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-text-secondary text-sm mt-2">No Aadhar back uploaded</p>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Verification Button */}
+                            <div className="mt-6 pt-4 border-t border-border-color">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-3 h-3 rounded-full ${selectedUser.verified ? 'bg-success-color' : 'bg-warning-color'}`}></div>
+                                  <span className="text-text-secondary">
+                                    Status: {selectedUser.verified ? 'Verified' : 'Pending Verification'}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => handleUserVerification(selectedUser.id, !selectedUser.verified)}
+                                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                    selectedUser.verified
+                                      ? 'bg-warning-color text-white hover:bg-warning-color/90'
+                                      : 'bg-success-color text-white hover:bg-success-color/90'
+                                  }`}
+                                >
+                                  {selectedUser.verified ? 'Mark as Unverified' : 'Mark as Verified'}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Additional Information */}
+                          <div className="bg-hover-bg border border-border-color rounded-xl p-6">
+                            <h4 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5 text-info-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Additional Information
+                            </h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Country:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.country || 'Not specified'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">State:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.state || 'Not specified'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">City:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.city || 'Not specified'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Postal Code:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.postalCode || 'Not provided'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Date of Birth:</span>
+                                <span className="font-semibold text-text-primary">
+                                  {selectedUser.dateOfBirth ? 
+                                    (typeof selectedUser.dateOfBirth === 'string' ? 
+                                      new Date(selectedUser.dateOfBirth).toLocaleDateString() : 
+                                      selectedUser.dateOfBirth.toLocaleDateString()
+                                    ) : 'Not provided'
+                                  }
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Gender:</span>
+                                <span className="font-semibold text-text-primary capitalize">{selectedUser.gender || 'Not specified'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Father's Name:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.fatherName || 'Not provided'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-text-secondary">Mother's Name:</span>
+                                <span className="font-semibold text-text-primary">{selectedUser.motherName || 'Not provided'}</span>
+                              </div>
+                              {selectedUser.streetAddress && (
+                                <div className="flex justify-between items-start">
+                                  <span className="text-text-secondary">Address:</span>
+                                  <span className="font-semibold text-text-primary text-right max-w-xs">{selectedUser.streetAddress}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Bank Information */}
+                          {(selectedUser.bankAccount || selectedUser.bankName || selectedUser.accountName) && (
+                            <div className="bg-hover-bg border border-border-color rounded-xl p-6">
+                              <h4 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                                <svg className="w-5 h-5 text-success-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                                Bank Information
+                              </h4>
+                              <div className="space-y-3">
+                                {selectedUser.accountName && (
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-text-secondary">Account Name:</span>
+                                    <span className="font-semibold text-text-primary">{selectedUser.accountName}</span>
+                                  </div>
+                                )}
+                                {selectedUser.bankAccount && (
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-text-secondary">Account Number:</span>
+                                    <span className="font-semibold text-text-primary">{selectedUser.bankAccount}</span>
+                                  </div>
+                                )}
+                                {selectedUser.bankName && (
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-text-secondary">Bank Name:</span>
+                                    <span className="font-semibold text-text-primary">{selectedUser.bankName}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons for Profile */}
+                      <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                        <button className="bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg">
+                          Edit Profile
+                        </button>
+                        <button className="bg-gradient-to-r from-info-color to-blue-600 hover:from-blue-600 hover:to-info-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg">
+                          Download Profile
+                        </button>
+                        <button className="bg-transparent border border-border-color text-text-secondary hover:text-text-primary hover:border-text-primary font-semibold py-2 px-4 rounded-lg transition-all duration-300">
+                          Send Message
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Additional Admin Features */}
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
@@ -907,42 +1391,71 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                               )}
                             </div>
                             
-                            <div className="flex flex-col gap-2">
+                            <div className="space-y-3">
+                              {/* Manual Approval Section */}
+                              <div className="bg-hover-bg/50 border border-border-color rounded-lg p-3">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <svg className="w-4 h-4 text-warning-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                  </svg>
+                                  <span className="text-sm font-medium text-text-secondary">Manual Approval</span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="Enter approval amount"
+                                    defaultValue={request.amount}
+                                    className="bg-transparent border border-border-color text-text-primary rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-color flex-1"
+                                    id={`amount-${request._id || request.id}`}
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const requestId = request._id || request.id;
+                                      const amountInput = document.getElementById(`amount-${requestId}`);
+                                      const verifiedAmount = amountInput.value;
+                                      if (verifiedAmount && parseFloat(verifiedAmount) > 0) {
+                                        if (window.confirm(`Are you sure you want to approve this deposit request?\n\nAmount: ₹${verifiedAmount}`)) {
+                                          handlePaymentVerification(requestId, 'approve', verifiedAmount);
+                                        }
+                                      } else {
+                                        alert('Please enter a valid amount');
+                                      }
+                                    }}
+                                    className="bg-gradient-to-r from-success-color to-green-600 hover:from-green-600 hover:to-success-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm"
+                                  >
+                                    Approve
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Quick Actions */}
                               <div className="flex gap-2">
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  placeholder="Verified Amount"
-                                  defaultValue={request.amount}
-                                  className="bg-transparent border border-border-color text-text-primary rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-color w-32"
-                                  id={`amount-${request._id || request.id}`}
-                                />
                                 <button
                                   onClick={() => {
-                                    const requestId = request._id || request.id;
-                                    const amountInput = document.getElementById(`amount-${requestId}`);
-                                    const verifiedAmount = amountInput.value || request.amount;
-                                    if (verifiedAmount && parseFloat(verifiedAmount) > 0) {
-                                      handlePaymentVerification(requestId, 'approve', verifiedAmount);
-                                    } else {
-                                      alert('Please enter a valid amount');
+                                    if (window.confirm(`Are you sure you want to approve this deposit request?\n\nAmount: ₹${request.amount}`)) {
+                                      handlePaymentVerification(request._id || request.id, 'approve', request.amount);
                                     }
                                   }}
-                                  className="bg-gradient-to-r from-success-color to-green-600 hover:from-green-600 hover:to-success-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm"
+                                  className="bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm flex-1 flex items-center justify-center gap-2"
                                 >
-                                  Approve
-                                </button>
-                              </div>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => handlePaymentVerification(request._id || request.id, 'approve', request.amount)}
-                                  className="bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-text-quaternary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm flex-1"
-                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                  </svg>
                                   Quick Approve (₹{request.amount})
                                 </button>
                                 <button
-                                  onClick={() => handlePaymentVerification(request._id || request.id, 'reject')}
+                                  onClick={() => {
+                                    const reason = prompt('Enter rejection reason (required):');
+                                    if (reason && reason.trim()) {
+                                      if (window.confirm(`Are you sure you want to reject this deposit request?\n\nReason: ${reason}`)) {
+                                        handlePaymentVerification(request._id || request.id, 'reject', null, reason);
+                                      }
+                                    } else if (reason !== null) {
+                                      alert('Rejection reason is required');
+                                    }
+                                  }}
                                   className="bg-gradient-to-r from-danger-color to-red-600 hover:from-red-600 hover:to-danger-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm"
                                 >
                                   Reject
@@ -1030,13 +1543,38 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
               )}
 
             {/* Withdrawal Requests Section */}
-            {withdrawalRequests.filter(request => request.status === 'pending').length > 0 && (
-              <div className="mt-8">
-                <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
-                  <h3 className="text-2xl font-bold text-text-primary mb-6">
-                    {selectedUser ? `${selectedUser.fullName}'s Withdrawal Requests` : 'Withdrawal Requests'}
+            <div className="mt-8">
+              <div className="bg-card-bg backdrop-blur-sm border border-border-color rounded-2xl p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-text-primary">
+                    {selectedUser ? `${selectedUser.fullName}'s Withdrawal Requests` : 'Withdrawal Requests'} 
+                    <span className="text-sm font-normal text-text-secondary ml-2">
+                      ({withdrawalRequests.length} total, {withdrawalRequests.filter(r => r.status === 'pending').length} pending)
+                    </span>
                   </h3>
-                  
+                  <button
+                    onClick={() => {
+                      console.log('🔄 Manual refresh of withdrawal requests...');
+                      const loadWithdrawalRequests = async () => {
+                        try {
+                          const withdrawalResponse = await withdrawalAPI.getWithdrawalRequests();
+                          console.log('🔄 Manual refresh response:', withdrawalResponse);
+                          if (withdrawalResponse.success) {
+                            setWithdrawalRequests(withdrawalResponse.withdrawalRequests);
+                          }
+                        } catch (error) {
+                          console.error('❌ Manual refresh error:', error);
+                        }
+                      };
+                      loadWithdrawalRequests();
+                    }}
+                    className="px-4 py-2 bg-accent-color text-white rounded-lg hover:bg-accent-color/90 transition-colors"
+                  >
+                    🔄 Refresh
+                  </button>
+                </div>
+                
+                {withdrawalRequests.filter(request => request.status === 'pending').length > 0 ? (
                   <div className="space-y-4">
                     {withdrawalRequests
                       .filter(request => request.status === 'pending')
@@ -1090,37 +1628,90 @@ const AdminPanel = ({ selectedUser, onBack, onSignOut, onProfileClick }) => {
                               </div>
                             </div>
                             
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              <button
-                                onClick={() => handleWithdrawalVerification(request._id || request.id, 'approve')}
-                                className="bg-success-color hover:bg-success-color/80 text-text-quaternary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => {
-                                  const reason = prompt('Enter rejection reason (optional):');
-                                  handleWithdrawalVerification(request._id || request.id, 'reject', reason);
-                                }}
-                                className="bg-danger-color hover:bg-danger-color/80 text-text-quaternary font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
-                              >
-                                Reject
-                              </button>
+                            <div className="space-y-3">
+                              {/* Manual Approval Section */}
+                              <div className="bg-hover-bg/50 border border-border-color rounded-lg p-3">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <svg className="w-4 h-4 text-warning-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                  </svg>
+                                  <span className="text-sm font-medium text-text-secondary">Manual Approval</span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="Enter approval amount"
+                                    defaultValue={request.amount}
+                                    className="bg-transparent border border-border-color text-text-primary rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-color flex-1"
+                                    id={`withdrawal-amount-${request._id || request.id}`}
+                                  />
+            <button
+              onClick={() => {
+                const requestId = request._id || request.id;
+                const amountInput = document.getElementById(`withdrawal-amount-${requestId}`);
+                const verifiedAmount = amountInput.value;
+                if (verifiedAmount && parseFloat(verifiedAmount) > 0) {
+                  if (window.confirm(`Are you sure you want to approve this withdrawal request?\n\nAmount: ₹${verifiedAmount}`)) {
+                    handleWithdrawalVerification(requestId, 'approve', verifiedAmount);
+                  }
+                } else {
+                  alert('Please enter a valid amount');
+                }
+              }}
+              className="bg-gradient-to-r from-success-color to-green-600 hover:from-green-600 hover:to-success-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm"
+            >
+              Approve
+            </button>
+                                </div>
+                              </div>
+
+                              {/* Quick Actions */}
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to approve this withdrawal request?\n\nAmount: ₹${request.amount}`)) {
+                                      handleWithdrawalVerification(request._id || request.id, 'approve', request.amount);
+                                    }
+                                  }}
+                                  className="bg-gradient-to-r from-accent-color to-primary-blue hover:from-primary-blue hover:to-accent-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm flex-1 flex items-center justify-center gap-2"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                  </svg>
+                                  Quick Approve (₹{request.amount})
+                                </button>
+          <button
+            onClick={() => {
+              const reason = prompt('Enter rejection reason (required):');
+              if (reason && reason.trim()) {
+                if (window.confirm(`Are you sure you want to reject this withdrawal request?\n\nReason: ${reason}`)) {
+                  handleWithdrawalVerification(request._id || request.id, 'reject', null, reason);
+                }
+              } else if (reason !== null) {
+                alert('Rejection reason is required');
+              }
+            }}
+            className="bg-gradient-to-r from-danger-color to-red-600 hover:from-red-600 hover:to-danger-color text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-sm"
+          >
+            Reject
+          </button>
+                              </div>
                             </div>
                           </div>
                         </div>
                       ))}
                     
-                    {withdrawalRequests.filter(request => request.status === 'pending').length === 0 && (
-                      <div className="text-center text-text-secondary py-8">
-                        <div className="text-4xl mb-2">✅</div>
-                        <p>No pending withdrawal requests for {selectedUser ? selectedUser.fullName : 'any user'}</p>
-                      </div>
-                    )}
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center text-text-secondary py-8">
+                    <div className="text-4xl mb-2">✅</div>
+                    <p>No pending withdrawal requests for {selectedUser ? selectedUser.fullName : 'any user'}</p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Withdrawal History */}
             {withdrawalRequests.filter(request => request.status !== 'pending').length > 0 && (

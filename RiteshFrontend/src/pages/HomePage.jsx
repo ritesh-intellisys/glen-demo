@@ -80,7 +80,7 @@ const HomePage = ({ onSignUpClick }) => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               
-              <div className="inline-flex items-center bg-gradient-to-r from-accent-color/20 to-primary-blue/20 text-accent-color px-4 py-2 rounded-full shadow-lg animate-pulse">
+              <div className="inline-flex items-center bg-gradient-to-r SCALPER MODEfrom-accent-color/20 to-primary-blue/20 text-accent-color px-4 py-2 rounded-full shadow-lg animate-pulse">
                 <FaBolt className="mr-2" />
                 <span>Trusted by 12,400+ Traders</span>
             </div>
@@ -170,31 +170,31 @@ const HomePage = ({ onSignUpClick }) => {
             {/* Navigation Arrows */}
             <button 
               onClick={handlePreviousPromo}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-accent-color/90 backdrop-blur-sm text-text-quaternary w-12 h-12 rounded-full flex items-center justify-center hover:bg-accent-color transition-all duration-300 shadow-lg hover:shadow-accent-color/30 hover:scale-110"
+              className="absolute -left-2 sm:left-0 top-1/2 transform -translate-y-1/2 z-10 text-accent-color hover:text-accent-color/80 transition-all duration-300 hover:scale-110"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             
             <button 
               onClick={handleNextPromo}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-accent-color/90 backdrop-blur-sm text-text-quaternary w-12 h-12 rounded-full flex items-center justify-center hover:bg-accent-color transition-all duration-300 shadow-lg hover:shadow-accent-color/30 hover:scale-110"
+              className="absolute -right-2 sm:right-0 top-1/2 transform -translate-y-1/2 z-10 text-accent-color hover:text-accent-color/80 transition-all duration-300 hover:scale-110"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
 
             {/* Carousel Content */}
-            <div className="flex justify-center">
+            <div className="flex justify-center px-8 sm:px-12">
               <div 
                 ref={carouselRef}
-                className="bg-card-bg backdrop-blur-sm border border-border-color p-8 rounded-2xl relative transition-all duration-500 hover:-translate-y-3 max-w-lg mx-auto"
+                className="bg-card-bg backdrop-blur-sm border border-border-color p-6 sm:p-8 rounded-2xl relative transition-all duration-500 hover:-translate-y-3 max-w-sm sm:max-w-lg mx-auto"
                 style={{
-                  minHeight: '520px',
+                  minHeight: '480px',
                   width: '100%',
-                  maxWidth: '480px'
+                  maxWidth: '420px'
                 }}
               >
                 {promotions[currentPromoIndex].popular && (
@@ -259,7 +259,51 @@ const HomePage = ({ onSignUpClick }) => {
           </div>
           
           <div className="flex flex-wrap gap-8 justify-center">
-            {/* Card 1 - Referral */}
+            {/* Card 1 - Scalper Mode */}
+            <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-hidden flex flex-col justify-center">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-accent-color/10 to-transparent rounded-full blur-2xl"></div>
+              <div className="relative z-10">
+                <div className="text-center mb-4">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">SCALPER MODE</h2>
+                  <h3 className="text-lg font-bold text-text-primary mb-2">FASTEST</h3>
+                  <p className="text-text-secondary text-sm">Trade execution • Withdrawal • Deposit</p>
+                </div>
+                <div className="flex justify-center mb-4">
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-accent-color/20 to-primary-blue/20 rounded-full blur-xl animate-pulse"></div>
+                    <div className="relative bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-full p-4">
+                      <FaBolt className="text-4xl text-accent-color animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-extrabold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">SCALPER</h3>
+                  <p className="text-accent-color/80 font-semibold">Now catch small moves</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2 - Zero Spread */}
+            <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 text-center transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-hidden flex flex-col justify-center">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
+              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-primary-blue/10 to-transparent rounded-full blur-2xl"></div>
+              <div className="relative z-10">
+                <div className="mb-4">
+                  <h3 className="text-sm uppercase tracking-widest text-text-secondary mb-3 font-semibold">Lowest Spread</h3>
+                  <div className="relative">
+                    <h2 className="text-5xl font-extrabold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">0%</h2>
+                    <div className="absolute -inset-4 bg-gradient-to-r from-accent-color/5 to-primary-blue/5 rounded-full blur-xl"></div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-text-primary mb-4">SPREAD</h3>
+                </div>
+                <div className="bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-xl p-4">
+                  <p className="text-text-secondary font-semibold text-lg">XAUUSD • EURUSD • BITCOIN</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 - Referral */}
             <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-visible flex flex-col justify-center">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-accent-color/10 to-transparent rounded-full blur-2xl"></div>
@@ -293,50 +337,6 @@ const HomePage = ({ onSignUpClick }) => {
                       <span>Receive $20 per lot as your referral trade</span>
                     </li>
                   </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2 - Zero Spread */}
-            <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 text-center transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-hidden flex flex-col justify-center">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
-              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-primary-blue/10 to-transparent rounded-full blur-2xl"></div>
-              <div className="relative z-10">
-                <div className="mb-4">
-                  <h3 className="text-sm uppercase tracking-widest text-text-secondary mb-3 font-semibold">Lowest Spread</h3>
-                  <div className="relative">
-                    <h2 className="text-5xl font-extrabold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">0%</h2>
-                    <div className="absolute -inset-4 bg-gradient-to-r from-accent-color/5 to-primary-blue/5 rounded-full blur-xl"></div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-text-primary mb-4">SPREAD</h3>
-                </div>
-                <div className="bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-xl p-4">
-                  <p className="text-text-secondary font-semibold text-lg">XAUUSD • EURUSD • BITCOIN</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3 - Scalper Mode */}
-            <div className="bg-gradient-to-br from-card-bg to-card-bg/80 backdrop-blur-sm border border-border-color/50 shadow-2xl rounded-3xl p-6 w-96 h-80 transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-accent-color/30 group relative overflow-hidden flex flex-col justify-center">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-color/20 via-primary-blue/20 to-accent-color/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-sm rounded-3xl"></div>
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-accent-color/10 to-transparent rounded-full blur-2xl"></div>
-              <div className="relative z-10">
-                <div className="text-center mb-4">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">SCALPER MODE</h2>
-                  <h3 className="text-lg font-bold text-text-primary mb-2">FASTEST</h3>
-                  <p className="text-text-secondary text-sm">Trade execution • Withdrawal • Deposit</p>
-                </div>
-                <div className="flex justify-center mb-4">
-                  <div className="relative">
-                    <div className="absolute -inset-4 bg-gradient-to-r from-accent-color/20 to-primary-blue/20 rounded-full blur-xl animate-pulse"></div>
-                    <div className="relative bg-gradient-to-r from-accent-color/10 to-primary-blue/10 rounded-full p-4">
-                      <FaBolt className="text-4xl text-accent-color animate-pulse" />
-                    </div>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-2xl font-extrabold bg-gradient-to-r from-accent-color to-primary-blue bg-clip-text text-transparent mb-2">SCALPER</h3>
-                  <p className="text-accent-color/80 font-semibold">Now catch small moves</p>
                 </div>
               </div>
             </div>

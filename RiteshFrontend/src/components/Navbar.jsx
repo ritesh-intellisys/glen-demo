@@ -129,7 +129,10 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
             <div className="lg:hidden py-4 border-t border-gray-200 bg-white">
               <div className="flex flex-col space-y-4">
                 <button 
-                  onClick={handleHomeClick}
+                  onClick={() => {
+                    handleHomeClick();
+                    setIsMobileMenuOpen(false);
+                  }}
                   className={`text-left font-semibold ${
                     currentPage === 'home' ? 'text-gray-900' : 'text-gray-600'
                   }`}
@@ -137,7 +140,10 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                   Home
                 </button>
                 <button 
-                  onClick={onAboutUsClick}
+                  onClick={() => {
+                    onAboutUsClick();
+                    setIsMobileMenuOpen(false);
+                  }}
                   className={`text-left font-medium ${
                     currentPage === 'aboutus' ? 'text-gray-900' : 'text-gray-600'
                   }`}
@@ -145,7 +151,10 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                   About Us
                 </button>
                 <button 
-                  onClick={onContactUsClick}
+                  onClick={() => {
+                    onContactUsClick();
+                    setIsMobileMenuOpen(false);
+                  }}
                   className={`text-left font-medium ${
                     currentPage === 'contactus' ? 'text-gray-900' : 'text-gray-600'
                   }`}
@@ -154,7 +163,10 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                 </button>
                 {/* Always visible admin link */}
                   <button 
-                    onClick={onAdminClick}
+                    onClick={() => {
+                      onAdminClick();
+                      setIsMobileMenuOpen(false);
+                    }}
                     className={`text-left font-medium ${
                     currentPage === 'admin' || currentPage === 'adminlogin' ? 'text-gray-900' : 'text-gray-600'
                     }`}
@@ -162,7 +174,14 @@ const Navbar = ({ onSignInClick, onAboutUsClick, onContactUsClick, onHomeClick, 
                     Admin
                   </button>
                 <button 
-                  onClick={userEmail ? onAccountsClick : onSignInClick}
+                  onClick={() => {
+                    if (userEmail) {
+                      onAccountsClick();
+                    } else {
+                      onSignInClick();
+                    }
+                    setIsMobileMenuOpen(false);
+                  }}
                   className={`font-semibold px-6 py-3 rounded-xl transition-colors w-full mt-4 ${
                     userEmail 
                       ? 'bg-gray-100 text-gray-900 hover:bg-gray-200' 

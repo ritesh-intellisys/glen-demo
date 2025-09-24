@@ -424,6 +424,9 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         return;
       }
 
+      console.log('🔍 Account found for withdrawal:', account);
+      console.log('🔍 Account ID being used:', account._id || account.id);
+
       // Create request object
       const requestData = {
         accountId: account._id || account.id,
@@ -432,6 +435,8 @@ const AccountPage = ({ userEmail, onSignOut, onProfileClick, onBack, onShowAccou
         method: withdrawalRequest.method,
         accountDetails: withdrawalRequest.accountDetails
       };
+
+      console.log('🔍 Withdrawal request data:', requestData);
 
       // Submit to API
       await withdrawalAPI.submitWithdrawalRequest(requestData);
